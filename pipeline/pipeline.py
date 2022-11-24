@@ -98,6 +98,7 @@ class Pipe:
         freq_range: tuple = (0, 40),
         xscale: str = 'linear',
         sleep_stages: tuple[str] = ('Wake', 'N1', 'N2', 'N3', 'REM'),
+        axis=None,
         save=False
     ):
         """Plots PSDs for multiple sleep stages.
@@ -111,8 +112,8 @@ class Pipe:
         hypno_up = yasa.hypno_upsample_to_data(
             self.hypno, self.sf_hypno, data=self.mne_raw)
         signal_by_stage = {}
-
-        fig, axis = plt.subplots()
+        if not axis:
+            fig, axis = plt.subplots()
         # For every stage get its signal, 
         # calculate signal's PSD, 
         # transform PSD units to dB and plot it.
@@ -133,5 +134,4 @@ class Pipe:
         # Save the figure if 'save' set to True
         if save:
             fig.savefig(self.output_dir / f'{self.subject}_psd.png')
-        return fig
 
