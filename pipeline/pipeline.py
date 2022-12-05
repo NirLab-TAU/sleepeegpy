@@ -1,18 +1,7 @@
 """ Pipeline Module
 """
-import os
-import csv
-import errno
-import datetime
-from pathlib import Path
 import matplotlib.pyplot as plt
-from matplotlib.colors import Normalize
-import pandas as pd
 import numpy as np
-import yasa
-from mne.io import read_raw_egi
-from lspopt import spectrogram_lspopt
-from scipy import signal
 
 
 class Pipe:
@@ -28,6 +17,11 @@ class Pipe:
     ):
         """Constructs an instanse of the class.
         """
+
+        import os
+        import errno
+        from pathlib import Path
+        from mne.io import read_raw_egi
 
         self.subject = subject_code
         self.output_dir = Path(output_directory)
@@ -58,11 +52,7 @@ class Pipe:
             hypno_file = Path(path_to_hypno)
             self.hypno = np.loadtxt(hypno_file)
             self.sf_hypno = sf_hypno
-            self.hypno_up = yasa.hypno_upsample_to_data(
-                self.hypno, 
-                self.sf_hypno, 
-                self.mne_raw,
-                verbose=False)
+            self.__upsample_hypno()
  
         except TypeError:
             self.hypno = np.empty(0)
@@ -77,18 +67,32 @@ class Pipe:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
 
+
     @property
     def sf(self):
         return self.mne_raw.info['sfreq']
 
+    def resample(self, sf=250, chunk_secs=100, picks=()):
+        """ Resamples the data """
+        self.mne_raw.pick_channels(picks)
+        duration = self.mne_raw.n_times/self.sf
+        quot, rem = divmod(duration, chunk_secs)
+        samples = [self.mne_raw.copy().crop(tmin=i*chunk_secs, tmax=(i+1)*chunk_secs).resample(sf, n_jobs=-1, verbose=False) for i in range(int(quot))]
+        samples.append(self.mne_raw.copy().crop(tmin=quot*chunk_secs, tmax=quot*chunk_secs+rem, include_tmax=False).resample(sf, n_jobs=-1, verbose=False))
+        self.mne_raw = samples[0].copy()
+        self.mne_raw.append(samples[1:])
+        self.__upsample_hypno()
+
     def sleep_stats(self, save_to_csv: bool = False):
         """sleep statistics"""
 
+        from yasa import sleep_statistics
+        from csv import DictWriter
         assert self.hypno.any(), 'There is no hypnogram to get stats from.'
-        stats = yasa.sleep_statistics(self.hypno, self.sf_hypno)
+        stats = sleep_statistics(self.hypno, self.sf_hypno)
         if save_to_csv:
             with open(self.output_dir/'sleep_stats.csv', 'w', newline='') as csv_file:
-                w = csv.DictWriter(csv_file, stats.keys())
+                w = DictWriter(csv_file, stats.keys())
                 w.writeheader()
                 w.writerow(stats)
             return
@@ -122,7 +126,6 @@ class Pipe:
         # Save the figure if 'save' set to True 
         if save:
             fig.savefig(self.output_dir / f'{self.subject}_spectrogram.png')
-        return fig
 
 
     def plot_psd_per_stage(
@@ -138,6 +141,8 @@ class Pipe:
     ):
         """Plots PSDs for multiple sleep stages.
         """
+
+        from scipy import signal
 
         if not axis:
             fig, axis = plt.subplots()
@@ -170,6 +175,14 @@ class Pipe:
             fig.savefig(self.output_dir / f'{self.subject}_psd.png')
 
 
+    def __upsample_hypno(self):
+
+        from yasa import hypno_upsample_to_data
+        self.hypno_up = hypno_upsample_to_data(
+                self.hypno, 
+                self.sf_hypno, 
+                self.mne_raw,
+                verbose=False)
 
     def __plot_hypnospectrogram(
         self,
@@ -246,12 +259,14 @@ class Pipe:
     @staticmethod
     def __plot_hypnogram(data, sf, hypno, ax0):
 
+        from pandas import Series
+
         hypno = np.asarray(hypno).astype(int)
         assert hypno.ndim == 1, "Hypno must be 1D."
         assert hypno.size == data.size, "Hypno must have the same sf as data."
         t_hyp = np.arange(hypno.size) / (sf * 3600)
         # Make sure that REM is displayed after Wake
-        hypno = pd.Series(hypno).map({-2: -2, -1: -1, 0: 0, 1: 2, 2: 3, 3: 4, 4: 1}).values
+        hypno = Series(hypno).map({-2: -2, -1: -1, 0: 0, 1: 2, 2: 3, 3: 4, 4: 1}).values
         hypno_rem = np.ma.masked_not_equal(hypno, 1)
         # Hypnogram (top axis)
         ax0.step(t_hyp, -1 * hypno, color="k")
@@ -287,7 +302,9 @@ class Pipe:
 
     @staticmethod
     def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax, vmin=None, vmax=None):
-
+        
+        from matplotlib.colors import Normalize
+        from lspopt import spectrogram_lspopt
         # Calculate multi-taper spectrogram
         nperseg = int(win_sec * sf)
         assert data.size > 2 * nperseg, "Data length must be at least 2 * win_sec."
