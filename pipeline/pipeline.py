@@ -170,8 +170,8 @@ class Pipe:
         axis.set_ylabel('PSD [dB/Hz]')
         axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
         axis.legend()
-        # Save the figure if 'save' set to True
-        if save:
+        # Save the figure if 'save' set to True and no axis has been passed.
+        if save and not axis:
             fig.savefig(self.output_dir / f'{self.subject}_psd.png')
 
 
@@ -194,8 +194,6 @@ class Pipe:
         fmax=25,
         trimperc=2.5,
         cmap="Spectral_r",
-        vmin=None,
-        vmax=None,
         overlap=False
     ):
         """
@@ -205,40 +203,15 @@ class Pipe:
         old_fontsize = plt.rcParams["font.size"]
         plt.rcParams.update({"font.size": 18})
 
-        # Safety checks
-        assert isinstance(data, np.ndarray), "Data must be a 1D NumPy array."
-        assert isinstance(sf, (int, float)), "sf must be int or float."
-        assert data.ndim == 1, "Data must be a 1D (single-channel) NumPy array."
-        assert isinstance(win_sec, (int, float)), "win_sec must be int or float."
-        assert isinstance(fmin, (int, float)), "fmin must be int or float."
-        assert isinstance(fmax, (int, float)), "fmax must be int or float."
-        assert fmin < fmax, "fmin must be strictly inferior to fmax."
-        assert fmax < sf / 2, "fmax must be less than Nyquist (sf / 2)."
-        assert isinstance(vmin, (int, float, type(None))), "vmin must be int, float, or None."
-        assert isinstance(vmax, (int, float, type(None))), "vmax must be int, float, or None."
-        if vmin is not None:
-            assert isinstance(vmax, (int, float)), "vmax must be int or float if vmin is provided"
-        if vmax is not None:
-            assert isinstance(vmin, (int, float)), "vmin must be int or float if vmax is provided"
-
-        if not hypno.any():
+        if overlap or not hypno.any():
             fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
             im = self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax)
-            # Add colorbar
-            cbar = fig.colorbar(im, ax=ax, shrink=0.95, fraction=0.1, aspect=25)
-            cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=270, labelpad=20)
-            # Revert font-size
-            plt.rcParams.update({"font.size": old_fontsize})
-            return fig
-
-        if overlap:
-            fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
-            im = self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax)
-            ax_hypno = ax.twinx()
-            self.__plot_hypnogram(data, sf, hypno, ax_hypno)
+            if hypno.any():
+                ax_hypno = ax.twinx()
+                self.__plot_hypnogram(data, sf, hypno, ax_hypno)
             # Add colorbar
             cbar = fig.colorbar(im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1)
-            cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=270, labelpad=20)
+            cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=90, labelpad=20)
             # Revert font-size
             plt.rcParams.update({"font.size": old_fontsize})
             return fig
@@ -251,7 +224,7 @@ class Pipe:
         # Hypnogram (top axis)
         self.__plot_hypnogram(data, sf, hypno, ax0)
         # Spectrogram (bottom axis)
-        self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax1, vmin=vmin, vmax=vmax)
+        self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax1)
         # Revert font-size
         plt.rcParams.update({"font.size": old_fontsize})
         return fig
@@ -262,15 +235,11 @@ class Pipe:
         from pandas import Series
 
         hypno = np.asarray(hypno).astype(int)
-        assert hypno.ndim == 1, "Hypno must be 1D."
-        assert hypno.size == data.size, "Hypno must have the same sf as data."
         t_hyp = np.arange(hypno.size) / (sf * 3600)
         # Make sure that REM is displayed after Wake
         hypno = Series(hypno).map({-2: -2, -1: -1, 0: 0, 1: 2, 2: 3, 3: 4, 4: 1}).values
-        hypno_rem = np.ma.masked_not_equal(hypno, 1)
         # Hypnogram (top axis)
         ax0.step(t_hyp, -1 * hypno, color="k")
-        ax0.step(t_hyp, -1 * hypno_rem, color="r")
         if -2 in hypno and -1 in hypno:
             # Both Unscored and Artefacts are present
             ax0.set_yticks([2, 1, 0, -1, -2, -3, -4])
@@ -297,17 +266,15 @@ class Pipe:
         ax0.xaxis.set_visible(False)
         ax0.spines["right"].set_visible(False)
         ax0.spines["top"].set_visible(False)
-
         return ax0
 
     @staticmethod
-    def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax, vmin=None, vmax=None):
+    def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
         
         from matplotlib.colors import Normalize
         from lspopt import spectrogram_lspopt
         # Calculate multi-taper spectrogram
         nperseg = int(win_sec * sf)
-        assert data.size > 2 * nperseg, "Data length must be at least 2 * win_sec."
         f, t, Sxx = spectrogram_lspopt(data, sf, nperseg=nperseg, noverlap=0)
         Sxx = 10 * np.log10(Sxx)  # Convert uV^2 / Hz --> dB / Hz
 
@@ -318,11 +285,8 @@ class Pipe:
         t /= 3600  # Convert t to hours
 
         # Normalization
-        if vmin is None:
-            vmin, vmax = np.percentile(Sxx, [0 + trimperc, 100 - trimperc])
-            norm = Normalize(vmin=vmin, vmax=vmax)
-        else:
-            norm = Normalize(vmin=vmin, vmax=vmax)
+        vmin, vmax = np.percentile(Sxx, [0 + trimperc, 100 - trimperc])
+        norm = Normalize(vmin=vmin, vmax=vmax)
         im = ax.pcolormesh(t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto")
         ax.set_xlim(0, t.max())
         ax.set_ylabel("Frequency [Hz]")
