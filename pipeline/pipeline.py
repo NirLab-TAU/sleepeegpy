@@ -9,11 +9,12 @@ class Pipe:
 
     def __init__(
         self,
-        subject_code: str,
         path_to_mff: str,
-        output_directory: str,
-        path_to_hypno=None,
-        sf_hypno=1
+        output_directory: str = None,
+        subject_code: str = None,
+        path_to_hypno: str = None,
+        sf_hypno: int = 1,
+        channel_types: dict = None
     ):
         """Constructs an instanse of the class.
         """
@@ -21,23 +22,12 @@ class Pipe:
         import os
         import errno
         from pathlib import Path
-        from mne.io import read_raw_egi
-
-        self.subject = subject_code
-        self.output_dir = Path(output_directory)
-
-        # Check that the directory exists.
-        if not self.output_dir.is_dir():
-            raise FileNotFoundError(
-                errno.ENOENT,
-                os.strerror(errno.ENOENT),
-                output_directory
-                )
+        from mne.io import read_raw
 
         # Try import mff file, raise exception if something's wrong.
         mff_file = Path(path_to_mff)
         try:
-            self.mne_raw = read_raw_egi(mff_file)
+            self.mne_raw = read_raw(mff_file)
         except FileNotFoundError as exc:
             raise FileNotFoundError(
                 errno.ENOENT,
@@ -46,14 +36,32 @@ class Pipe:
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
-
+        
+        # Set channel types
+        if channel_types:
+            self.mne_raw.set_channel_types(channel_types)
+        
+        self.subject = subject_code
+        
+        if not output_directory:
+            self.output_dir = mff_file.parents[0]
+        else:
+            self.output_dir = Path(output_directory)
+            # Check that the directory exists.
+            if not self.output_dir.is_dir():
+                raise FileNotFoundError(
+                    errno.ENOENT,
+                    os.strerror(errno.ENOENT),
+                    output_directory
+                    )
+        
+        
         # Try import hypno file, raise exception if something's wrong.
         try:
             hypno_file = Path(path_to_hypno)
             self.hypno = np.loadtxt(hypno_file)
             self.sf_hypno = sf_hypno
             self.__upsample_hypno()
- 
         except TypeError:
             self.hypno = np.empty(0)
             self.hypno_up = np.empty(0)
@@ -72,16 +80,34 @@ class Pipe:
     def sf(self):
         return self.mne_raw.info['sfreq']
 
-    def resample(self, sf=250, chunk_secs=100, picks=()):
-        """ Resamples the data """
-        self.mne_raw.pick_channels(picks)
-        duration = self.mne_raw.n_times/self.sf
-        quot, rem = divmod(duration, chunk_secs)
-        samples = [self.mne_raw.copy().crop(tmin=i*chunk_secs, tmax=(i+1)*chunk_secs).resample(sf, n_jobs=-1, verbose=False) for i in range(int(quot))]
-        samples.append(self.mne_raw.copy().crop(tmin=quot*chunk_secs, tmax=quot*chunk_secs+rem, include_tmax=False).resample(sf, n_jobs=-1, verbose=False))
-        self.mne_raw = samples[0].copy()
-        self.mne_raw.append(samples[1:])
-        self.__upsample_hypno()
+    def resample(self, sfreq=250, n_jobs='cuda', save=False):
+        """ Resamples and updates the data """
+        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
+        if self.hypno.any():
+            self.__upsample_hypno()
+        if save:
+            path_to_resampled = self.output_dir/f'resampled_{sfreq}'
+            path_to_resampled.mkdir(exist_ok=True)
+            self.mne_raw.save(path_to_resampled/'_'.join(filter(None, [self.subject, str(sfreq)+'hz', 'raw.fif'])))
+
+    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda', savefig=False):
+
+        from mne.filter import create_filter
+        from mne.viz import plot_filter
+
+        self.mne_raw.load_data()
+        self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
+        sf = self.sf
+        data = self.mne_raw.get_data(picks, units="uV")[0]
+        _, axes = plt.subplots(3, 1, figsize=(10, 10))
+        ideal_freq = [0, l_freq, l_freq, h_freq, h_freq, sf/2]
+        ideal_gain = [0, 0, 1, 1, 0, 0]
+        filt = create_filter(data, sf, l_freq=l_freq, h_freq=h_freq, phase='zero-double', method='fir')
+        fig = plot_filter(filt, sf, ideal_freq, ideal_gain, flim=(0.001, sf/2), compensate=True, axes=axes)
+        if savefig:
+            plots_folder = self.output_dir/'plots'
+            plots_folder.mkdir(exist_ok=True)
+            fig.savefig(plots_folder/'filter.png')
 
     def sleep_stats(self, save_to_csv: bool = False):
         """sleep statistics"""
@@ -101,7 +127,7 @@ class Pipe:
 
     def plot_hypnospectrogram(
         self,
-        electrode_name: str,
+        picks: str = ('E101',),
         win_sec: float = 4,
         freq_range: tuple = (0, 40),
         cmap: str = 'inferno',
@@ -111,7 +137,7 @@ class Pipe:
         """ Plots yasa's hypnogram and spectrogram.
         """
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data([electrode_name], units="uV")[0]
+        data = self.mne_raw.get_data(picks, units="uV")[0]
             # Create a plot figure
         fig = self.__plot_hypnospectrogram(
             data,
@@ -130,8 +156,8 @@ class Pipe:
 
     def plot_psd_per_stage(
         self,
-        electrode_name: str,
-        nperseg: int = 4096,
+        picks: str = ('E101',),
+        sec_per_seg: float = 4.096,
         psd_range: tuple = (-60, 60),
         freq_range: tuple = (0, 40),
         xscale: str = 'linear',
@@ -141,7 +167,7 @@ class Pipe:
     ):
         """Plots PSDs for multiple sleep stages.
         """
-
+        
         from scipy import signal
 
         if not axis:
@@ -149,7 +175,7 @@ class Pipe:
 
         # win = sf*1024/250
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data([electrode_name], units='uV')[0]
+        data = self.mne_raw.get_data(picks, units='uV')[0]
         signal_by_stage = {}
 
         # For every stage get its signal, 
@@ -159,7 +185,7 @@ class Pipe:
         for stage, index in sleep_stages.items():
             signal_by_stage[stage] = np.take(data, np.where(np.in1d(self.hypno_up, index))[0])
             freqs, psd = signal.welch(
-                signal_by_stage[stage], self.sf, nperseg=nperseg)
+                signal_by_stage[stage], self.sf, nperseg=self.sf*sec_per_seg)
             psd = 10 * np.log10(psd)
             axis.plot(freqs, psd, label=stage)
 
@@ -273,19 +299,22 @@ class Pipe:
         
         from matplotlib.colors import Normalize
         from lspopt import spectrogram_lspopt
+        import numpy as np
+        
+
         # Calculate multi-taper spectrogram
         nperseg = int(win_sec * sf)
         f, t, Sxx = spectrogram_lspopt(data, sf, nperseg=nperseg, noverlap=0)
-        Sxx = 10 * np.log10(Sxx)  # Convert uV^2 / Hz --> dB / Hz
+        Sxx = 10 * np.log10(Sxx, out=np.full(Sxx.shape, np.nan), where=(Sxx!=0))  # Convert uV^2 / Hz --> dB / Hz
 
         # Select only relevant frequencies (up to 30 Hz)
         good_freqs = np.logical_and(f >= fmin, f <= fmax)
         Sxx = Sxx[good_freqs, :]
         f = f[good_freqs]
         t /= 3600  # Convert t to hours
-
+        
         # Normalization
-        vmin, vmax = np.percentile(Sxx, [0 + trimperc, 100 - trimperc])
+        vmin, vmax = np.nanpercentile(Sxx, [0 + trimperc, 100 - trimperc])
         norm = Normalize(vmin=vmin, vmax=vmax)
         im = ax.pcolormesh(t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto")
         ax.set_xlim(0, t.max())
