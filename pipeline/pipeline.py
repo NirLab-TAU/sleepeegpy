@@ -9,12 +9,11 @@ class Pipe:
 
     def __init__(
         self,
-        path_to_mff: str,
+        path_to_eeg: str,
         output_directory: str = None,
         subject_code: str = None,
         path_to_hypno: str = None,
-        sf_hypno: int = 1,
-        channel_types: dict = None
+        sf_hypno: int = 1
     ):
         """Constructs an instanse of the class.
         """
@@ -25,26 +24,23 @@ class Pipe:
         from mne.io import read_raw
 
         # Try import mff file, raise exception if something's wrong.
-        mff_file = Path(path_to_mff)
+        eeg_file = Path(path_to_eeg)
         try:
-            self.mne_raw = read_raw(mff_file)
+            self.mne_raw = read_raw(eeg_file)
         except FileNotFoundError as exc:
             raise FileNotFoundError(
                 errno.ENOENT,
                 os.strerror(errno.ENOENT),
-                path_to_mff) from exc
+                path_to_eeg) from exc
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
         
-        # Set channel types
-        if channel_types:
-            self.mne_raw.set_channel_types(channel_types)
         
         self.subject = subject_code
         
         if not output_directory:
-            self.output_dir = mff_file.parents[0]
+            self.output_dir = eeg_file.parents[0]
         else:
             self.output_dir = Path(output_directory)
             # Check that the directory exists.
@@ -80,15 +76,42 @@ class Pipe:
     def sf(self):
         return self.mne_raw.info['sfreq']
 
+    def plot(self, butterfly=False, save_annotations=False, save_bad_channels=False):
+
+        from mne import pick_types
+
+        order = pick_types(self.mne_raw.info, eeg=True) if butterfly else None
+        self.mne_raw.plot( 
+            theme='dark',
+            block=True, 
+            scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':5e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
+            bad_color='r',
+            proj=False,
+            order=order,
+            butterfly=butterfly)
+        if save_annotations:
+            self.mne_raw.annotations.save(self.output_dir/'annotations.txt', overwrite=True)
+        if save_bad_channels:
+            with open(self.output_dir / 'bad_channels.txt', 'w') as f:
+                for bad in self.mne_raw.info['bads']:
+                    f.write(f"{bad}\n")
+    
+    def read_bad_channels(self):
+        with open(self.output_dir / 'bad_channels.txt', 'r') as f:
+            self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
+    
     def resample(self, sfreq=250, n_jobs='cuda', save=False):
         """ Resamples and updates the data """
         self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
         if self.hypno.any():
             self.__upsample_hypno()
         if save:
-            path_to_resampled = self.output_dir/f'resampled_{sfreq}'
-            path_to_resampled.mkdir(exist_ok=True)
-            self.mne_raw.save(path_to_resampled/'_'.join(filter(None, [self.subject, str(sfreq)+'hz', 'raw.fif'])))
+            self._save_raw('_'.join(filter(None, [self.subject, str(sfreq)+'hz', 'raw.fif'])))
+
+    def _save_raw(self, fname):
+        path_to_resampled = self.output_dir/f'saved_raw'
+        path_to_resampled.mkdir(exist_ok=True)
+        self.mne_raw.save(path_to_resampled / fname)
 
     def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda', savefig=False):
 
@@ -98,16 +121,24 @@ class Pipe:
         self.mne_raw.load_data()
         self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
         sf = self.sf
-        data = self.mne_raw.get_data(picks, units="uV")[0]
+        data = self.mne_raw.get_data(picks)[0]
         _, axes = plt.subplots(3, 1, figsize=(10, 10))
+        h_freq = sf/2-0.1 if not h_freq else h_freq
+        l_freq = 0 if not l_freq else l_freq
         ideal_freq = [0, l_freq, l_freq, h_freq, h_freq, sf/2]
         ideal_gain = [0, 0, 1, 1, 0, 0]
         filt = create_filter(data, sf, l_freq=l_freq, h_freq=h_freq, phase='zero-double', method='fir')
         fig = plot_filter(filt, sf, ideal_freq, ideal_gain, flim=(0.001, sf/2), compensate=True, axes=axes)
         if savefig:
-            plots_folder = self.output_dir/'plots'
-            plots_folder.mkdir(exist_ok=True)
-            fig.savefig(plots_folder/'filter.png')
+            fig.savefig(self.output_dir / 'filter.png')
+
+    def notch(self):
+        self.mne_raw.notch_filter(
+            freqs=np.arange(50, int(self.sf/2), 50),
+            picks='eeg',
+            n_jobs='cuda'
+        )
+        
 
     def sleep_stats(self, save_to_csv: bool = False):
         """sleep statistics"""
@@ -151,7 +182,7 @@ class Pipe:
             overlap=overlap)
         # Save the figure if 'save' set to True 
         if save:
-            fig.savefig(self.output_dir / f'{self.subject}_spectrogram.png')
+            fig.savefig(self.output_dir / f'{self.subject}_spectrogram.png', bbox_inches = "tight")
 
 
     def plot_psd_per_stage(
@@ -170,8 +201,12 @@ class Pipe:
         
         from scipy import signal
 
+        isaxis = False
+        
         if not axis:
             fig, axis = plt.subplots()
+        else:
+            isaxis = True
 
         # win = sf*1024/250
         # Import data from the raw mne file.
@@ -197,7 +232,7 @@ class Pipe:
         axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
         axis.legend()
         # Save the figure if 'save' set to True and no axis has been passed.
-        if save and not axis:
+        if save and not isaxis:
             fig.savefig(self.output_dir / f'{self.subject}_psd.png')
 
 
