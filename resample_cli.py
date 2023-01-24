@@ -22,5 +22,5 @@ parser.add_argument(
     type=str)
 args = parser.parse_args()
 
-pipe = Pipe(path_to_mff=args.file, output_directory=args.output, subject_code=args.subject)
+pipe = Pipe(path_to_eeg=args.file, output_directory=args.output, subject_code=args.subject)
 pipe.resample(args.frequency, save=True)
