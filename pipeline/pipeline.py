@@ -100,6 +100,11 @@ class Pipe:
         with open(self.output_dir / 'bad_channels.txt', 'r') as f:
             self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
     
+    def read_annotations(self):
+        from mne import read_annotations
+        self.mne_raw.set_annotations(read_annotations(self.output_dir / 'annotations.txt'))
+
+
     def resample(self, sfreq=250, n_jobs='cuda', save=False):
         """ Resamples and updates the data """
         self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
@@ -168,7 +173,7 @@ class Pipe:
         """ Plots yasa's hypnogram and spectrogram.
         """
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data(picks, units="uV")[0]
+        data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation='NaN')[0]
             # Create a plot figure
         fig = self.__plot_hypnospectrogram(
             data,
@@ -210,7 +215,8 @@ class Pipe:
 
         # win = sf*1024/250
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data(picks, units='uV')[0]
+        data = self.mne_raw.get_data(picks, units='uV', reject_by_annotation='NaN')[0]
+        data = np.ma.array(data, mask=np.isnan(data))
         signal_by_stage = {}
 
         # For every stage get its signal, 
@@ -220,7 +226,7 @@ class Pipe:
         for stage, index in sleep_stages.items():
             signal_by_stage[stage] = np.take(data, np.where(np.in1d(self.hypno_up, index))[0])
             freqs, psd = signal.welch(
-                signal_by_stage[stage], self.sf, nperseg=self.sf*sec_per_seg)
+                signal_by_stage[stage].compressed(), self.sf, nperseg=self.sf*sec_per_seg)
             psd = 10 * np.log10(psd)
             axis.plot(freqs, psd, label=stage)
 
@@ -269,7 +275,7 @@ class Pipe:
             im = self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax)
             if hypno.any():
                 ax_hypno = ax.twinx()
-                self.__plot_hypnogram(data, sf, hypno, ax_hypno)
+                self.__plot_hypnogram(sf, hypno, ax_hypno)
             # Add colorbar
             cbar = fig.colorbar(im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1)
             cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=90, labelpad=20)
@@ -283,7 +289,7 @@ class Pipe:
         plt.subplots_adjust(hspace=0.1)
 
         # Hypnogram (top axis)
-        self.__plot_hypnogram(data, sf, hypno, ax0)
+        self.__plot_hypnogram(sf, hypno, ax0)
         # Spectrogram (bottom axis)
         self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax1)
         # Revert font-size
@@ -291,7 +297,7 @@ class Pipe:
         return fig
 
     @staticmethod
-    def __plot_hypnogram(data, sf, hypno, ax0):
+    def __plot_hypnogram(sf, hypno, ax0):
 
         from pandas import Series
 
