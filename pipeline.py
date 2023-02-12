@@ -3,27 +3,30 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-class Pipe:
-    """The main pipeline class"""
+class _SuperPipe:
+    """The template pipeline element"""
 
     def __init__(
         self,
-        path_to_eeg: str,
+        path_to_eeg: str = None,
         output_directory: str = None,
-        subject_code: str = None,
-        path_to_hypno: str = None,
-        sf_hypno: int = 1
+        pipe = None
     ):
         """Constructs an instanse of the class.
         """
+
+        if pipe:
+            self.mne_raw = pipe.mne_raw
+            self.output_dir = pipe.output_dir
+            return
+        elif not path_to_eeg:
+            raise TypeError('Provide either pipe object or path to eeg file')
 
         import os
         import errno
         from pathlib import Path
         from mne.io import read_raw
-
-        # Try import mff file, raise exception if something's wrong.
+        # Try to import eeg file, raise exception if something's wrong.
         eeg_file = Path(path_to_eeg)
         try:
             self.mne_raw = read_raw(eeg_file)
@@ -36,21 +39,163 @@ class Pipe:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
         
-        
-        self.subject = subject_code
-        
         if not output_directory:
             self.output_dir = eeg_file.parents[0]
         else:
             self.output_dir = Path(output_directory)
-            # Check that the directory exists.
-            if not self.output_dir.is_dir():
-                raise FileNotFoundError(
-                    errno.ENOENT,
-                    os.strerror(errno.ENOENT),
-                    output_directory
-                    )
+            self.output_dir.mkdir(exist_ok=True)
+
+
+    def plot(self, butterfly=False, save_annotations=False, save_bad_channels=False):
+
+        from mne import pick_types
+
+        order = pick_types(self.mne_raw.info, eeg=True) if butterfly else None
+        self.mne_raw.plot( 
+            theme='dark',
+            block=True, 
+            scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
+            bad_color='r',
+            proj=False,
+            order=order,
+            butterfly=butterfly)
+        if save_annotations:
+            self.mne_raw.annotations.save(self.output_dir/'annotations.txt', overwrite=True)
+        if save_bad_channels:
+            with open(self.output_dir / 'bad_channels.txt', 'w') as f:
+                for bad in self.mne_raw.info['bads']:
+                    f.write(f"{bad}\n")
+    
+    
+    @property
+    def sf(self):
+        return self.mne_raw.info['sfreq']
+
+
+    def _save_raw(self, fname):
+        path_to_resampled = self.output_dir/f'saved_raw'
+        path_to_resampled.mkdir(exist_ok=True)
+        self.mne_raw.save(path_to_resampled / fname)
+
+class CleaningPipe(_SuperPipe):
+    """The cleaning pipeline element"""
+
+
+    def resample(self, sfreq=250, n_jobs='cuda', save=False):
+        """ Resamples and updates the data """
+        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
+        if save:
+            self._save_raw('_'.join(filter(None, ['resampled', str(sfreq)+'hz', 'raw.fif'])))
+
+
+    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda', savefig=False):
+
+        from mne.filter import create_filter
+        from mne.viz import plot_filter
+
+        self.mne_raw.load_data()
+        self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
+        sf = self.sf
+        data = self.mne_raw.get_data(picks)[0]
+        _, axes = plt.subplots(3, 1, figsize=(10, 10))
+        h_freq = sf/2-0.1 if not h_freq else h_freq
+        l_freq = 0 if not l_freq else l_freq
+        ideal_freq = [0, l_freq, l_freq, h_freq, h_freq, sf/2]
+        ideal_gain = [0, 0, 1, 1, 0, 0]
+        filt = create_filter(data, sf, l_freq=l_freq, h_freq=h_freq, phase='zero-double', method='fir')
+        fig = plot_filter(filt, sf, ideal_freq, ideal_gain, flim=(0.001, sf/2), compensate=True, axes=axes)
+        if savefig:
+            fig.savefig(self.output_dir / 'filter.png')
+
+
+    def notch(self):
+        self.mne_raw.notch_filter(
+            freqs=np.arange(50, int(self.sf/2), 50),
+            picks='eeg',
+            n_jobs='cuda'
+        )
+
+
+    def read_bad_channels(self):
+        with open(self.output_dir / 'bad_channels.txt', 'r') as f:
+            self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
+
+
+    def read_annotations(self):
+        from mne import read_annotations
+        self.mne_raw.set_annotations(read_annotations(self.output_dir / 'annotations.txt'))
+
+
+
+class ICAPipe(_SuperPipe):
+
+    def __init__(
+        self, 
+        path_to_eeg: str = None, 
+        output_directory: str = None, 
+        n_components: int = None, 
+        pipe = None
+    ):
+
+        from mne.preprocessing import ICA
+        super().__init__(path_to_eeg=path_to_eeg, output_directory=output_directory, pipe=pipe)
+        self.mne_ica = ICA(n_components=n_components)
+        self.mne_raw.load_data()
+
+
+    def fit(self):
         
+        if self.mne_raw.info['highpass'] < 1.0:
+            filtered_raw = self.mne_raw.copy()
+            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs='cuda')
+        else:
+            filtered_raw = self.mne_raw
+        self.mne_ica.fit(filtered_raw)
+
+
+    def plot_sources(self):
+        self.mne_ica.plot_sources(self.mne_raw, block=True)
+
+    
+    def plot_components(self):
+        self.mne_ica.plot_components(inst=self.mne_raw)
+
+
+    def plot_overlay(self, exclude=None, picks=None):
+        self.mne_ica.plot_overlay(self.mne_raw, exclude=exclude, picks=picks)
+
+
+    def plot_properties(self, picks=None):
+        self.mne_ica.plot_properties(self.mne_raw, picks=picks)
+
+
+    def apply(self, exclude=None):
+        self.mne_ica.apply(self.mne_raw, exclude=exclude)
+
+
+class ResultsPipe(_SuperPipe):
+    def __init__(
+        self,
+        path_to_eeg: str = None,
+        output_directory: str = None,
+        subject_code: str = None,
+        path_to_hypno: str = None,
+        sf_hypno: int = 1,
+        pipe = None
+    ):
+        """Constructs an instanse of the class.
+        """
+        
+        import os
+        import errno
+        from pathlib import Path
+
+        super().__init__(
+            path_to_eeg=path_to_eeg,
+            output_directory=output_directory,
+            pipe=pipe)        
+        
+        self.subject = subject_code
         
         # Try import hypno file, raise exception if something's wrong.
         try:
@@ -72,95 +217,7 @@ class Pipe:
             raise
 
 
-    @property
-    def sf(self):
-        return self.mne_raw.info['sfreq']
-
-    def plot(self, butterfly=False, save_annotations=False, save_bad_channels=False):
-
-        from mne import pick_types
-
-        order = pick_types(self.mne_raw.info, eeg=True) if butterfly else None
-        self.mne_raw.plot( 
-            theme='dark',
-            block=True, 
-            scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':5e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
-            bad_color='r',
-            proj=False,
-            order=order,
-            butterfly=butterfly)
-        if save_annotations:
-            self.mne_raw.annotations.save(self.output_dir/'annotations.txt', overwrite=True)
-        if save_bad_channels:
-            with open(self.output_dir / 'bad_channels.txt', 'w') as f:
-                for bad in self.mne_raw.info['bads']:
-                    f.write(f"{bad}\n")
     
-    def read_bad_channels(self):
-        with open(self.output_dir / 'bad_channels.txt', 'r') as f:
-            self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
-    
-    def read_annotations(self):
-        from mne import read_annotations
-        self.mne_raw.set_annotations(read_annotations(self.output_dir / 'annotations.txt'))
-
-
-    def resample(self, sfreq=250, n_jobs='cuda', save=False):
-        """ Resamples and updates the data """
-        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
-        if self.hypno.any():
-            self.__upsample_hypno()
-        if save:
-            self._save_raw('_'.join(filter(None, [self.subject, str(sfreq)+'hz', 'raw.fif'])))
-
-    def _save_raw(self, fname):
-        path_to_resampled = self.output_dir/f'saved_raw'
-        path_to_resampled.mkdir(exist_ok=True)
-        self.mne_raw.save(path_to_resampled / fname)
-
-    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda', savefig=False):
-
-        from mne.filter import create_filter
-        from mne.viz import plot_filter
-
-        self.mne_raw.load_data()
-        self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
-        sf = self.sf
-        data = self.mne_raw.get_data(picks)[0]
-        _, axes = plt.subplots(3, 1, figsize=(10, 10))
-        h_freq = sf/2-0.1 if not h_freq else h_freq
-        l_freq = 0 if not l_freq else l_freq
-        ideal_freq = [0, l_freq, l_freq, h_freq, h_freq, sf/2]
-        ideal_gain = [0, 0, 1, 1, 0, 0]
-        filt = create_filter(data, sf, l_freq=l_freq, h_freq=h_freq, phase='zero-double', method='fir')
-        fig = plot_filter(filt, sf, ideal_freq, ideal_gain, flim=(0.001, sf/2), compensate=True, axes=axes)
-        if savefig:
-            fig.savefig(self.output_dir / 'filter.png')
-
-    def notch(self):
-        self.mne_raw.notch_filter(
-            freqs=np.arange(50, int(self.sf/2), 50),
-            picks='eeg',
-            n_jobs='cuda'
-        )
-        
-
-    def sleep_stats(self, save_to_csv: bool = False):
-        """sleep statistics"""
-
-        from yasa import sleep_statistics
-        from csv import DictWriter
-        assert self.hypno.any(), 'There is no hypnogram to get stats from.'
-        stats = sleep_statistics(self.hypno, self.sf_hypno)
-        if save_to_csv:
-            with open(self.output_dir/'sleep_stats.csv', 'w', newline='') as csv_file:
-                w = DictWriter(csv_file, stats.keys())
-                w.writeheader()
-                w.writerow(stats)
-            return
-        return stats
-
-
     def plot_hypnospectrogram(
         self,
         picks: str = ('E101',),
@@ -187,7 +244,7 @@ class Pipe:
             overlap=overlap)
         # Save the figure if 'save' set to True 
         if save:
-            fig.savefig(self.output_dir / f'{self.subject}_spectrogram.png', bbox_inches = "tight")
+            fig.savefig(self.output_dir / f'spectrogram.png', bbox_inches = "tight")
 
 
     def plot_psd_per_stage(
@@ -228,7 +285,7 @@ class Pipe:
             freqs, psd = signal.welch(
                 signal_by_stage[stage].compressed(), self.sf, nperseg=self.sf*sec_per_seg)
             psd = 10 * np.log10(psd)
-            axis.plot(freqs, psd, label=stage)
+            axis.plot(freqs, psd, label=f'{stage} {int(len(signal_by_stage[stage])/len(data)*100)}%')
 
         axis.set_xlim(freq_range)
         axis.set_ylim(psd_range)
@@ -239,7 +296,7 @@ class Pipe:
         axis.legend()
         # Save the figure if 'save' set to True and no axis has been passed.
         if save and not isaxis:
-            fig.savefig(self.output_dir / f'{self.subject}_psd.png')
+            fig.savefig(self.output_dir / f'psd.png')
 
 
     def __upsample_hypno(self):
@@ -250,6 +307,7 @@ class Pipe:
                 self.sf_hypno, 
                 self.mne_raw,
                 verbose=False)
+
 
     def __plot_hypnospectrogram(
         self,
@@ -335,6 +393,7 @@ class Pipe:
         ax0.spines["top"].set_visible(False)
         return ax0
 
+
     @staticmethod
     def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
         
@@ -362,3 +421,19 @@ class Pipe:
         ax.set_ylabel("Frequency [Hz]")
         ax.set_xlabel("Time [hrs]")
         return im
+
+
+    def sleep_stats(self, save_to_csv: bool = False):
+        """sleep statistics"""
+
+        from yasa import sleep_statistics
+        from csv import DictWriter
+        assert self.hypno.any(), 'There is no hypnogram to get stats from.'
+        stats = sleep_statistics(self.hypno, self.sf_hypno)
+        if save_to_csv:
+            with open(self.output_dir/'sleep_stats.csv', 'w', newline='') as csv_file:
+                w = DictWriter(csv_file, stats.keys())
+                w.writeheader()
+                w.writerow(stats)
+            return
+        return stats
