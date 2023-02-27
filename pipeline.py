@@ -46,7 +46,12 @@ class _SuperPipe:
             self.output_dir.mkdir(exist_ok=True)
 
 
-    def plot(self, butterfly=False, save_annotations=False, save_bad_channels=False):
+    def plot(
+        self, 
+        butterfly=False, 
+        save_annotations=False, 
+        save_bad_channels=False, 
+        scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6}):
 
         from mne import pick_types
 
@@ -54,7 +59,7 @@ class _SuperPipe:
         self.mne_raw.plot( 
             theme='dark',
             block=True, 
-            scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
+            scalings=scalings,
             bad_color='r',
             proj=False,
             order=order,
@@ -134,12 +139,18 @@ class ICAPipe(_SuperPipe):
         path_to_eeg: str = None, 
         output_directory: str = None, 
         n_components: int = None, 
+        method='fastica', 
+        fit_params=None,
         pipe = None
     ):
 
         from mne.preprocessing import ICA
         super().__init__(path_to_eeg=path_to_eeg, output_directory=output_directory, pipe=pipe)
-        self.mne_ica = ICA(n_components=n_components)
+        self.mne_ica = ICA(
+            n_components=n_components,
+            method=method,
+            fit_params=fit_params
+            )
         self.mne_raw.load_data()
 
 

@@ -12,11 +12,4 @@
 ```
 pip install -r requirements.txt
 ```
-## How to run resample CLI
-0. Make sure the environment is activated
-1. Run the resample CLI:
-```
-py resample_cli.py path/to/mff
-```
-2. The resampled files will appear at the mff's parent directory
-3. For more options: `py resample_cli.py --help`
+6. (Optional, but recommended) Prepare [GPU acceleration](https://mne.tools/stable/install/advanced.html#gpu-acceleration-with-cuda) by installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [CuPy](https://cupy.dev/).

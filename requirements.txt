@@ -5,3 +5,5 @@ numpy==1.23.5
 pandas==1.5.2
 scipy==1.10.0
 yasa==0.6.3
+mne-qt-browser==0.4.0
+pyqt5==5.15.9
