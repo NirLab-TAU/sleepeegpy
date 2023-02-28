@@ -273,7 +273,10 @@ class ResultsPipe(_SuperPipe):
             freqs, psd = signal.welch(
                 signal_by_stage[stage].compressed(), self.sf, nperseg=self.sf*sec_per_seg)
             psd = 10 * np.log10(psd)
-            axis.plot(freqs, psd, label=f'{stage} {int(len(signal_by_stage[stage])/len(data)*100)}%')
+            axis.plot(
+                freqs, 
+                psd, 
+                label=f'{stage} {round(len(signal_by_stage[stage].compressed())/len(data.compressed())*100, 2)}%')
 
         axis.set_xlim(freq_range)
         axis.set_ylim(psd_range)
@@ -285,6 +288,63 @@ class ResultsPipe(_SuperPipe):
         # Save the figure if 'save' set to True and no axis has been passed.
         if save and not isaxis:
             fig.savefig(self.output_dir / f'psd.png')
+
+    def plot_topomap(
+            self,
+            sleep_stages = {'Wake': 0, 'N1': 1, 'N2': 2, 'N3': 3, 'REM': 4},
+            bands = {'Delta (0-4 Hz)': (0, 4), 'Theta (4-8 Hz)': (4, 8),
+                    'Alpha (8-12 Hz)': (8, 12), 'Beta (12-30 Hz)': (12, 30),
+                    'Gamma (30-45 Hz)': (30, 45)},
+            save=False
+            ):
+        
+        from mne import Annotations, Epochs, events_from_annotations
+        from bidict import bidict
+
+        event_id = bidict(sleep_stages)
+        epoch_len = 30
+        hypno = self.hypno[0::epoch_len*self.hypno_freq]
+        
+        annots = Annotations(
+            onset=range(0, len(hypno)*epoch_len, epoch_len), 
+            duration=epoch_len, 
+            description=[event_id.inv[stage] for stage in hypno.tolist()], 
+            orig_time=self.mne_raw.info['meas_date'])
+        
+        temp_raw = self.mne_raw.copy().set_annotations(self.mne_raw.annotations+annots, verbose='WARNING')
+
+        events_train, _ = events_from_annotations(
+            raw=temp_raw, 
+            event_id=dict(event_id), 
+            chunk_duration=epoch_len,
+            verbose='WARNING')
+
+        epochs = Epochs(
+            raw=temp_raw, 
+            events=events_train,
+            event_id=dict(event_id),
+            tmin=0., 
+            tmax=epoch_len, 
+            baseline=None,
+            preload=True,
+            verbose='WARNING')
+        
+        fig = plt.figure(figsize=(len(event_id)*4, len(bands)*3), constrained_layout=True)
+        subfigs = fig.subfigures(len(event_id), 1)
+
+        for idx, stage in enumerate(event_id):
+            subfigs[idx].suptitle(
+                f'{stage} {round(len(epochs[stage])/len(epochs)*100, 2)}%', 
+                fontsize='x-large')
+            ax = subfigs[idx].subplots(1, len(bands))
+            avg_epochs = epochs[stage].average().compute_psd(n_jobs=-1, verbose='WARNING')
+            avg_epochs.plot_topomap(axes=ax, show=False, cmap='plasma')
+        if save:
+            fig.savefig(self.output_dir / f'topomap.png')
+        #psds, freqs = avg_epochs.get_data(exclude=['VREF'], return_freqs=True)
+        return
+
+        
 
 
     def __upsample_hypno(self):
