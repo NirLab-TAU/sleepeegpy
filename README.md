@@ -13,3 +13,4 @@
 pip install -r requirements.txt
 ```
 6. (Optional, but recommended) Prepare [GPU acceleration](https://mne.tools/stable/install/advanced.html#gpu-acceleration-with-cuda) by installing [CUDA](https://developer.nvidia.com/cuda-downloads) and [CuPy](https://cupy.dev/).
+7. (Optional) For OpenGL acceleration of [MNE plot](https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot) install [pyopengl](https://pyopengl.sourceforge.net/documentation/installation.html) and use `plot(use_opengl=True)`.

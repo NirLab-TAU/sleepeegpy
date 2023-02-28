@@ -54,7 +54,8 @@ class _SuperPipe:
         butterfly=False, 
         save_annotations=False, 
         save_bad_channels=False, 
-        scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6}):
+        scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
+        use_opengl=None):
 
         from mne import pick_types
 
@@ -66,7 +67,8 @@ class _SuperPipe:
             bad_color='r',
             proj=False,
             order=order,
-            butterfly=butterfly)
+            butterfly=butterfly,
+            use_opengl=use_opengl)
         if save_annotations:
             self.mne_raw.annotations.save(self.output_dir/'annotations.txt', overwrite=True)
         if save_bad_channels:
@@ -112,14 +114,16 @@ class CleaningPipe(_SuperPipe):
         )
 
 
-    def read_bad_channels(self):
-        with open(self.output_dir / 'bad_channels.txt', 'r') as f:
+    def read_bad_channels(self, path=None):
+        p = Path(path) if path else self.output_dir / 'bad_channels.txt'
+        with open(p, 'r') as f:
             self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
 
 
-    def read_annotations(self):
+    def read_annotations(self, path=None):
         from mne import read_annotations
-        self.mne_raw.set_annotations(read_annotations(self.output_dir / 'annotations.txt'))
+        p = Path(path) if path else self.output_dir / 'annotations.txt'
+        self.mne_raw.set_annotations(read_annotations(p))
 
 
 @define(kw_only=True)
