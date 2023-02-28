@@ -1,49 +1,52 @@
 """ Pipeline Module
 """
+from attrs import define, field
+from pathlib import Path
+from typing import TypeVar, Type
+import os
+import errno
 import matplotlib.pyplot as plt
 import numpy as np
+import mne.io
 
+_SuperPipeType = TypeVar('_SuperPipeType', bound='_SuperPipe')
+
+@define(kw_only=True)
 class _SuperPipe:
     """The template pipeline element"""
 
-    def __init__(
-        self,
-        path_to_eeg: str = None,
-        output_directory: str = None,
-        pipe = None
-    ):
-        """Constructs an instanse of the class.
-        """
 
-        if pipe:
-            self.mne_raw = pipe.mne_raw
-            self.output_dir = pipe.output_dir
-            return
-        elif not path_to_eeg:
-            raise TypeError('Provide either pipe object or path to eeg file')
+    # Preceding pipe that hands over mne_raw attr.
+    prec_pipe: Type[_SuperPipeType] = field(default=None)  
 
-        import os
-        import errno
-        from pathlib import Path
-        from mne.io import read_raw
-        # Try to import eeg file, raise exception if something's wrong.
-        eeg_file = Path(path_to_eeg)
-        try:
-            self.mne_raw = read_raw(eeg_file)
-        except FileNotFoundError as exc:
+    path_to_eeg: Path = field(converter=Path)
+    @path_to_eeg.default
+    def _set_path_to_eeg(self):
+        if self.prec_pipe: return '/'
+        raise TypeError('Provide either "pipe" or "path_to_eeg" arguments')
+    @path_to_eeg.validator
+    def _validate_path_to_eeg(self, attr, value):
+        if not value.exists():
             raise FileNotFoundError(
-                errno.ENOENT,
-                os.strerror(errno.ENOENT),
-                path_to_eeg) from exc
+                errno.ENOENT, os.strerror(errno.ENOENT), value)
+        
+    output_dir: Path = field(converter=Path)
+    @output_dir.default
+    def _set_output_dir(self):
+        return self.prec_pipe.output_dir if self.prec_pipe else self.path_to_eeg.parents[0]
+    @output_dir.validator
+    def _validate_output_dir(self, attr, value):
+        self.output_dir.mkdir(exist_ok=True)
+
+    mne_raw: mne.io.Raw = field(init=False)
+    @mne_raw.default
+    def _read_mne_raw(self):
+        from mne.io import read_raw
+        try:
+            return self.prec_pipe.mne_raw if self.prec_pipe else read_raw(self.path_to_eeg)
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
-        
-        if not output_directory:
-            self.output_dir = eeg_file.parents[0]
-        else:
-            self.output_dir = Path(output_directory)
-            self.output_dir.mkdir(exist_ok=True)
 
 
     def plot(
@@ -82,6 +85,8 @@ class _SuperPipe:
         path_to_resampled.mkdir(exist_ok=True)
         self.mne_raw.save(path_to_resampled / fname)
 
+
+@define(kw_only=True)
 class CleaningPipe(_SuperPipe):
     """The cleaning pipeline element"""
 
@@ -93,24 +98,10 @@ class CleaningPipe(_SuperPipe):
             self._save_raw('_'.join(filter(None, ['resampled', str(sfreq)+'hz', 'raw.fif'])))
 
 
-    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda', savefig=False):
-
-        from mne.filter import create_filter
-        from mne.viz import plot_filter
+    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda'):
 
         self.mne_raw.load_data()
         self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
-        sf = self.sf
-        data = self.mne_raw.get_data(picks)[0]
-        _, axes = plt.subplots(3, 1, figsize=(10, 10))
-        h_freq = sf/2-0.1 if not h_freq else h_freq
-        l_freq = 0 if not l_freq else l_freq
-        ideal_freq = [0, l_freq, l_freq, h_freq, h_freq, sf/2]
-        ideal_gain = [0, 0, 1, 1, 0, 0]
-        filt = create_filter(data, sf, l_freq=l_freq, h_freq=h_freq, phase='zero-double', method='fir')
-        fig = plot_filter(filt, sf, ideal_freq, ideal_gain, flim=(0.001, sf/2), compensate=True, axes=axes)
-        if savefig:
-            fig.savefig(self.output_dir / 'filter.png')
 
 
     def notch(self):
@@ -131,26 +122,24 @@ class CleaningPipe(_SuperPipe):
         self.mne_raw.set_annotations(read_annotations(self.output_dir / 'annotations.txt'))
 
 
-
+@define(kw_only=True)
 class ICAPipe(_SuperPipe):
 
-    def __init__(
-        self, 
-        path_to_eeg: str = None, 
-        output_directory: str = None, 
-        n_components: int = None, 
-        method='fastica', 
-        fit_params=None,
-        pipe = None
-    ):
+    from mne.preprocessing import ICA
 
+    n_components: int = field(default=15)
+    method: str = field(default='fastica')
+    fit_params: dict = field(default=None)
+    mne_ica: ICA = field()
+    @mne_ica.default
+    def _set_mne_ica(self):
         from mne.preprocessing import ICA
-        super().__init__(path_to_eeg=path_to_eeg, output_directory=output_directory, pipe=pipe)
-        self.mne_ica = ICA(
-            n_components=n_components,
-            method=method,
-            fit_params=fit_params
-            )
+        return ICA(
+            n_components=self.n_components,
+            method=self.method,
+            fit_params=self.fit_params)
+
+    def __attrs_post_init__(self):
         self.mne_raw.load_data()
 
 
@@ -184,49 +173,33 @@ class ICAPipe(_SuperPipe):
         self.mne_ica.apply(self.mne_raw, exclude=exclude)
 
 
+@define(kw_only=True)
 class ResultsPipe(_SuperPipe):
-    def __init__(
-        self,
-        path_to_eeg: str = None,
-        output_directory: str = None,
-        subject_code: str = None,
-        path_to_hypno: str = None,
-        sf_hypno: int = 1,
-        pipe = None
-    ):
-        """Constructs an instanse of the class.
-        """
-        
-        import os
-        import errno
-        from pathlib import Path
 
-        super().__init__(
-            path_to_eeg=path_to_eeg,
-            output_directory=output_directory,
-            pipe=pipe)        
-        
-        self.subject = subject_code
-        
-        # Try import hypno file, raise exception if something's wrong.
-        try:
-            hypno_file = Path(path_to_hypno)
-            self.hypno = np.loadtxt(hypno_file)
-            self.sf_hypno = sf_hypno
-            self.__upsample_hypno()
-        except TypeError:
-            self.hypno = np.empty(0)
-            self.hypno_up = np.empty(0)
-            self.sf_hypno = None
-        except FileNotFoundError as exc:
+    import numpy as np
+
+    path_to_hypno: Path = field(converter=Path)
+    @path_to_hypno.validator
+    def _validate_path_to_hypno(self, attr, value):
+        if not value.exists():
             raise FileNotFoundError(
-                errno.ENOENT,
-                os.strerror(errno.ENOENT),
-                path_to_hypno) from exc
+                errno.ENOENT, os.strerror(errno.ENOENT), value)
+    hypno_freq: int = field(converter=int, default=1)
+    hypno: np.array = field()
+    @hypno.default
+    def _import_hypno(self):
+        try:
+            return np.loadtxt(self.path_to_hypno)
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
-
+    hypno_up: np.array = field()
+    @hypno_up.default
+    def _set_hypno_up(self):
+        return self.hypno
+    
+    def __attrs_post_init__(self):
+        self.__upsample_hypno()
 
     
     def plot_hypnospectrogram(
@@ -315,7 +288,7 @@ class ResultsPipe(_SuperPipe):
         from yasa import hypno_upsample_to_data
         self.hypno_up = hypno_upsample_to_data(
                 self.hypno, 
-                self.sf_hypno, 
+                self.hypno_freq,
                 self.mne_raw,
                 verbose=False)
 
@@ -440,7 +413,7 @@ class ResultsPipe(_SuperPipe):
         from yasa import sleep_statistics
         from csv import DictWriter
         assert self.hypno.any(), 'There is no hypnogram to get stats from.'
-        stats = sleep_statistics(self.hypno, self.sf_hypno)
+        stats = sleep_statistics(self.hypno, self.hypno_freq)
         if save_to_csv:
             with open(self.output_dir/'sleep_stats.csv', 'w', newline='') as csv_file:
                 w = DictWriter(csv_file, stats.keys())
