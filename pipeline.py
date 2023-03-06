@@ -3,6 +3,7 @@
 from attrs import define, field
 from pathlib import Path
 from typing import TypeVar, Type
+from functools import cached_property
 import os
 import errno
 import matplotlib.pyplot as plt
@@ -83,6 +84,7 @@ class _SuperPipe:
 
 
     def _save_raw(self, fname):
+
         path_to_resampled = self.output_dir/f'saved_raw'
         path_to_resampled.mkdir(exist_ok=True)
         self.mne_raw.save(path_to_resampled / fname)
@@ -201,7 +203,7 @@ class ResultsPipe(_SuperPipe):
     @hypno_up.default
     def _set_hypno_up(self):
         return self.hypno
-    
+    psd_per_stage: np.array = field(init=False)
     def __attrs_post_init__(self):
         self.__upsample_hypno()
 
@@ -251,32 +253,25 @@ class ResultsPipe(_SuperPipe):
         
         from scipy import signal
 
-        isaxis = False
+        is_axis = False
         
         if not axis:
             fig, axis = plt.subplots()
         else:
-            isaxis = True
+            is_axis = True
 
-        # win = sf*1024/250
-        # Import data from the raw mne file.
-        data = self.mne_raw.get_data(picks, units='uV', reject_by_annotation='NaN')[0]
-        data = np.ma.array(data, mask=np.isnan(data))
-        signal_by_stage = {}
+        psd_per_stage = self.__compute_psd_per_stage(
+            picks=picks, 
+            sleep_stages=sleep_stages, 
+            sec_per_seg=sec_per_seg, 
+            avg_ref=False, 
+            dB=True)
 
-        # For every stage get its signal, 
-        # calculate signal's PSD, 
-        # transform PSD units to dB,
-        # plot it.
-        for stage, index in sleep_stages.items():
-            signal_by_stage[stage] = np.take(data, np.where(np.in1d(self.hypno_up, index))[0])
-            freqs, psd = signal.welch(
-                signal_by_stage[stage].compressed(), self.sf, nperseg=self.sf*sec_per_seg)
-            psd = 10 * np.log10(psd)
+        for stage in sleep_stages:
             axis.plot(
-                freqs, 
-                psd, 
-                label=f'{stage} {round(len(signal_by_stage[stage].compressed())/len(data.compressed())*100, 2)}%')
+                psd_per_stage[stage][0], 
+                psd_per_stage[stage][1][0], 
+                label=f'{stage} ({psd_per_stage[stage][2]}%)')
 
         axis.set_xlim(freq_range)
         axis.set_ylim(psd_range)
@@ -286,66 +281,106 @@ class ResultsPipe(_SuperPipe):
         axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
         axis.legend()
         # Save the figure if 'save' set to True and no axis has been passed.
-        if save and not isaxis:
+        if save and not is_axis:
             fig.savefig(self.output_dir / f'psd.png')
 
+
     def plot_topomap(
-            self,
-            sleep_stages = {'Wake': 0, 'N1': 1, 'N2': 2, 'N3': 3, 'REM': 4},
-            bands = {'Delta (0-4 Hz)': (0, 4), 'Theta (4-8 Hz)': (4, 8),
-                    'Alpha (8-12 Hz)': (8, 12), 'Beta (12-30 Hz)': (12, 30),
-                    'Gamma (30-45 Hz)': (30, 45)},
-            save=False
-            ):
-        
-        from mne import Annotations, Epochs, events_from_annotations
-        from bidict import bidict
+        self, 
+        stage: str = 'Wake', 
+        bandwidth: tuple = (0, 4), 
+        sec_per_seg: float = 4.096, 
+        dB: bool = False, 
+        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
+        axis: plt.axis = None,
+        save=False
+    ):
 
-        event_id = bidict(sleep_stages)
-        epoch_len = 30
-        hypno = self.hypno[0::epoch_len*self.hypno_freq]
-        
-        annots = Annotations(
-            onset=range(0, len(hypno)*epoch_len, epoch_len), 
-            duration=epoch_len, 
-            description=[event_id.inv[stage] for stage in hypno.tolist()], 
-            orig_time=self.mne_raw.info['meas_date'])
-        
-        temp_raw = self.mne_raw.copy().set_annotations(self.mne_raw.annotations+annots, verbose='WARNING')
+        from mne.viz import plot_topomap
 
-        events_train, _ = events_from_annotations(
-            raw=temp_raw, 
-            event_id=dict(event_id), 
-            chunk_duration=epoch_len,
-            verbose='WARNING')
-
-        epochs = Epochs(
-            raw=temp_raw, 
-            events=events_train,
-            event_id=dict(event_id),
-            tmin=0., 
-            tmax=epoch_len, 
-            baseline=None,
-            preload=True,
-            verbose='WARNING')
+        is_axis = False
+        cmap='plasma'
         
-        fig = plt.figure(figsize=(len(event_id)*4, len(bands)*3), constrained_layout=True)
-        subfigs = fig.subfigures(len(event_id), 1)
+        if axis is None:
+            fig, axis = plt.subplots()
+            is_axis = True
 
-        for idx, stage in enumerate(event_id):
-            subfigs[idx].suptitle(
-                f'{stage} {round(len(epochs[stage])/len(epochs)*100, 2)}%', 
-                fontsize='x-large')
-            ax = subfigs[idx].subplots(1, len(bands))
-            avg_epochs = epochs[stage].average().compute_psd(n_jobs=-1, verbose='WARNING')
-            avg_epochs.plot_topomap(axes=ax, show=False, cmap='plasma')
-        if save:
+        if not hasattr(self, 'psd_per_stage'):
+            self.psd_per_stage = self.__compute_psd_per_stage(
+                picks=['eeg'], 
+                sleep_stages=sleep_stages, 
+                sec_per_seg=sec_per_seg, 
+                avg_ref=True, 
+                dB=dB)
+            
+        psds = np.take(
+            self.psd_per_stage[stage][1],
+            np.where(np.logical_and(self.psd_per_stage[stage][0]>=bandwidth[0], self.psd_per_stage[stage][0]<=bandwidth[1]))[0],
+            axis=1).sum(axis=1)
+        
+        im, cn = plot_topomap(
+            psds, 
+            self.mne_raw.info,
+            size=5, 
+            cmap=cmap,
+            axes=axis,
+            show=False)
+        
+        # divider = make_axes_locatable(axis)
+        # cax = divider.append_axes('right', size='5%', pad=0.05)
+        plt.colorbar(
+            im, 
+            ax=axis, 
+            orientation='vertical',
+            shrink=0.6,
+            label='dB/Hz' if dB else r'$\mu V^{2}/Hz$')
+
+        if is_axis:
+            fig.suptitle(f'{stage} ({bandwidth[0]}-{bandwidth[1]} Hz)')
+        if save and not is_axis:
             fig.savefig(self.output_dir / f'topomap.png')
-        #psds, freqs = avg_epochs.get_data(exclude=['VREF'], return_freqs=True)
-        return
-
         
+    
 
+    def plot_topomap_collage(
+        self,
+        bands: dict = {'Delta': (0, 3.99), 'Theta': (4, 7.99),
+            'Alpha': (8, 12.49), 'SMR': (12.5, 15), 
+            'Beta': (12.5, 29.99), 'Gamma': (30, 60)}, 
+        sec_per_seg: float = 4.096, 
+        dB: bool = False, 
+        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
+        stages_to_plot: tuple = None,
+        save=False
+    ):
+        
+        if not stages_to_plot:
+            stages_to_plot = sleep_stages.keys()
+        n_rows = len(stages_to_plot)
+        n_cols = len(bands)
+
+        fig = plt.figure(figsize=(n_cols*4, n_rows*4), layout='constrained')
+        subfigs = fig.subfigures(n_rows, 1)
+        
+        for row_index, stage in enumerate(stages_to_plot):
+            axes = subfigs[row_index].subplots(1, n_cols)
+
+            for col_index, band_key in enumerate(bands):
+                self.plot_topomap(
+                    stage=stage, 
+                    bandwidth=bands[band_key], 
+                    sec_per_seg=sec_per_seg, 
+                    dB=dB, 
+                    sleep_stages=sleep_stages,
+                    axis=axes[col_index],
+                )
+                axes[col_index].set_title(f'{band_key} ({bands[band_key][0]}-{bands[band_key][1]} Hz)')
+
+            subfigs[row_index].suptitle(f'{stage} ({self.psd_per_stage[stage][2]}%)', fontsize='xx-large')
+
+        if save:
+            fig.savefig(self.output_dir / f'topomap_collage.png')
+        
 
     def __upsample_hypno(self):
 
@@ -356,18 +391,52 @@ class ResultsPipe(_SuperPipe):
                 self.mne_raw,
                 verbose=False)
 
+    def __compute_psd_per_stage(
+        self, 
+        picks, 
+        sleep_stages, 
+        sec_per_seg, 
+        avg_ref, 
+        dB):
+        
+        from scipy import signal
+        # Import data from the raw mne file.
+        self.mne_raw.load_data()
+        if avg_ref:
+            data = self.mne_raw.copy().set_eeg_reference().get_data(picks=picks, units='uV', reject_by_annotation='NaN')
+        else:
+            data = self.mne_raw.get_data(picks=picks, units='uV', reject_by_annotation='NaN')
+        data = np.ma.array(data, mask=np.isnan(data))
+        signal_per_stage = {}
+        psd_per_stage = {}
+        for stage, index in sleep_stages.items():
+            signal_per_stage[stage] = np.take(
+                data, 
+                np.where(np.in1d(self.hypno_up, index))[0], 
+                axis=1)
+            freqs, psd = signal.welch(
+                np.ma.compress_cols(signal_per_stage[stage]), 
+                self.sf, 
+                nperseg=self.sf*sec_per_seg,
+                axis=1)
+            if dB:
+                psd = 10 * np.log10(psd)
+            psd_per_stage[stage] = [freqs, psd, round(np.ma.compress_cols(signal_per_stage[stage]).shape[1]/np.ma.compress_cols(data).shape[1]*100, 2)]
+        return psd_per_stage
+
+
 
     def __plot_hypnospectrogram(
         self,
         data,
         sf,
         hypno,
-        win_sec=30,
-        fmin=0.5,
-        fmax=25,
-        trimperc=2.5,
-        cmap="Spectral_r",
-        overlap=False
+        win_sec,
+        fmin,
+        fmax,
+        trimperc,
+        cmap,
+        overlap
     ):
         """
         ?
@@ -485,3 +554,4 @@ class ResultsPipe(_SuperPipe):
                 w.writerow(stats)
             return
         return stats
+
