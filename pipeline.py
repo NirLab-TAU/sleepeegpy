@@ -71,8 +71,10 @@ class _SuperPipe:
             butterfly=butterfly,
             use_opengl=use_opengl)
         if save_annotations:
-            self.mne_raw.annotations.save(self.output_dir/'annotations.txt', overwrite=True)
+            self.mne_raw.annotations.save(self.output_dir/'annotations.txt')
         if save_bad_channels:
+            if (self.output_dir / 'bad_channels.txt').is_file():
+                raise FileExistsError('bad_channels.txt already exists')
             with open(self.output_dir / 'bad_channels.txt', 'w') as f:
                 for bad in self.mne_raw.info['bads']:
                     f.write(f"{bad}\n")
@@ -167,8 +169,13 @@ class ICAPipe(_SuperPipe):
         self.mne_ica.plot_components(inst=self.mne_raw)
 
 
-    def plot_overlay(self, exclude=None, picks=None):
-        self.mne_ica.plot_overlay(self.mne_raw, exclude=exclude, picks=picks)
+    def plot_overlay(self, exclude=None, picks=None, start=10, stop=20):
+        self.mne_ica.plot_overlay(
+            self.mne_raw, 
+            exclude=exclude, 
+            picks=picks, 
+            start=start, 
+            stop=stop)
 
 
     def plot_properties(self, picks=None):
@@ -288,18 +295,19 @@ class ResultsPipe(_SuperPipe):
     def plot_topomap(
         self, 
         stage: str = 'Wake', 
-        bandwidth: tuple = (0, 4), 
+        bandwidth: dict = {'Delta': (0, 4)}, 
         sec_per_seg: float = 4.096, 
         dB: bool = False, 
         sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
         axis: plt.axis = None,
+        fooof: bool = False,
+        cmap='plasma',
         save=False
     ):
 
         from mne.viz import plot_topomap
 
         is_axis = False
-        cmap='plasma'
         
         if axis is None:
             fig, axis = plt.subplots()
@@ -313,10 +321,38 @@ class ResultsPipe(_SuperPipe):
                 avg_ref=True, 
                 dB=dB)
             
-        psds = np.take(
-            self.psd_per_stage[stage][1],
-            np.where(np.logical_and(self.psd_per_stage[stage][0]>=bandwidth[0], self.psd_per_stage[stage][0]<=bandwidth[1]))[0],
-            axis=1).sum(axis=1)
+        [(k, band)] = bandwidth.items()
+
+        if fooof:
+            from fooof import FOOOFGroup
+            from fooof.bands import Bands
+            from fooof.analysis import get_band_peak_fg 
+
+            # Initialize a FOOOFGroup object, with desired settings
+            fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_height=0.15,
+                            peak_threshold=2., max_n_peaks=6, verbose=False)
+
+            # Define the frequency range to fit
+            freq_range = [1, 45]
+
+            fg.fit(self.psd_per_stage[stage][0], self.psd_per_stage[stage][1], freq_range=freq_range)
+
+            # Define frequency bands of interest
+            bands = Bands(bandwidth)
+
+            # Extract peaks
+            peaks = get_band_peak_fg(fg, bands[list(bandwidth)[0]])
+
+            peaks[np.where(np.isnan(peaks))] = 0
+            # Extract the power values from the detected peaks
+            psds = peaks[:, 1]
+
+        else:
+            
+            psds = np.take(
+                self.psd_per_stage[stage][1],
+                np.where(np.logical_and(self.psd_per_stage[stage][0]>=band[0], self.psd_per_stage[stage][0]<=band[1]))[0],
+                axis=1).sum(axis=1)
         
         im, cn = plot_topomap(
             psds, 
@@ -336,8 +372,8 @@ class ResultsPipe(_SuperPipe):
             label='dB/Hz' if dB else r'$\mu V^{2}/Hz$')
 
         if is_axis:
-            fig.suptitle(f'{stage} ({bandwidth[0]}-{bandwidth[1]} Hz)')
-        if save and not is_axis:
+            fig.suptitle(f'{stage} ({band[0]}-{band[1]} Hz)')
+        if save and is_axis:
             fig.savefig(self.output_dir / f'topomap.png')
         
     
@@ -351,6 +387,8 @@ class ResultsPipe(_SuperPipe):
         dB: bool = False, 
         sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
         stages_to_plot: tuple = None,
+        cmap='plasma',
+        fooof=False,
         save=False
     ):
         
@@ -368,11 +406,13 @@ class ResultsPipe(_SuperPipe):
             for col_index, band_key in enumerate(bands):
                 self.plot_topomap(
                     stage=stage, 
-                    bandwidth=bands[band_key], 
+                    bandwidth={band_key: bands[band_key]}, 
                     sec_per_seg=sec_per_seg, 
                     dB=dB, 
                     sleep_stages=sleep_stages,
                     axis=axes[col_index],
+                    cmap=cmap,
+                    fooof=fooof
                 )
                 axes[col_index].set_title(f'{band_key} ({bands[band_key][0]}-{bands[band_key][1]} Hz)')
 
