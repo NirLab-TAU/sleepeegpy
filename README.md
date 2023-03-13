@@ -1,5 +1,5 @@
 # sleep-eeg-processing
-**sleep-eeg-processing** is a high-level API built on top of [mne-python](https://mne.tools/stable/index.html) for processing raw eeg data recorded by high density (256 electrodes) EGI net.
+**sleep-eeg-processing** is a high-level API built on top of [mne-python](https://mne.tools/stable/index.html) for processing raw sleep eeg data.
 ## Installation
 0. Make sure you have [Python](https://www.python.org/downloads/) installed.
     - The script was tested with the version 3.10.9
