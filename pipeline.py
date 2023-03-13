@@ -3,12 +3,12 @@
 from attrs import define, field
 from pathlib import Path
 from typing import TypeVar, Type
-from functools import cached_property
 import os
 import errno
 import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
+from abc import ABC, abstractmethod
 
 _SuperPipeType = TypeVar('_SuperPipeType', bound='_SuperPipe')
 
@@ -91,6 +91,186 @@ class _SuperPipe:
         path_to_resampled.mkdir(exist_ok=True)
         self.mne_raw.save(path_to_resampled / fname)
 
+@define(kw_only=True)
+class _SpectrumPipe(ABC):
+
+    def plot_psd_per_stage(
+        self,
+        picks: str = ('E101',),
+        sec_per_seg: float = 4.096,
+        psd_range: tuple = (-60, 60),
+        freq_range: tuple = (0, 40),
+        xscale: str = 'linear',
+        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
+        axis=None,
+        save=False
+    ):
+        """Plots PSDs for multiple sleep stages.
+        """
+
+        is_axis = False
+        
+        if not axis:
+            fig, axis = plt.subplots()
+        else:
+            is_axis = True
+
+        psd_per_stage = self._compute_psd_per_stage(
+            picks=picks, 
+            sleep_stages=sleep_stages, 
+            sec_per_seg=sec_per_seg, 
+            avg_ref=False, 
+            dB=True)
+
+        for stage in sleep_stages:
+            axis.plot(
+                psd_per_stage[stage][0], 
+                psd_per_stage[stage][1][0], 
+                label=f'{stage} ({psd_per_stage[stage][2]}%)')
+
+        axis.set_xlim(freq_range)
+        axis.set_ylim(psd_range)
+        axis.set_xscale(xscale)
+        axis.set_title("Welch's PSD")
+        axis.set_ylabel('PSD [dB/Hz]')
+        axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
+        axis.legend()
+        # Save the figure if 'save' set to True and no axis has been passed.
+        if save and not is_axis:
+            fig.savefig(self.output_dir / f'psd.png')
+
+
+    def plot_topomap(
+        self, 
+        stage: str = 'Wake', 
+        bandwidth: dict = {'Delta': (0, 4)}, 
+        sec_per_seg: float = 4.096, 
+        dB: bool = False, 
+        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
+        axis: plt.axis = None,
+        fooof: bool = False,
+        cmap='plasma',
+        save=False
+    ):
+
+        from mne.viz import plot_topomap
+
+        is_axis = False
+        
+        if axis is None:
+            fig, axis = plt.subplots()
+            is_axis = True
+
+        if not hasattr(self, 'psd_per_stage'):
+            self.psd_per_stage = self._compute_psd_per_stage(
+                picks=['eeg'], 
+                sleep_stages=sleep_stages, 
+                sec_per_seg=sec_per_seg, 
+                avg_ref=True, 
+                dB=dB)
+            
+        [(k, band)] = bandwidth.items()
+
+        if fooof:
+            from fooof import FOOOFGroup
+            from fooof.bands import Bands
+            from fooof.analysis import get_band_peak_fg 
+
+            # Initialize a FOOOFGroup object, with desired settings
+            fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_height=0.15,
+                            peak_threshold=2., max_n_peaks=6, verbose=False)
+
+            # Define the frequency range to fit
+            freq_range = [1, 45]
+
+            fg.fit(self.psd_per_stage[stage][0], self.psd_per_stage[stage][1], freq_range=freq_range)
+
+            # Define frequency bands of interest
+            bands = Bands(bandwidth)
+
+            # Extract peaks
+            peaks = get_band_peak_fg(fg, bands[list(bandwidth)[0]])
+
+            peaks[np.where(np.isnan(peaks))] = 0
+            # Extract the power values from the detected peaks
+            psds = peaks[:, 1]
+
+        else:
+            
+            psds = np.take(
+                self.psd_per_stage[stage][1],
+                np.where(np.logical_and(self.psd_per_stage[stage][0]>=band[0], self.psd_per_stage[stage][0]<=band[1]))[0],
+                axis=1).sum(axis=1)
+        
+        im, cn = plot_topomap(
+            psds, 
+            self.mne_raw.info,
+            size=5, 
+            cmap=cmap,
+            axes=axis,
+            show=False)
+        
+        # divider = make_axes_locatable(axis)
+        # cax = divider.append_axes('right', size='5%', pad=0.05)
+        plt.colorbar(
+            im, 
+            ax=axis, 
+            orientation='vertical',
+            shrink=0.6,
+            label='dB/Hz' if dB else r'$\mu V^{2}/Hz$')
+
+        if is_axis:
+            fig.suptitle(f'{stage} ({band[0]}-{band[1]} Hz)')
+        if save and is_axis:
+            fig.savefig(self.output_dir / f'topomap.png')
+        
+
+    def plot_topomap_collage(
+        self,
+        bands: dict = {'Delta': (0, 3.99), 'Theta': (4, 7.99),
+            'Alpha': (8, 12.49), 'SMR': (12.5, 15), 
+            'Beta': (12.5, 29.99), 'Gamma': (30, 60)}, 
+        sec_per_seg: float = 4.096, 
+        dB: bool = False, 
+        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
+        stages_to_plot: tuple = None,
+        cmap='plasma',
+        fooof=False,
+        save=False
+    ):
+        
+        if not stages_to_plot:
+            stages_to_plot = sleep_stages.keys()
+        n_rows = len(stages_to_plot)
+        n_cols = len(bands)
+
+        fig = plt.figure(figsize=(n_cols*4, n_rows*4), layout='constrained')
+        subfigs = fig.subfigures(n_rows, 1)
+        
+        for row_index, stage in enumerate(stages_to_plot):
+            axes = subfigs[row_index].subplots(1, n_cols)
+
+            for col_index, band_key in enumerate(bands):
+                self.plot_topomap(
+                    stage=stage, 
+                    bandwidth={band_key: bands[band_key]}, 
+                    sec_per_seg=sec_per_seg, 
+                    dB=dB, 
+                    sleep_stages=sleep_stages,
+                    axis=axes[col_index],
+                    cmap=cmap,
+                    fooof=fooof
+                )
+                axes[col_index].set_title(f'{band_key} ({bands[band_key][0]}-{bands[band_key][1]} Hz)')
+
+            subfigs[row_index].suptitle(f'{stage} ({self.psd_per_stage[stage][2]}%)', fontsize='xx-large')
+
+        if save:
+            fig.savefig(self.output_dir / f'topomap_collage.png')
+
+    @abstractmethod
+    def _compute_psd_per_stage(self):
+        pass
 
 @define(kw_only=True)
 class CleaningPipe(_SuperPipe):
@@ -187,7 +367,7 @@ class ICAPipe(_SuperPipe):
 
 
 @define(kw_only=True)
-class ResultsPipe(_SuperPipe):
+class ResultsPipe(_SuperPipe, _SpectrumPipe):
 
     import numpy as np
 
@@ -210,7 +390,7 @@ class ResultsPipe(_SuperPipe):
     @hypno_up.default
     def _set_hypno_up(self):
         return self.hypno
-    psd_per_stage: np.array = field(init=False)
+    psd_per_stage: dict = field(init=False)
     def __attrs_post_init__(self):
         self.__upsample_hypno()
 
@@ -244,184 +424,6 @@ class ResultsPipe(_SuperPipe):
             fig.savefig(self.output_dir / f'spectrogram.png', bbox_inches = "tight")
 
 
-    def plot_psd_per_stage(
-        self,
-        picks: str = ('E101',),
-        sec_per_seg: float = 4.096,
-        psd_range: tuple = (-60, 60),
-        freq_range: tuple = (0, 40),
-        xscale: str = 'linear',
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        axis=None,
-        save=False
-    ):
-        """Plots PSDs for multiple sleep stages.
-        """
-        
-        from scipy import signal
-
-        is_axis = False
-        
-        if not axis:
-            fig, axis = plt.subplots()
-        else:
-            is_axis = True
-
-        psd_per_stage = self.__compute_psd_per_stage(
-            picks=picks, 
-            sleep_stages=sleep_stages, 
-            sec_per_seg=sec_per_seg, 
-            avg_ref=False, 
-            dB=True)
-
-        for stage in sleep_stages:
-            axis.plot(
-                psd_per_stage[stage][0], 
-                psd_per_stage[stage][1][0], 
-                label=f'{stage} ({psd_per_stage[stage][2]}%)')
-
-        axis.set_xlim(freq_range)
-        axis.set_ylim(psd_range)
-        axis.set_xscale(xscale)
-        axis.set_title("Welch's PSD")
-        axis.set_ylabel('PSD [dB/Hz]')
-        axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
-        axis.legend()
-        # Save the figure if 'save' set to True and no axis has been passed.
-        if save and not is_axis:
-            fig.savefig(self.output_dir / f'psd.png')
-
-
-    def plot_topomap(
-        self, 
-        stage: str = 'Wake', 
-        bandwidth: dict = {'Delta': (0, 4)}, 
-        sec_per_seg: float = 4.096, 
-        dB: bool = False, 
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        axis: plt.axis = None,
-        fooof: bool = False,
-        cmap='plasma',
-        save=False
-    ):
-
-        from mne.viz import plot_topomap
-
-        is_axis = False
-        
-        if axis is None:
-            fig, axis = plt.subplots()
-            is_axis = True
-
-        if not hasattr(self, 'psd_per_stage'):
-            self.psd_per_stage = self.__compute_psd_per_stage(
-                picks=['eeg'], 
-                sleep_stages=sleep_stages, 
-                sec_per_seg=sec_per_seg, 
-                avg_ref=True, 
-                dB=dB)
-            
-        [(k, band)] = bandwidth.items()
-
-        if fooof:
-            from fooof import FOOOFGroup
-            from fooof.bands import Bands
-            from fooof.analysis import get_band_peak_fg 
-
-            # Initialize a FOOOFGroup object, with desired settings
-            fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_height=0.15,
-                            peak_threshold=2., max_n_peaks=6, verbose=False)
-
-            # Define the frequency range to fit
-            freq_range = [1, 45]
-
-            fg.fit(self.psd_per_stage[stage][0], self.psd_per_stage[stage][1], freq_range=freq_range)
-
-            # Define frequency bands of interest
-            bands = Bands(bandwidth)
-
-            # Extract peaks
-            peaks = get_band_peak_fg(fg, bands[list(bandwidth)[0]])
-
-            peaks[np.where(np.isnan(peaks))] = 0
-            # Extract the power values from the detected peaks
-            psds = peaks[:, 1]
-
-        else:
-            
-            psds = np.take(
-                self.psd_per_stage[stage][1],
-                np.where(np.logical_and(self.psd_per_stage[stage][0]>=band[0], self.psd_per_stage[stage][0]<=band[1]))[0],
-                axis=1).sum(axis=1)
-        
-        im, cn = plot_topomap(
-            psds, 
-            self.mne_raw.info,
-            size=5, 
-            cmap=cmap,
-            axes=axis,
-            show=False)
-        
-        # divider = make_axes_locatable(axis)
-        # cax = divider.append_axes('right', size='5%', pad=0.05)
-        plt.colorbar(
-            im, 
-            ax=axis, 
-            orientation='vertical',
-            shrink=0.6,
-            label='dB/Hz' if dB else r'$\mu V^{2}/Hz$')
-
-        if is_axis:
-            fig.suptitle(f'{stage} ({band[0]}-{band[1]} Hz)')
-        if save and is_axis:
-            fig.savefig(self.output_dir / f'topomap.png')
-        
-    
-
-    def plot_topomap_collage(
-        self,
-        bands: dict = {'Delta': (0, 3.99), 'Theta': (4, 7.99),
-            'Alpha': (8, 12.49), 'SMR': (12.5, 15), 
-            'Beta': (12.5, 29.99), 'Gamma': (30, 60)}, 
-        sec_per_seg: float = 4.096, 
-        dB: bool = False, 
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        stages_to_plot: tuple = None,
-        cmap='plasma',
-        fooof=False,
-        save=False
-    ):
-        
-        if not stages_to_plot:
-            stages_to_plot = sleep_stages.keys()
-        n_rows = len(stages_to_plot)
-        n_cols = len(bands)
-
-        fig = plt.figure(figsize=(n_cols*4, n_rows*4), layout='constrained')
-        subfigs = fig.subfigures(n_rows, 1)
-        
-        for row_index, stage in enumerate(stages_to_plot):
-            axes = subfigs[row_index].subplots(1, n_cols)
-
-            for col_index, band_key in enumerate(bands):
-                self.plot_topomap(
-                    stage=stage, 
-                    bandwidth={band_key: bands[band_key]}, 
-                    sec_per_seg=sec_per_seg, 
-                    dB=dB, 
-                    sleep_stages=sleep_stages,
-                    axis=axes[col_index],
-                    cmap=cmap,
-                    fooof=fooof
-                )
-                axes[col_index].set_title(f'{band_key} ({bands[band_key][0]}-{bands[band_key][1]} Hz)')
-
-            subfigs[row_index].suptitle(f'{stage} ({self.psd_per_stage[stage][2]}%)', fontsize='xx-large')
-
-        if save:
-            fig.savefig(self.output_dir / f'topomap_collage.png')
-        
-
     def __upsample_hypno(self):
 
         from yasa import hypno_upsample_to_data
@@ -431,15 +433,16 @@ class ResultsPipe(_SuperPipe):
                 self.mne_raw,
                 verbose=False)
 
-    def __compute_psd_per_stage(
+    def _compute_psd_per_stage(
         self, 
         picks, 
         sleep_stages, 
         sec_per_seg, 
         avg_ref, 
-        dB):
-        
-        from scipy import signal
+        dB
+    ):
+        from collections import defaultdict
+        from scipy import signal, ndimage
         # Import data from the raw mne file.
         self.mne_raw.load_data()
         if avg_ref:
@@ -447,21 +450,29 @@ class ResultsPipe(_SuperPipe):
         else:
             data = self.mne_raw.get_data(picks=picks, units='uV', reject_by_annotation='NaN')
         data = np.ma.array(data, mask=np.isnan(data))
-        signal_per_stage = {}
+        n_samples_total = np.ma.compress_cols(data).shape[1]
+        psds = defaultdict(list)
         psd_per_stage = {}
         for stage, index in sleep_stages.items():
-            signal_per_stage[stage] = np.take(
-                data, 
-                np.where(np.in1d(self.hypno_up, index))[0], 
-                axis=1)
-            freqs, psd = signal.welch(
-                np.ma.compress_cols(signal_per_stage[stage]), 
-                self.sf, 
-                nperseg=self.sf*sec_per_seg,
-                axis=1)
-            if dB:
-                psd = 10 * np.log10(psd)
-            psd_per_stage[stage] = [freqs, psd, round(np.ma.compress_cols(signal_per_stage[stage]).shape[1]/np.ma.compress_cols(data).shape[1]*100, 2)]
+            weights = []
+            n_samples = 0
+            regions = ndimage.find_objects(ndimage.label(self.hypno_up == index)[0])
+            for region in regions:
+                compressed = np.ma.compress_cols(data[:, region[0]])
+                if compressed.size > 0:
+                    weights.append(compressed.shape[1])
+                    freqs, psd = signal.welch(
+                        compressed, 
+                        self.sf, 
+                        nperseg=self.sf*sec_per_seg,
+                        axis=1)
+                    psds[stage].append(psd)
+                    n_samples += compressed.shape[1]
+            avg = np.average(np.array(psds[stage]), weights=weights, axis=0)    
+            psd_per_stage[stage] = [
+                freqs, 
+                10*np.log10(avg) if dB else avg,
+                round(n_samples/n_samples_total*100, 2)]
         return psd_per_stage
 
 
@@ -595,3 +606,36 @@ class ResultsPipe(_SuperPipe):
             return
         return stats
 
+@define(kw_only=True)
+class CombinedPipe(_SpectrumPipe):
+
+    pipes: tuple = field()
+    psd_per_stage: dict = field(init=False)
+    mne_raw: mne.io.Raw = field(init=False)
+    @mne_raw.default
+    def _get_mne_raw_from_pipe(self):
+        return self.pipes[0].mne_raw
+
+    def _compute_psd_per_stage(
+            self, 
+            picks, 
+            sleep_stages, 
+            sec_per_seg, 
+            avg_ref, 
+            dB):
+        
+        psd_per_stage = {}
+        psds = []
+        for pipe in self.pipes:
+            psds.append(pipe._compute_psd_per_stage(
+                picks=picks,
+                sleep_stages=sleep_stages,
+                sec_per_seg=sec_per_seg,
+                avg_ref=avg_ref,
+                dB=dB))
+            
+        for stage in sleep_stages:
+            psd_per_stage[stage]=[psds[0][stage][0],
+                np.sum([psd[stage][1] for psd in psds], axis=0)/len(self.pipes),
+                round(sum([psd[stage][2] for psd in psds])/len(self.pipes), 2)]
+        return psd_per_stage
