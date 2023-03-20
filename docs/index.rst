@@ -8,9 +8,9 @@ Welcome to sleep-eeg-processing's documentation!
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
-
+   base
+   pipeline
 
 Indices and tables
 ==================

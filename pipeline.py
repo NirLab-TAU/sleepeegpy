@@ -1,384 +1,236 @@
-""" Pipeline Module
+"""This module contains and describes pipe elements for sleep eeg analysis.
 """
+
 from attrs import define, field
 from pathlib import Path
-from typing import TypeVar, Type
+
 import os
 import errno
 import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
-from abc import ABC, abstractmethod
 
-_SuperPipeType = TypeVar('_SuperPipeType', bound='_SuperPipe')
+from collections.abc import Iterable
+
+from base import BasePipe, BaseSpectrum
+
 
 @define(kw_only=True)
-class _SuperPipe:
-    """The template pipeline element"""
+class CleaningPipe(BasePipe):
+    """The cleaning pipeline element.
 
+    Contains resampling function, band and notch filters,
+    browser for manual selection of bad channels
+    and bad data spans.
+    """
 
-    # Preceding pipe that hands over mne_raw attr.
-    prec_pipe: Type[_SuperPipeType] = field(default=None)  
-
-    path_to_eeg: Path = field(converter=Path)
-    @path_to_eeg.default
-    def _set_path_to_eeg(self):
-        if self.prec_pipe: return '/'
-        raise TypeError('Provide either "pipe" or "path_to_eeg" arguments')
-    @path_to_eeg.validator
-    def _validate_path_to_eeg(self, attr, value):
-        if not value.exists():
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), value)
-        
-    output_dir: Path = field(converter=Path)
-    @output_dir.default
-    def _set_output_dir(self):
-        return self.prec_pipe.output_dir if self.prec_pipe else self.path_to_eeg.parents[0]
-    @output_dir.validator
-    def _validate_output_dir(self, attr, value):
-        self.output_dir.mkdir(exist_ok=True)
-
-    mne_raw: mne.io.Raw = field(init=False)
-    @mne_raw.default
-    def _read_mne_raw(self):
-        from mne.io import read_raw
-        try:
-            return self.prec_pipe.mne_raw if self.prec_pipe else read_raw(self.path_to_eeg)
-        except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
-
-
-    def plot(
-        self, 
-        butterfly=False, 
-        save_annotations=False, 
-        save_bad_channels=False, 
-        scalings={'eeg':100e-6, 'eog':100e-6, 'ecg':1000e-6, 'emg':100e-6, 'resp':5e-6, 'bio':10e-6},
-        use_opengl=None):
-
-        from mne import pick_types
-
-        order = pick_types(self.mne_raw.info, eeg=True) if butterfly else None
-        self.mne_raw.plot( 
-            theme='dark',
-            block=True, 
-            scalings=scalings,
-            bad_color='r',
-            proj=False,
-            order=order,
-            butterfly=butterfly,
-            use_opengl=use_opengl)
-        if save_annotations:
-            self.mne_raw.annotations.save(self.output_dir/'annotations.txt')
-        if save_bad_channels:
-            if (self.output_dir / 'bad_channels.txt').is_file():
-                raise FileExistsError('bad_channels.txt already exists')
-            with open(self.output_dir / 'bad_channels.txt', 'w') as f:
-                for bad in self.mne_raw.info['bads']:
-                    f.write(f"{bad}\n")
-    
-    
-    @property
-    def sf(self):
-        return self.mne_raw.info['sfreq']
-
-
-    def _save_raw(self, fname):
-
-        path_to_resampled = self.output_dir/f'saved_raw'
-        path_to_resampled.mkdir(exist_ok=True)
-        self.mne_raw.save(path_to_resampled / fname)
-
-@define(kw_only=True)
-class _SpectrumPipe(ABC):
-
-    def plot_psd_per_stage(
-        self,
-        picks: str = ('E101',),
-        sec_per_seg: float = 4.096,
-        psd_range: tuple = (-60, 60),
-        freq_range: tuple = (0, 40),
-        xscale: str = 'linear',
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        axis=None,
-        save=False
+    def resample(
+        self, sfreq: float = 250, n_jobs: int | str = "cuda", save: bool = False
     ):
-        """Plots PSDs for multiple sleep stages.
+        """A wrapper for
+        `mne.io.Raw.resample <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample>`_
+        with an additional option to save the resampled data.
+
+        Args:
+            sfreq: new sampling frequency. Defaults to 250.
+            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
+            save: Whether to save a resampled data to a fif file. Defaults to False.
         """
+        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose="WARNING")
+        if save:
+            self.save_raw(
+                "_".join(filter(None, ["resampled", str(sfreq) + "hz", "raw.fif"]))
+            )
 
-        is_axis = False
-        
-        if not axis:
-            fig, axis = plt.subplots()
-        else:
-            is_axis = True
-
-        psd_per_stage = self._compute_psd_per_stage(
-            picks=picks, 
-            sleep_stages=sleep_stages, 
-            sec_per_seg=sec_per_seg, 
-            avg_ref=False, 
-            dB=True)
-
-        for stage in sleep_stages:
-            axis.plot(
-                psd_per_stage[stage][0], 
-                psd_per_stage[stage][1][0], 
-                label=f'{stage} ({psd_per_stage[stage][2]}%)')
-
-        axis.set_xlim(freq_range)
-        axis.set_ylim(psd_range)
-        axis.set_xscale(xscale)
-        axis.set_title("Welch's PSD")
-        axis.set_ylabel('PSD [dB/Hz]')
-        axis.set_xlabel(f'{xscale} frequency [Hz]'.capitalize())
-        axis.legend()
-        # Save the figure if 'save' set to True and no axis has been passed.
-        if save and not is_axis:
-            fig.savefig(self.output_dir / f'psd.png')
-
-
-    def plot_topomap(
-        self, 
-        stage: str = 'Wake', 
-        bandwidth: dict = {'Delta': (0, 4)}, 
-        sec_per_seg: float = 4.096, 
-        dB: bool = False, 
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        axis: plt.axis = None,
-        fooof: bool = False,
-        cmap='plasma',
-        save=False
-    ):
-
-        from mne.viz import plot_topomap
-
-        is_axis = False
-        
-        if axis is None:
-            fig, axis = plt.subplots()
-            is_axis = True
-
-        if not hasattr(self, 'psd_per_stage'):
-            self.psd_per_stage = self._compute_psd_per_stage(
-                picks=['eeg'], 
-                sleep_stages=sleep_stages, 
-                sec_per_seg=sec_per_seg, 
-                avg_ref=True, 
-                dB=dB)
-            
-        [(k, band)] = bandwidth.items()
-
-        if fooof:
-            from fooof import FOOOFGroup
-            from fooof.bands import Bands
-            from fooof.analysis import get_band_peak_fg 
-
-            # Initialize a FOOOFGroup object, with desired settings
-            fg = FOOOFGroup(peak_width_limits=[1, 6], min_peak_height=0.15,
-                            peak_threshold=2., max_n_peaks=6, verbose=False)
-
-            # Define the frequency range to fit
-            freq_range = [1, 45]
-
-            fg.fit(self.psd_per_stage[stage][0], self.psd_per_stage[stage][1], freq_range=freq_range)
-
-            # Define frequency bands of interest
-            bands = Bands(bandwidth)
-
-            # Extract peaks
-            peaks = get_band_peak_fg(fg, bands[list(bandwidth)[0]])
-
-            peaks[np.where(np.isnan(peaks))] = 0
-            # Extract the power values from the detected peaks
-            psds = peaks[:, 1]
-
-        else:
-            
-            psds = np.take(
-                self.psd_per_stage[stage][1],
-                np.where(np.logical_and(self.psd_per_stage[stage][0]>=band[0], self.psd_per_stage[stage][0]<=band[1]))[0],
-                axis=1).sum(axis=1)
-        
-        im, cn = plot_topomap(
-            psds, 
-            self.mne_raw.info,
-            size=5, 
-            cmap=cmap,
-            axes=axis,
-            show=False)
-        
-        # divider = make_axes_locatable(axis)
-        # cax = divider.append_axes('right', size='5%', pad=0.05)
-        plt.colorbar(
-            im, 
-            ax=axis, 
-            orientation='vertical',
-            shrink=0.6,
-            label='dB/Hz' if dB else r'$\mu V^{2}/Hz$')
-
-        if is_axis:
-            fig.suptitle(f'{stage} ({band[0]}-{band[1]} Hz)')
-        if save and is_axis:
-            fig.savefig(self.output_dir / f'topomap.png')
-        
-
-    def plot_topomap_collage(
+    def filter(
         self,
-        bands: dict = {'Delta': (0, 3.99), 'Theta': (4, 7.99),
-            'Alpha': (8, 12.49), 'SMR': (12.5, 15), 
-            'Beta': (12.5, 29.99), 'Gamma': (30, 60)}, 
-        sec_per_seg: float = 4.096, 
-        dB: bool = False, 
-        sleep_stages: dict = {'Wake' :0, 'N1' :1, 'N2': 2, 'N3': 3, 'REM': 4},
-        stages_to_plot: tuple = None,
-        cmap='plasma',
-        fooof=False,
-        save=False
+        l_freq: float | None = 0.3,
+        h_freq: float | None = None,
+        picks: str | Iterable[str] | None = None,
+        n_jobs: int | str = "cuda",
     ):
-        
-        if not stages_to_plot:
-            stages_to_plot = sleep_stages.keys()
-        n_rows = len(stages_to_plot)
-        n_cols = len(bands)
+        """A wrapper for
+        `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
 
-        fig = plt.figure(figsize=(n_cols*4, n_rows*4), layout='constrained')
-        subfigs = fig.subfigures(n_rows, 1)
-        
-        for row_index, stage in enumerate(stages_to_plot):
-            axes = subfigs[row_index].subplots(1, n_cols)
-
-            for col_index, band_key in enumerate(bands):
-                self.plot_topomap(
-                    stage=stage, 
-                    bandwidth={band_key: bands[band_key]}, 
-                    sec_per_seg=sec_per_seg, 
-                    dB=dB, 
-                    sleep_stages=sleep_stages,
-                    axis=axes[col_index],
-                    cmap=cmap,
-                    fooof=fooof
-                )
-                axes[col_index].set_title(f'{band_key} ({bands[band_key][0]}-{bands[band_key][1]} Hz)')
-
-            subfigs[row_index].suptitle(f'{stage} ({self.psd_per_stage[stage][2]}%)', fontsize='xx-large')
-
-        if save:
-            fig.savefig(self.output_dir / f'topomap_collage.png')
-
-    @abstractmethod
-    def _compute_psd_per_stage(self):
-        pass
-
-@define(kw_only=True)
-class CleaningPipe(_SuperPipe):
-    """The cleaning pipeline element"""
-
-
-    def resample(self, sfreq=250, n_jobs='cuda', save=False):
-        """ Resamples and updates the data """
-        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose='WARNING')
-        if save:
-            self._save_raw('_'.join(filter(None, ['resampled', str(sfreq)+'hz', 'raw.fif'])))
-
-
-    def filter(self, l_freq=0.3, h_freq=None, picks=None, n_jobs='cuda'):
-
+        Args:
+            l_freq: the lower pass-band edge. Defaults to 0.3.
+            h_freq: the higher pass-band edge. Defaults to None.
+            picks: Channels to filter, if None - all channels will be filtered.
+                Defaults to None.
+            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
+        """
         self.mne_raw.load_data()
         self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
 
+    def notch(
+        self,
+        freqs: Iterable = None,
+        picks: str | Iterable[str] = "eeg",
+        n_jobs: int | str = "cuda",
+    ):
+        """A wrapper for
+        `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
 
-    def notch(self):
-        self.mne_raw.notch_filter(
-            freqs=np.arange(50, int(self.sf/2), 50),
-            picks='eeg',
-            n_jobs='cuda'
-        )
-
+        Args:
+            freqs: Frequencies to filter out from data,
+                e.g. np.arange(50, 251, 50) for sampling freq 250 Hz.
+                Defaults to None.
+            picks: Channels to filter, if None - all channels will be filtered.
+                Defaults to None.
+            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
+        """
+        if not freqs:
+            freqs = np.arange(50, int(self.sf / 2) + 1, 50)
+        self.mne_raw.notch_filter(freqs=freqs, picks=picks, n_jobs=n_jobs)
 
     def read_bad_channels(self, path=None):
-        p = Path(path) if path else self.output_dir / 'bad_channels.txt'
-        with open(p, 'r') as f:
-            self.mne_raw.info['bads'] = list(filter(None, f.read().split('\n')))
+        """Imports bad channels from file to mne raw object.
 
+        Args:
+            path: Path to the txt file with bad channel name per row. Defaults to None.
+        """
+        p = Path(path) if path else self.output_dir / "bad_channels.txt"
+        with open(p, "r") as f:
+            self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
 
     def read_annotations(self, path=None):
+        """Imports annotations from file to mne raw object
+
+        Args:
+            path: Path to txt file with mne-style annotations. Defaults to None.
+        """
         from mne import read_annotations
-        p = Path(path) if path else self.output_dir / 'annotations.txt'
+
+        p = Path(path) if path else self.output_dir / "annotations.txt"
         self.mne_raw.set_annotations(read_annotations(p))
 
 
 @define(kw_only=True)
-class ICAPipe(_SuperPipe):
+class ICAPipe(BasePipe):
+    """The ICA pipeline element.
 
-    from mne.preprocessing import ICA
+    Contains ica fitting, plotting multiple ica plots,
+    selecting ica exclusion components and
+    its application to the raw data.
+    More at `mne.preprocessing.ICA <https://mne.tools/stable/
+    generated/mne.preprocessing.ICA.html#mne-preprocessing-ica>`_.
+    """
 
-    n_components: int = field(default=15)
-    method: str = field(default='fastica')
+    n_components: int | float | None = field(default=15)
+    """Number of principal components (from the pre-whitening PCA step) 
+    that are passed to the ICA algorithm during fitting.
+    """
+
+    method: str = field(default="fastica")
+    """The ICA method to use in the fit method. 
+
+    Can be 'fastica', 'infomax' or 'picard'
+    Use the fit_params argument to set additional parameters.
+    """
     fit_params: dict = field(default=None)
-    mne_ica: ICA = field()
+    """Additional parameters passed to the ICA estimator as specified by method. 
+    Allowed entries are determined by the various algorithm implementations: 
+    see `FastICA <https://scikit-learn.org/stable/modules/generated/sklearn.
+    decomposition.FastICA.html#sklearn.decomposition.FastICA>`_, 
+    `picard <https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard>`_ and
+    `infomax <https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax>`_.
+    """
+    mne_ica: mne.preprocessing.ICA = field()
+    """Instance of 
+    `mne.preprocessing.ICA <https://mne.tools/stable/
+    generated/mne.preprocessing.ICA.html#mne-preprocessing-ica>`_.
+    """
+
     @mne_ica.default
     def _set_mne_ica(self):
         from mne.preprocessing import ICA
+
         return ICA(
             n_components=self.n_components,
             method=self.method,
-            fit_params=self.fit_params)
+            fit_params=self.fit_params,
+        )
 
     def __attrs_post_init__(self):
         self.mne_raw.load_data()
 
-
     def fit(self):
-        
-        if self.mne_raw.info['highpass'] < 1.0:
+        """Highpass-filters (1Hz) a copy of the mne_raw object
+        and then runs `mne.preprocessing.ICA.fit <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit>`_.
+        """
+        if self.mne_raw.info["highpass"] < 1.0:
             filtered_raw = self.mne_raw.copy()
-            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs='cuda')
+            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs="cuda")
         else:
             filtered_raw = self.mne_raw
         self.mne_ica.fit(filtered_raw)
 
-
     def plot_sources(self):
+        """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources>`_.
+        """
         self.mne_ica.plot_sources(self.mne_raw, block=True)
 
-    
     def plot_components(self):
+        """A wrapper for `mne.preprocessing.ICA.plot_components <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components>`_.
+        """
         self.mne_ica.plot_components(inst=self.mne_raw)
 
-
     def plot_overlay(self, exclude=None, picks=None, start=10, stop=20):
+        """A wrapper for `mne.preprocessing.ICA.plot_overlay <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay>`_.
+        """
         self.mne_ica.plot_overlay(
-            self.mne_raw, 
-            exclude=exclude, 
-            picks=picks, 
-            start=start, 
-            stop=stop)
-
+            self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop
+        )
 
     def plot_properties(self, picks=None):
+        """A wrapper for `mne.preprocessing.ICA.plot_properties <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties>`_.
+        """
         self.mne_ica.plot_properties(self.mne_raw, picks=picks)
 
-
     def apply(self, exclude=None):
+        """Remove selected components from the signal.
+
+        A wrapper for `mne.preprocessing.ICA.apply <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.apply>`_.
+        """
         self.mne_ica.apply(self.mne_raw, exclude=exclude)
 
 
 @define(kw_only=True)
-class ResultsPipe(_SuperPipe, _SpectrumPipe):
+class ResultsPipe(BasePipe, BaseSpectrum):
+    """The results pipeline element.
 
-    import numpy as np
+    Contains methods for computing and plotting PSD,
+    spectrogram and topomaps, per sleep stage.
+    """
 
     path_to_hypno: Path = field(converter=Path)
+    """Path to hypnogram. Must be text file with every 
+    row being int representing sleep stage for the epoch.
+    """
+
     @path_to_hypno.validator
     def _validate_path_to_hypno(self, attr, value):
         if not value.exists():
-            raise FileNotFoundError(
-                errno.ENOENT, os.strerror(errno.ENOENT), value)
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), value)
+
     hypno_freq: int = field(converter=int, default=1)
-    hypno: np.array = field()
+    """Sampling rate of the hypnogram in Hz.
+
+    E.g., 1/30 means 1 sample per 30 secs epoch,
+    250 means 1 sample per 1/250 sec epoch.
+    """
+
+    hypno: np.ndarray = field()
+    """ Hypnogram with sampling frequency hypno_freq
+    with int representing sleep stage.
+    """
+
     @hypno.default
     def _import_hypno(self):
         try:
@@ -386,69 +238,87 @@ class ResultsPipe(_SuperPipe, _SpectrumPipe):
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
+
     hypno_up: np.array = field()
+    """ Hypnogram upsampled to the sampling frequency of the raw data.
+    """
+
     @hypno_up.default
     def _set_hypno_up(self):
         return self.hypno
+
     psd_per_stage: dict = field(init=False)
+    """ Dictionary of the form sleep_stage:[freqs array with shape (n_freqs), 
+    psd array with shape (n_electrodes, n_freqs), 
+    sleep_stage percent from the whole unrejected data]
+    """
+
     def __attrs_post_init__(self):
         self.__upsample_hypno()
 
-    
     def plot_hypnospectrogram(
         self,
-        picks: str = ('E101',),
-        win_sec: float = 4,
+        picks: str | Iterable[str] = ("E101",),
+        sec_per_seg: float = 4.096,
         freq_range: tuple = (0, 40),
-        cmap: str = 'inferno',
-        overlap=False,
-        save: bool = False
+        cmap: str = "inferno",
+        overlap: bool = False,
+        save: bool = False,
     ):
-        """ Plots yasa's hypnogram and spectrogram.
+        """Plots hypnogram and spectrogram.
+
+        Args:
+            picks: Channels to calculate spectrogram on, more info at
+                `mne.io.Raw.get_data <https://mne.tools/stable/generated/
+                mne.io.Raw.html#mne.io.Raw.get_data>`_.
+                Defaults to ("E101",).
+            sec_per_seg: Segment length in seconds. Defaults to 4.096.
+            freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
+            cmap: Matplotlib `colormap <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_. Defaults to "inferno".
+            overlap: Whether to plot hypnogram over the spectrogram or on top of it. Defaults to False.
+            save: Whether to save the figure. Defaults to False.
         """
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation='NaN')[0]
-            # Create a plot figure
+        data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation="NaN")[0]
+        # Create a plot figure
         fig = self.__plot_hypnospectrogram(
             data,
             self.sf,
             self.hypno_up,
-            win_sec=win_sec,
+            win_sec=sec_per_seg,
             fmin=freq_range[0],
             fmax=freq_range[1],
             trimperc=0,
             cmap=cmap,
-            overlap=overlap)
-        # Save the figure if 'save' set to True 
+            overlap=overlap,
+        )
+        # Save the figure if 'save' set to True
         if save:
-            fig.savefig(self.output_dir / f'spectrogram.png', bbox_inches = "tight")
-
+            fig.savefig(self.output_dir / f"spectrogram.png", bbox_inches="tight")
 
     def __upsample_hypno(self):
-
         from yasa import hypno_upsample_to_data
-        self.hypno_up = hypno_upsample_to_data(
-                self.hypno, 
-                self.hypno_freq,
-                self.mne_raw,
-                verbose=False)
 
-    def _compute_psd_per_stage(
-        self, 
-        picks, 
-        sleep_stages, 
-        sec_per_seg, 
-        avg_ref, 
-        dB
-    ):
+        self.hypno_up = hypno_upsample_to_data(
+            self.hypno, self.hypno_freq, self.mne_raw, verbose=False
+        )
+
+    def _compute_psd_per_stage(self, picks, sleep_stages, sec_per_seg, avg_ref, dB):
         from collections import defaultdict
         from scipy import signal, ndimage
+
         # Import data from the raw mne file.
         self.mne_raw.load_data()
         if avg_ref:
-            data = self.mne_raw.copy().set_eeg_reference().get_data(picks=picks, units='uV', reject_by_annotation='NaN')
+            data = (
+                self.mne_raw.copy()
+                .set_eeg_reference()
+                .get_data(picks=picks, units="uV", reject_by_annotation="NaN")
+            )
         else:
-            data = self.mne_raw.get_data(picks=picks, units='uV', reject_by_annotation='NaN')
+            data = self.mne_raw.get_data(
+                picks=picks, units="uV", reject_by_annotation="NaN"
+            )
         data = np.ma.array(data, mask=np.isnan(data))
         n_samples_total = np.ma.compress_cols(data).shape[1]
         psds = defaultdict(list)
@@ -462,32 +332,20 @@ class ResultsPipe(_SuperPipe, _SpectrumPipe):
                 if compressed.size > 0:
                     weights.append(compressed.shape[1])
                     freqs, psd = signal.welch(
-                        compressed, 
-                        self.sf, 
-                        nperseg=self.sf*sec_per_seg,
-                        axis=1)
+                        compressed, self.sf, nperseg=self.sf * sec_per_seg, axis=1
+                    )
                     psds[stage].append(psd)
                     n_samples += compressed.shape[1]
-            avg = np.average(np.array(psds[stage]), weights=weights, axis=0)    
+            avg = np.average(np.array(psds[stage]), weights=weights, axis=0)
             psd_per_stage[stage] = [
-                freqs, 
-                10*np.log10(avg) if dB else avg,
-                round(n_samples/n_samples_total*100, 2)]
+                freqs,
+                10 * np.log10(avg) if dB else avg,
+                round(n_samples / n_samples_total * 100, 2),
+            ]
         return psd_per_stage
 
-
-
     def __plot_hypnospectrogram(
-        self,
-        data,
-        sf,
-        hypno,
-        win_sec,
-        fmin,
-        fmax,
-        trimperc,
-        cmap,
-        overlap
+        self, data, sf, hypno, win_sec, fmin, fmax, trimperc, cmap, overlap
     ):
         """
         ?
@@ -498,12 +356,16 @@ class ResultsPipe(_SuperPipe, _SpectrumPipe):
 
         if overlap or not hypno.any():
             fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
-            im = self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax)
+            im = self.__plot_spectrogram(
+                data, sf, win_sec, fmin, fmax, trimperc, cmap, ax
+            )
             if hypno.any():
                 ax_hypno = ax.twinx()
                 self.__plot_hypnogram(sf, hypno, ax_hypno)
             # Add colorbar
-            cbar = fig.colorbar(im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1)
+            cbar = fig.colorbar(
+                im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1
+            )
             cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=90, labelpad=20)
             # Revert font-size
             plt.rcParams.update({"font.size": old_fontsize})
@@ -524,7 +386,6 @@ class ResultsPipe(_SuperPipe, _SpectrumPipe):
 
     @staticmethod
     def __plot_hypnogram(sf, hypno, ax0):
-
         from pandas import Series
 
         hypno = np.asarray(hypno).astype(int)
@@ -561,81 +422,88 @@ class ResultsPipe(_SuperPipe, _SpectrumPipe):
         ax0.spines["top"].set_visible(False)
         return ax0
 
-
     @staticmethod
     def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
-        
         from matplotlib.colors import Normalize
         from lspopt import spectrogram_lspopt
         import numpy as np
-        
 
         # Calculate multi-taper spectrogram
         nperseg = int(win_sec * sf)
         f, t, Sxx = spectrogram_lspopt(data, sf, nperseg=nperseg, noverlap=0)
-        Sxx = 10 * np.log10(Sxx, out=np.full(Sxx.shape, np.nan), where=(Sxx!=0))  # Convert uV^2 / Hz --> dB / Hz
+        Sxx = 10 * np.log10(
+            Sxx, out=np.full(Sxx.shape, np.nan), where=(Sxx != 0)
+        )  # Convert uV^2 / Hz --> dB / Hz
 
         # Select only relevant frequencies (up to 30 Hz)
         good_freqs = np.logical_and(f >= fmin, f <= fmax)
         Sxx = Sxx[good_freqs, :]
         f = f[good_freqs]
         t /= 3600  # Convert t to hours
-        
+
         # Normalization
         vmin, vmax = np.nanpercentile(Sxx, [0 + trimperc, 100 - trimperc])
         norm = Normalize(vmin=vmin, vmax=vmax)
-        im = ax.pcolormesh(t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto")
+        im = ax.pcolormesh(
+            t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto"
+        )
         ax.set_xlim(0, t.max())
         ax.set_ylabel("Frequency [Hz]")
         ax.set_xlabel("Time [hrs]")
         return im
 
+    def sleep_stats(self, save: bool = False):
+        """A wrapper for
+        `yasa.sleep_statistics <https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa-sleep-statistics>`_.
 
-    def sleep_stats(self, save_to_csv: bool = False):
-        """sleep statistics"""
+        Args:
+            save: Whether to save the stats to csv. Defaults to False.
+        """
 
         from yasa import sleep_statistics
         from csv import DictWriter
-        assert self.hypno.any(), 'There is no hypnogram to get stats from.'
+
+        assert self.hypno.any(), "There is no hypnogram to get stats from."
         stats = sleep_statistics(self.hypno, self.hypno_freq)
-        if save_to_csv:
-            with open(self.output_dir/'sleep_stats.csv', 'w', newline='') as csv_file:
+        if save:
+            with open(self.output_dir / "sleep_stats.csv", "w", newline="") as csv_file:
                 w = DictWriter(csv_file, stats.keys())
                 w.writeheader()
                 w.writerow(stats)
             return
         return stats
 
-@define(kw_only=True)
-class CombinedPipe(_SpectrumPipe):
 
-    pipes: tuple = field()
+@define(kw_only=True)
+class CombinedPipe(BaseSpectrum):
+    from collections.abc import Iterable
+
+    pipes: Iterable[ResultsPipe] = field()
     psd_per_stage: dict = field(init=False)
     mne_raw: mne.io.Raw = field(init=False)
+
     @mne_raw.default
     def _get_mne_raw_from_pipe(self):
         return self.pipes[0].mne_raw
 
-    def _compute_psd_per_stage(
-            self, 
-            picks, 
-            sleep_stages, 
-            sec_per_seg, 
-            avg_ref, 
-            dB):
-        
+    def _compute_psd_per_stage(self, picks, sleep_stages, sec_per_seg, avg_ref, dB):
         psd_per_stage = {}
         psds = []
         for pipe in self.pipes:
-            psds.append(pipe._compute_psd_per_stage(
-                picks=picks,
-                sleep_stages=sleep_stages,
-                sec_per_seg=sec_per_seg,
-                avg_ref=avg_ref,
-                dB=dB))
-            
+            psds.append(
+                pipe._compute_psd_per_stage(
+                    picks=picks,
+                    sleep_stages=sleep_stages,
+                    sec_per_seg=sec_per_seg,
+                    avg_ref=avg_ref,
+                    dB=dB,
+                )
+            )
+
         for stage in sleep_stages:
-            psd_per_stage[stage]=[psds[0][stage][0],
-                np.sum([psd[stage][1] for psd in psds], axis=0)/len(self.pipes),
-                round(sum([psd[stage][2] for psd in psds])/len(self.pipes), 2)]
+            psd_per_stage[stage] = [
+                psds[0][stage][0],
+                np.sum([psd[stage][1] for psd in psds], axis=0) / len(self.pipes),
+                round(sum([psd[stage][2] for psd in psds]) / len(self.pipes), 2),
+            ]
         return psd_per_stage
