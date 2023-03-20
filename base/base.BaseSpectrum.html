@@ -2,8 +2,8 @@
 <html class="no-js" lang="en">
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pipeline module" href="../pipeline.html" /><link rel="prev" title="BasePipe" href="base.BasePipe.html" />
 
     <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>BaseSpectrum - sleep-eeg-processing documentation</title>
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -154,9 +154,18 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul>
-<li class="toctree-l1"><a class="reference internal" href="../base.html">base module</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../pipeline.html">pipeline module</a></li>
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../base.html">base module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BaseSpectrum</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.ResultsPipe.html">ResultsPipe</a></li>
+</ul>
+</li>
 </ul>
 
 </div>
@@ -185,7 +194,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -193,6 +202,118 @@
         <article role="main">
           <section id="basespectrum">
 <h1>BaseSpectrum<a class="headerlink" href="#basespectrum" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="base.BaseSpectrum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">BaseSpectrum</span></span><a class="reference internal" href="../_modules/base.html#BaseSpectrum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BaseSpectrum" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>A template class for the spectral analysis.</p>
+<blockquote class="epigraph">
+<div><p><strong>Methods:</strong></p>
+</div></blockquote>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#base.BaseSpectrum.plot_psd_per_stage" title="base.BaseSpectrum.plot_psd_per_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psd_per_stage</span></code></a></p></td>
+<td><p>Plot PSD per sleep stage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#base.BaseSpectrum.plot_topomap_collage" title="base.BaseSpectrum.plot_topomap_collage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap_collage</span></code></a></p></td>
+<td><p>Plots topomap collage for multiple sleep stages and bandwidths.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#base.BaseSpectrum.plot_topomap_per_stage" title="base.BaseSpectrum.plot_topomap_per_stage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap_per_stage</span></code></a></p></td>
+<td><p>Plots topomap for a sleep stage and a bandwidth.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="base.BaseSpectrum.plot_psd_per_stage">
+<span class="sig-name descname"><span class="pre">plot_psd_per_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('E101',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_per_seg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-40,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">40)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BaseSpectrum.plot_psd_per_stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BaseSpectrum.plot_psd_per_stage" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot PSD per sleep stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Channels to calculate PSD on, more info at
+<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.get_data">mne.io.Raw.get_data</a>.
+Defaults to (“E101”,).</p></li>
+<li><p><strong>sec_per_seg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Welch segment length in seconds. Defaults to 4.096.</p></li>
+<li><p><strong>psd_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>) – Range of y axis on PSD plot. Defaults to (-40, 60).</p></li>
+<li><p><strong>freq_range</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>) – Range of x axis on PSD plot. Defaults to (0, 40).</p></li>
+<li><p><strong>xscale</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Scale of the X axis, check available values at
+<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.get_data">matplotlib.axes.Axes.set_xscale</a>.
+Defaults to “linear”.</p></li>
+<li><p><strong>sleep_stages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>axis</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code>]) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis">matplotlib.pyplot.axis</a>.
+Defaults to None.</p></li>
+<li><p><strong>save</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save the figure. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="base.BaseSpectrum.plot_topomap_per_stage">
+<span class="sig-name descname"><span class="pre">plot_topomap_per_stage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'REM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bandwidth</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Delta':</span> <span class="pre">(0,</span> <span class="pre">4)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_per_seg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fooof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plasma'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BaseSpectrum.plot_topomap_per_stage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BaseSpectrum.plot_topomap_per_stage" title="Permalink to this definition">#</a></dt>
+<dd><p>Plots topomap for a sleep stage and a bandwidth.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – One of the sleep_stages keys. Defaults to “REM”.</p></li>
+<li><p><strong>bandwidth</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Name-value pair - with name=arbitrary name
+and value=(l_freq, h_freq).
+Defaults to {“Delta”: (0, 4)}.</p></li>
+<li><p><strong>sec_per_seg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Welch segment length in seconds. Defaults to 4.096.</p></li>
+<li><p><strong>dB</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether transform PSD to dB. Defaults to False.</p></li>
+<li><p><strong>sleep_stages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>axis</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code>]) – <p>Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis">matplotlib.pyplot.axis</a>.
+Defaults to None.</p>
+</p></li>
+<li><p><strong>fooof</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to plot parametrised spectra.
+More at <a class="reference external" href="https://fooof-tools.github.io/fooof/auto_examples/analyses/plot_mne_example.html#sphx-glr-auto-examples-analyses-plot-mne-example-py">fooof</a>.
+Defaults to False.</p></li>
+<li><p><strong>cmap</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – Matplotlib <a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">colormap</a>.
+Defaults to “plasma”.</p></li>
+<li><p><strong>save</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save the figure. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="base.BaseSpectrum.plot_topomap_collage">
+<span class="sig-name descname"><span class="pre">plot_topomap_collage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Alpha':</span> <span class="pre">(8,</span> <span class="pre">12.49),</span> <span class="pre">'Beta':</span> <span class="pre">(12.5,</span> <span class="pre">29.99),</span> <span class="pre">'Delta':</span> <span class="pre">(0,</span> <span class="pre">3.99),</span> <span class="pre">'Gamma':</span> <span class="pre">(30,</span> <span class="pre">60),</span> <span class="pre">'SMR':</span> <span class="pre">(12.5,</span> <span class="pre">15),</span> <span class="pre">'Theta':</span> <span class="pre">(4,</span> <span class="pre">7.99)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sec_per_seg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4.096</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fooof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'plasma'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BaseSpectrum.plot_topomap_collage"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BaseSpectrum.plot_topomap_collage" title="Permalink to this definition">#</a></dt>
+<dd><p>Plots topomap collage for multiple sleep stages and bandwidths.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stages_to_plot</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>) – Tuple of strings representing names from sleep_stages,
+e.g., (“REM”, “N1”).
+If set to “all” plots every stage provided in sleep_stages.
+Defaults to “all”.</p></li>
+<li><p><strong>bands</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Dict of name-value pairs - with name=arbitrary name
+and value=(l_freq, h_freq).
+Defaults to { “Delta”: (0, 3.99), “Theta”: (4, 7.99), “Alpha”: (8, 12.49),
+“SMR”: (12.5, 15), “Beta”: (12.5, 29.99), “Gamma”: (30, 60), }.</p></li>
+<li><p><strong>sec_per_seg</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Welch segment length in seconds.. Defaults to 4.096.</p></li>
+<li><p><strong>dB</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether transform PSD to dB. Defaults to False.</p></li>
+<li><p><strong>sleep_stages</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>fooof</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – <p>Whether to plot parametrised spectra.
+More at <a class="reference external" href="https://fooof-tools.github.io/fooof/auto_examples/analyses/plot_mne_example.html#sphx-glr-auto-examples-analyses-plot-mne-example-py">fooof</a>.
+Defaults to False. Defaults to False.</p>
+</p></li>
+<li><p><strong>cmap</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – <p>Matplotlib <a class="reference external" href="https://matplotlib.org/stable/tutorials/colors/colormaps.html">colormap</a>.
+Defaults to “plasma”.</p>
+</p></li>
+<li><p><strong>save</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save the figure. Defaults to False.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
         </article>
@@ -200,8 +321,26 @@
       <footer>
         
         <div class="related-pages">
-          
-          
+          <a class="next-page" href="../pipeline.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">pipeline module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="base.BasePipe.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">BasePipe</div>
+                
+              </div>
+            </a>
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -220,8 +359,32 @@
         
       </footer>
     </div>
-    <aside class="toc-drawer no-toc">
+    <aside class="toc-drawer">
       
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">BaseSpectrum</a><ul>
+<li><a class="reference internal" href="#base.BaseSpectrum"><code class="docutils literal notranslate"><span class="pre">BaseSpectrum</span></code></a><ul>
+<li><a class="reference internal" href="#base.BaseSpectrum.plot_psd_per_stage"><code class="docutils literal notranslate"><span class="pre">BaseSpectrum.plot_psd_per_stage()</span></code></a></li>
+<li><a class="reference internal" href="#base.BaseSpectrum.plot_topomap_per_stage"><code class="docutils literal notranslate"><span class="pre">BaseSpectrum.plot_topomap_per_stage()</span></code></a></li>
+<li><a class="reference internal" href="#base.BaseSpectrum.plot_topomap_collage"><code class="docutils literal notranslate"><span class="pre">BaseSpectrum.plot_topomap_collage()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
       
       
     </aside>
