@@ -14,13 +14,12 @@ import mne.io
 from typing import TypeVar, Type
 from collections.abc import Iterable
 
-
 # For type annotation of pipe elements.
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
 
 
-@define(kw_only=True)
-class BasePipe:
+@define(kw_only=True, slots=False)
+class BasePipe(ABC):
     """A template class for the pipeline segments."""
 
     prec_pipe: Type[BasePipeType] = field(default=None, metadata={"my_metadata": 1})
@@ -142,9 +141,15 @@ class BasePipe:
         self.mne_raw.save(path_to_resampled / fname)
 
 
-@define(kw_only=True)
+@define(kw_only=True, slots=False)
 class BaseSpectrum(ABC):
     """A template class for the spectral analysis."""
+
+    psd_per_stage: dict = field(init=False)
+    """ Dictionary of the form sleep_stage:[freqs array with shape (n_freqs), 
+    psd array with shape (n_electrodes, n_freqs), 
+    sleep_stage percent from the whole unrejected data]
+    """
 
     def plot_psd_per_stage(
         self,
@@ -411,3 +416,220 @@ class BaseSpectrum(ABC):
     @abstractmethod
     def _compute_psd_per_stage(self):
         pass
+
+
+@define(kw_only=True, slots=False)
+class BaseHypno(BasePipe, ABC):
+    """A template class for the sleep stage analysis pipeline segments."""
+
+    path_to_hypno: Path = field(converter=Path)
+    """Path to hypnogram. Must be text file with every 
+    row being int representing sleep stage for the epoch.
+    """
+
+    @path_to_hypno.default
+    def _set_path_to_hypno(self):
+        return "/"
+
+    @path_to_hypno.validator
+    def _validate_path_to_hypno(self, attr, value):
+        if not value.exists():
+            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), value)
+
+    hypno_freq: int = field(converter=int)
+    """Sampling rate of the hypnogram in Hz.
+
+    E.g., 1/30 means 1 sample per 30 secs epoch,
+    250 means 1 sample per 1/250 sec epoch.
+    """
+
+    @hypno_freq.default
+    def _get_hypno_freq(self):
+        if self.prec_pipe and isinstance(self.prec_pipe, BaseHypno):
+            return self.prec_pipe.hypno_freq
+        return 1
+
+    hypno: np.ndarray = field()
+    """ Hypnogram with sampling frequency hypno_freq
+    with int representing sleep stage.
+    """
+
+    @hypno.default
+    def _import_hypno(self):
+        if self.prec_pipe and isinstance(self.prec_pipe, BaseHypno):
+            return self.prec_pipe.hypno
+        if self.path_to_hypno == Path("/"):
+            return np.empty(0)
+        try:
+            return np.loadtxt(self.path_to_hypno)
+        except Exception as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
+
+    hypno_up: np.array = field()
+    """ Hypnogram upsampled to the sampling frequency of the raw data.
+    """
+
+    @hypno_up.default
+    def _set_hypno_up(self):
+        return self.hypno
+
+    def __attrs_post_init__(self):
+        if self.hypno.any():
+            self.__upsample_hypno()
+
+    def __upsample_hypno(self):
+        from yasa import hypno_upsample_to_data
+
+        self.hypno_up = hypno_upsample_to_data(
+            self.hypno, self.hypno_freq, self.mne_raw, verbose=False
+        )
+
+    def sleep_stats(self, save: bool = False):
+        """A wrapper for
+        `yasa.sleep_statistics <https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa-sleep-statistics>`_.
+
+        Args:
+            save: Whether to save the stats to csv. Defaults to False.
+        """
+
+        from yasa import sleep_statistics
+        from csv import DictWriter
+
+        assert self.hypno.any(), "There is no hypnogram to get stats from."
+        stats = sleep_statistics(self.hypno, self.hypno_freq)
+        if save:
+            with open(self.output_dir / "sleep_stats.csv", "w", newline="") as csv_file:
+                w = DictWriter(csv_file, stats.keys())
+                w.writeheader()
+                w.writerow(stats)
+            return
+        return stats
+
+
+@define(kw_only=True, slots=False)
+class BaseSpindle(ABC):
+    """A template class for spindle detection."""
+
+    spindles = field(init=False)
+
+    def spindles_detect(
+        self,
+        picks=("eeg"),
+        include=(1, 2, 3),
+        freq_sp=(12, 15),
+        freq_broad=(1, 30),
+        duration=(0.5, 2),
+        min_distance=500,
+        thresh={"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
+        multi_only=False,
+        remove_outliers=False,
+        save=False,
+    ):
+
+        from yasa import spindles_detect
+
+        self.spindles = spindles_detect(
+            data=self.mne_raw.copy().pick(picks),
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_sp=freq_sp,
+            freq_broad=freq_broad,
+            duration=duration,
+            min_distance=min_distance,
+            thresh=thresh,
+            multi_only=multi_only,
+            remove_outliers=remove_outliers,
+        )
+        if save:
+            self.spindles.summary().to_csv(
+                self.output_dir / "spindles.csv", index=False
+            )
+
+
+@define(kw_only=True, slots=False)
+class BaseSlowWave(ABC):
+    """A template class for slow waves detection."""
+
+    slow_waves = field(init=False)
+
+    def sw_detect(
+        self,
+        picks=("eeg"),
+        include=(1, 2, 3),
+        freq_sw=(0.3, 1.5),
+        dur_neg=(0.3, 1.5),
+        dur_pos=(0.1, 1),
+        amp_neg=(40, 200),
+        amp_pos=(10, 150),
+        amp_ptp=(75, 350),
+        coupling=False,
+        coupling_params={"freq_sp": (12, 16), "p": 0.05, "time": 1},
+        remove_outliers=False,
+        save=False,
+    ):
+
+        from yasa import sw_detect
+
+        self.slow_waves = sw_detect(
+            data=self.mne_raw.copy().pick(picks),
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_sw=freq_sw,
+            dur_neg=dur_neg,
+            dur_pos=dur_pos,
+            amp_neg=amp_neg,
+            amp_pos=amp_pos,
+            amp_ptp=amp_ptp,
+            coupling=coupling,
+            coupling_params=coupling_params,
+            remove_outliers=remove_outliers,
+        )
+        if save:
+            self.spindles.summary().to_csv(
+                self.output_dir / "slow_waves.csv", index=False
+            )
+
+
+@define(kw_only=True, slots=False)
+class BaseREMs(ABC):
+    """A template class for rapid eye movements detection."""
+
+    rems = field(init=False)
+
+    def rem_detect(
+        self,
+        loc_chname="E46",
+        roc_chname="E10",
+        include=4,
+        freq_rem=(0.5, 5),
+        duration=(0.3, 1.2),
+        amplitude=(50, 325),
+        remove_outliers=False,
+        save=False,
+    ):
+
+        from yasa import rem_detect
+
+        loc = self.mne_raw.get_data(
+            [loc_chname], units="uV", reject_by_annotation="NaN"
+        )
+        roc = self.mne_raw.get_data(
+            [roc_chname], units="uV", reject_by_annotation="NaN"
+        )
+        self.rems = rem_detect(
+            loc=loc,
+            roc=roc,
+            sf=self.sf,
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_rem=freq_rem,
+            duration=duration,
+            amplitude=amplitude,
+            remove_outliers=remove_outliers,
+        )
+        if save:
+            self.spindles.summary().to_csv(self.output_dir / "rems.csv", index=False)

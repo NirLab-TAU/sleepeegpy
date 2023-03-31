@@ -4,15 +4,20 @@
 from attrs import define, field
 from pathlib import Path
 
-import os
-import errno
 import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
 
 from collections.abc import Iterable
 
-from base import BasePipe, BaseSpectrum
+from base import (
+    BasePipe,
+    BaseHypno,
+    BaseSpectrum,
+    BaseSpindle,
+    BaseSlowWave,
+    BaseREMs,
+)
 
 
 @define(kw_only=True)
@@ -202,66 +207,12 @@ class ICAPipe(BasePipe):
 
 
 @define(kw_only=True)
-class ResultsPipe(BasePipe, BaseSpectrum):
-    """The results pipeline element.
+class SpectralPipe(BaseHypno, BaseSpectrum):
+    """The spectral analyses pipeline element.
 
     Contains methods for computing and plotting PSD,
     spectrogram and topomaps, per sleep stage.
     """
-
-    path_to_hypno: Path = field(converter=Path)
-    """Path to hypnogram. Must be text file with every 
-    row being int representing sleep stage for the epoch.
-    """
-
-    @path_to_hypno.default
-    def _set_path_to_hypno(self):
-        return "/"
-
-    @path_to_hypno.validator
-    def _validate_path_to_hypno(self, attr, value):
-        if not value.exists():
-            raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), value)
-
-    hypno_freq: int = field(converter=int, default=1)
-    """Sampling rate of the hypnogram in Hz.
-
-    E.g., 1/30 means 1 sample per 30 secs epoch,
-    250 means 1 sample per 1/250 sec epoch.
-    """
-
-    hypno: np.ndarray = field()
-    """ Hypnogram with sampling frequency hypno_freq
-    with int representing sleep stage.
-    """
-
-    @hypno.default
-    def _import_hypno(self):
-        if self.path_to_hypno == Path("/"):
-            return np.empty(0)
-        try:
-            return np.loadtxt(self.path_to_hypno)
-        except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
-
-    hypno_up: np.array = field()
-    """ Hypnogram upsampled to the sampling frequency of the raw data.
-    """
-
-    @hypno_up.default
-    def _set_hypno_up(self):
-        return self.hypno
-
-    psd_per_stage: dict = field(init=False)
-    """ Dictionary of the form sleep_stage:[freqs array with shape (n_freqs), 
-    psd array with shape (n_electrodes, n_freqs), 
-    sleep_stage percent from the whole unrejected data]
-    """
-
-    def __attrs_post_init__(self):
-        if self.hypno.any():
-            self.__upsample_hypno()
 
     def plot_hypnospectrogram(
         self,
@@ -302,13 +253,6 @@ class ResultsPipe(BasePipe, BaseSpectrum):
         # Save the figure if 'save' set to True
         if save:
             fig.savefig(self.output_dir / f"spectrogram.png", bbox_inches="tight")
-
-    def __upsample_hypno(self):
-        from yasa import hypno_upsample_to_data
-
-        self.hypno_up = hypno_upsample_to_data(
-            self.hypno, self.hypno_freq, self.mne_raw, verbose=False
-        )
 
     def _compute_psd_per_stage(self, picks, sleep_stages, sec_per_seg, avg_ref, dB):
         from collections import defaultdict
@@ -470,34 +414,41 @@ class ResultsPipe(BasePipe, BaseSpectrum):
         ax.set_xlabel("Time [hrs]")
         return im
 
-    def sleep_stats(self, save: bool = False):
-        """A wrapper for
-        `yasa.sleep_statistics <https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa-sleep-statistics>`_.
 
-        Args:
-            save: Whether to save the stats to csv. Defaults to False.
-        """
+@define(kw_only=True)
+class EventsPipe(BaseHypno, BaseSpindle, BaseSlowWave, BaseREMs):
+    """The event detection pipeline element."""
 
-        from yasa import sleep_statistics
-        from csv import DictWriter
-
-        assert self.hypno.any(), "There is no hypnogram to get stats from."
-        stats = sleep_statistics(self.hypno, self.hypno_freq)
+    def plot_spindles_average(self, save=False, hue="Stage", **kwargs):
+        self.spindles.plot_average(hue=hue, **kwargs)
         if save:
-            with open(self.output_dir / "sleep_stats.csv", "w", newline="") as csv_file:
-                w = DictWriter(csv_file, stats.keys())
-                w.writeheader()
-                w.writerow(stats)
-            return
-        return stats
+            plt.savefig(self.output_dir / "spindles_avg.png")
+
+    def plot_slow_waves_average(self, save=False, hue="Stage", **kwargs):
+        self.slow_waves.plot_average(hue=hue, **kwargs)
+        if save:
+            plt.savefig(self.output_dir / "slow_waves_avg.png")
+
+    def plot_rems_average(self, save=False, **kwargs):
+        self.rems.plot_average(**kwargs)
+        if save:
+            plt.savefig(self.output_dir / "rems_avg.png")
 
 
 @define(kw_only=True)
-class CombinedPipe(BaseSpectrum):
+class CombinedPipe(BaseSpectrum, BaseSpindle, BaseSlowWave, BaseREMs):
+    """The pipeline element combining results from multiple subjects.
+
+    Contains methods for computing and plotting combined PSD,
+    spectrogram and topomaps, per sleep stage.
+    """
+
     from collections.abc import Iterable
 
-    pipes: Iterable[ResultsPipe] = field()
-    psd_per_stage: dict = field(init=False)
+    pipes: Iterable[BaseHypno] = field()
+    """Stores pipeline elements for multiple subjects.
+    """
+
     mne_raw: mne.io.Raw = field(init=False)
 
     @mne_raw.default
