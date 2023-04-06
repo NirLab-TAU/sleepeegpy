@@ -9,3 +9,4 @@ scipy==1.10.1
 yasa==0.6.3
 mne-qt-browser==0.4.0
 pyqt5==5.15.9
+ipympl

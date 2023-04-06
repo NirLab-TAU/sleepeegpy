@@ -1,23 +1,18 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
 
+
 from attrs import define, field
 from pathlib import Path
-
+from abc import ABC
 import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
 
+
 from collections.abc import Iterable
 
-from base import (
-    BasePipe,
-    BaseHypno,
-    BaseSpectrum,
-    BaseSpindle,
-    BaseSlowWave,
-    BaseREMs,
-)
+from base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum
 
 
 @define(kw_only=True)
@@ -207,7 +202,7 @@ class ICAPipe(BasePipe):
 
 
 @define(kw_only=True)
-class SpectralPipe(BaseHypno, BaseSpectrum):
+class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
     """The spectral analyses pipeline element.
 
     Contains methods for computing and plotting PSD,
@@ -416,27 +411,130 @@ class SpectralPipe(BaseHypno, BaseSpectrum):
 
 
 @define(kw_only=True)
-class EventsPipe(BaseHypno, BaseSpindle, BaseSlowWave, BaseREMs):
-    """The event detection pipeline element."""
+class SpindlesPipe(BaseEventPipe):
+    """Spindles detection."""
 
-    def plot_spindles_average(self, save=False, hue="Stage", **kwargs):
-        self.spindles.plot_average(hue=hue, **kwargs)
-        if save:
-            plt.savefig(self.output_dir / "spindles_avg.png")
+    def detect(
+        self,
+        picks=("eeg"),
+        include=(1, 2, 3),
+        freq_sp=(12, 15),
+        freq_broad=(1, 30),
+        duration=(0.5, 2),
+        min_distance=500,
+        thresh={"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
+        multi_only=False,
+        remove_outliers=False,
+        save=False,
+    ):
 
-    def plot_slow_waves_average(self, save=False, hue="Stage", **kwargs):
-        self.slow_waves.plot_average(hue=hue, **kwargs)
-        if save:
-            plt.savefig(self.output_dir / "slow_waves_avg.png")
+        from yasa import spindles_detect
 
-    def plot_rems_average(self, save=False, **kwargs):
-        self.rems.plot_average(**kwargs)
+        self.results = spindles_detect(
+            data=self.mne_raw.copy().pick(picks),
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_sp=freq_sp,
+            freq_broad=freq_broad,
+            duration=duration,
+            min_distance=min_distance,
+            thresh=thresh,
+            multi_only=multi_only,
+            remove_outliers=remove_outliers,
+        )
         if save:
-            plt.savefig(self.output_dir / "rems_avg.png")
+            self._save_to_csv()
 
 
 @define(kw_only=True)
-class CombinedPipe(BaseSpectrum, BaseSpindle, BaseSlowWave, BaseREMs):
+class SlowWavesPipe(BaseEventPipe):
+    """Slow waves detection."""
+
+    def detect(
+        self,
+        picks=("eeg"),
+        include=(1, 2, 3),
+        freq_sw=(0.3, 1.5),
+        dur_neg=(0.3, 1.5),
+        dur_pos=(0.1, 1),
+        amp_neg=(40, 200),
+        amp_pos=(10, 150),
+        amp_ptp=(75, 350),
+        coupling=False,
+        coupling_params={"freq_sp": (12, 16), "p": 0.05, "time": 1},
+        remove_outliers=False,
+        save=False,
+    ):
+
+        from yasa import sw_detect
+
+        self.results = sw_detect(
+            data=self.mne_raw.copy().pick(picks),
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_sw=freq_sw,
+            dur_neg=dur_neg,
+            dur_pos=dur_pos,
+            amp_neg=amp_neg,
+            amp_pos=amp_pos,
+            amp_ptp=amp_ptp,
+            coupling=coupling,
+            coupling_params=coupling_params,
+            remove_outliers=remove_outliers,
+        )
+        if save:
+            self._save_to_csv()
+
+
+@define(kw_only=True)
+class REMsPipe(BaseEventPipe):
+    """A template class for rapid eye movements detection."""
+
+    def detect(
+        self,
+        loc_chname="E252",
+        roc_chname="E226",
+        include=4,
+        freq_rem=(0.5, 5),
+        duration=(0.3, 1.2),
+        amplitude=(50, 325),
+        remove_outliers=False,
+        save=False,
+    ):
+
+        from yasa import rem_detect
+
+        loc = self.mne_raw.get_data(
+            [loc_chname], units="uV", reject_by_annotation="NaN"
+        )
+        roc = self.mne_raw.get_data(
+            [roc_chname], units="uV", reject_by_annotation="NaN"
+        )
+        self.results = rem_detect(
+            loc=loc,
+            roc=roc,
+            sf=self.sf,
+            hypno=self.hypno_up,
+            verbose=False,
+            include=include,
+            freq_rem=freq_rem,
+            duration=duration,
+            amplitude=amplitude,
+            remove_outliers=remove_outliers,
+        )
+        if save:
+            self._save_to_csv()
+
+    def plot_average(self, save=False, **kwargs):
+        self.results.plot_average(**kwargs)
+        if save:
+            self._save_avg_fig()
+
+
+@define(kw_only=True)
+class CombinedPipe(BaseSpectrum):
     """The pipeline element combining results from multiple subjects.
 
     Contains methods for computing and plotting combined PSD,
@@ -445,7 +543,7 @@ class CombinedPipe(BaseSpectrum, BaseSpindle, BaseSlowWave, BaseREMs):
 
     from collections.abc import Iterable
 
-    pipes: Iterable[BaseHypno] = field()
+    pipes: Iterable[BaseHypnoPipe] = field()
     """Stores pipeline elements for multiple subjects.
     """
 
