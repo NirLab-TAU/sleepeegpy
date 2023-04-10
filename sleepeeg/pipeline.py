@@ -490,7 +490,7 @@ class SlowWavesPipe(BaseEventPipe):
 
 @define(kw_only=True)
 class REMsPipe(BaseEventPipe):
-    """A template class for rapid eye movements detection."""
+    """Rapid eye movements detection."""
 
     def detect(
         self,

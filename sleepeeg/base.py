@@ -259,7 +259,14 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
     """A template class for event detection."""
 
     results = field(init=False)
+    """Event detection results as returned by YASA's event detection methods. 
+    Depending on the child class can be instance of either 
+    SpindlesResults, SWResults or REMResults classes. 
+    """
+
     tfrs: dict = field(init=False)
+    """Instances of mne.time_frequency.AverageTFR per sleep stage.
+    """
 
     @abstractmethod
     def detect():
@@ -273,14 +280,22 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
     def _save_avg_fig(self):
         plt.savefig(self.output_dir / f"{self.__class__.__name__[:-4].lower()}_avg.png")
 
-    def plot_average(self, hue="Stage", save=False, **kwargs):
+    def plot_average(self, hue: str = "Stage", save: bool = False, **kwargs):
+        """Average of YASA's detected event.
+
+        Args:
+            hue: Grouping variable that will produce lines with different colors.
+                Can be either "Channel" or "Stage". Defaults to "Stage".
+            save: Whether to save the figure to file. Defaults to False.
+            **kwargs: Optional arguments passed to YASA's plot_average() method.
+        """
         self.results.plot_average(hue=hue, **kwargs)
         if save:
             self._save_avg_fig()
 
     def plot_topomap_per_stage(
         self,
-        prop,
+        prop: str,
         stage: str = "N2",
         aggfunc: str = "mean",
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
@@ -288,7 +303,21 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         cmap: str = "plasma",
         save: bool = False,
     ):
+        """Plots topomap for a sleep stage and some property of detected events.
 
+        Args:
+            prop: Any event property returned by self.results.summary().
+            stage: One of the sleep_stages keys. Defaults to "N2".
+            aggfunc: Averaging function, "mean" or "median". Defaults to "mean".
+            sleep_stages: Mapping between sleep stages names and their integer representations.
+                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
+            axis: Instance of `matplotlib.pyplot.axis <https://matplotlib.org/
+                stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis>`_.
+                Defaults to None.
+            cmap: Matplotlib `colormap <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+                Defaults to "plasma".
+            save: Whether to save the figure. Defaults to False.
+        """
         from natsort import natsort_keygen
         from more_itertools import collapse
 
@@ -334,13 +363,27 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
 
     def plot_topomap_collage(
         self,
-        props,
+        props: Iterable[str],
         aggfunc: str = "mean",
         stages_to_plot: tuple = "all",
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         cmap: str = "plasma",
         save: bool = False,
     ):
+        """Plots topomap collage for multiple sleep stages and event properties.
+
+        Args:
+            props: Properties from the self.results.summary() to generate topomaps for.
+            aggfunc: Averaging function, "mean" or "median". Defaults to "mean".
+            stages_to_plot: stages_to_plot: Tuple of strings representing names from sleep_stages,
+                e.g., ("REM", "N1"). If set to "all" plots every stage provided in sleep_stages.
+                Defaults to "all".
+            sleep_stages: Mapping between sleep stages names and their integer representations.
+                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
+            cmap: Matplotlib `colormap <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
+                Defaults to "plasma".
+            save: Whether to save the figure. Defaults to False.
+        """
         if stages_to_plot == "all":
             stages_to_plot = {
                 k: v
@@ -385,7 +428,6 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         method="morlet",
         **kwargs,
     ):
-
         assert self.results, "Run detect method first"
         assert (
             method == "morlet" or method == "multitaper"
