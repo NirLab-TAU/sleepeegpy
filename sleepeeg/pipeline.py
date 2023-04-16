@@ -12,7 +12,7 @@ import mne.io
 
 from collections.abc import Iterable
 
-from base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum
+from sleepeeg.base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum
 
 
 @define(kw_only=True)
@@ -427,7 +427,6 @@ class SpindlesPipe(BaseEventPipe):
         remove_outliers=False,
         save=False,
     ):
-
         from yasa import spindles_detect
 
         self.results = spindles_detect(
@@ -466,7 +465,6 @@ class SlowWavesPipe(BaseEventPipe):
         remove_outliers=False,
         save=False,
     ):
-
         from yasa import sw_detect
 
         self.results = sw_detect(
@@ -503,7 +501,6 @@ class REMsPipe(BaseEventPipe):
         remove_outliers=False,
         save=False,
     ):
-
         from yasa import rem_detect
 
         loc = self.mne_raw.get_data(
