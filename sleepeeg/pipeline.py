@@ -1,7 +1,6 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
 
-
 from attrs import define, field
 from pathlib import Path
 from abc import ABC
@@ -135,6 +134,9 @@ class ICAPipe(BasePipe):
     `picard <https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard>`_ and
     `infomax <https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax>`_.
     """
+
+    path_to_ica: Path = field(converter=Path, default="/")
+
     mne_ica: mne.preprocessing.ICA = field()
     """Instance of 
     `mne.preprocessing.ICA <https://mne.tools/stable/
@@ -143,62 +145,67 @@ class ICAPipe(BasePipe):
 
     @mne_ica.default
     def _set_mne_ica(self):
-        from mne.preprocessing import ICA
-
-        return ICA(
-            n_components=self.n_components,
-            method=self.method,
-            fit_params=self.fit_params,
-        )
+        if self.path_to_ica == Path("/"):
+            return mne.preprocessing.ICA(
+                n_components=self.n_components,
+                method=self.method,
+                fit_params=self.fit_params,
+            )
+        return mne.preprocessing.read_ica(self.path_to_ica)
 
     def __attrs_post_init__(self):
         self.mne_raw.load_data()
 
-    def fit(self):
+    def fit(self, n_jobs="cuda", **kwargs):
         """Highpass-filters (1Hz) a copy of the mne_raw object
         and then runs `mne.preprocessing.ICA.fit <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit>`_.
         """
         if self.mne_raw.info["highpass"] < 1.0:
             filtered_raw = self.mne_raw.copy()
-            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs="cuda")
+            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs=n_jobs)
         else:
             filtered_raw = self.mne_raw
-        self.mne_ica.fit(filtered_raw)
+        self.mne_ica.fit(filtered_raw, **kwargs)
 
-    def plot_sources(self):
+    def plot_sources(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources>`_.
         """
-        self.mne_ica.plot_sources(self.mne_raw, block=True)
+        self.mne_ica.plot_sources(self.mne_raw, block=True, **kwargs)
 
-    def plot_components(self):
+    def plot_components(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_components <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components>`_.
         """
-        self.mne_ica.plot_components(inst=self.mne_raw)
+        self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
 
-    def plot_overlay(self, exclude=None, picks=None, start=10, stop=20):
+    def plot_overlay(self, exclude=None, picks=None, start=10, stop=20, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_overlay <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay>`_.
         """
         self.mne_ica.plot_overlay(
-            self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop
+            self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop, **kwargs
         )
 
-    def plot_properties(self, picks=None):
+    def plot_properties(self, picks=None, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_properties <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties>`_.
         """
-        self.mne_ica.plot_properties(self.mne_raw, picks=picks)
+        self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
 
-    def apply(self, exclude=None):
+    def apply(self, exclude=None, **kwargs):
         """Remove selected components from the signal.
 
         A wrapper for `mne.preprocessing.ICA.apply <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.apply>`_.
         """
-        self.mne_ica.apply(self.mne_raw, exclude=exclude)
+        self.mne_ica.apply(self.mne_raw, exclude=exclude, **kwargs)
+
+    def save_ica(self, fname="ica.fif", overwrite=False):
+        fif_folder = self.output_dir / "saved_ica"
+        fif_folder.mkdir(exist_ok=True)
+        self.mne_raw.save(fif_folder / fname, overwrite=overwrite)
 
 
 @define(kw_only=True)
