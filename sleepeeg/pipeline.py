@@ -3,7 +3,6 @@
 
 from attrs import define, field
 from pathlib import Path
-from abc import ABC
 import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
@@ -24,48 +23,54 @@ class CleaningPipe(BasePipe):
     """
 
     def resample(
-        self, sfreq: float = 250, n_jobs: int | str = "cuda", save: bool = False
+        self,
+        save: bool = False,
+        mne_resample_args: dict = None,
     ):
         """A wrapper for
         `mne.io.Raw.resample <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample>`_
         with an additional option to save the resampled data.
 
         Args:
-            sfreq: new sampling frequency. Defaults to 250.
-            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
             save: Whether to save a resampled data to a fif file. Defaults to False.
+            mne_resample_args: Arguments passed to `mne.io.Raw.resample <https://mne.tools/stable/
+                generated/mne.io.Raw.html#mne.io.Raw.resample>`_. Defaults to None.
         """
-        self.mne_raw.resample(sfreq, n_jobs=n_jobs, verbose="WARNING")
+        mne_resample_args = mne_resample_args or dict()
+        mne_resample_args.setdefault("sfreq", 250)
+        self.mne_raw.resample(**mne_resample_args)
         if save:
             self.save_raw(
-                "_".join(filter(None, ["resampled", str(sfreq) + "hz", "raw.fif"]))
+                "_".join(
+                    filter(
+                        None,
+                        [
+                            "resampled",
+                            str(mne_resample_args["sfreq"]) + "hz",
+                            "raw.fif",
+                        ],
+                    )
+                )
             )
 
     def filter(
         self,
-        l_freq: float | None = 0.3,
-        h_freq: float | None = None,
-        picks: str | Iterable[str] | None = None,
-        n_jobs: int | str = "cuda",
+        mne_filter_args: dict = None,
     ):
         """A wrapper for
         `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
 
         Args:
-            l_freq: the lower pass-band edge. Defaults to 0.3.
-            h_freq: the higher pass-band edge. Defaults to None.
-            picks: Channels to filter, if None - all channels will be filtered.
-                Defaults to None.
-            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
+            mne_filter_args: Arguments passed to `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
         """
+        mne_filter_args = mne_filter_args or dict()
+        mne_filter_args.setdefault("l_freq", 0.3)
         self.mne_raw.load_data()
-        self.mne_raw.filter(l_freq=l_freq, h_freq=h_freq, picks=picks, n_jobs=n_jobs)
+        self.mne_raw.filter(**mne_filter_args)
 
     def notch(
         self,
-        freqs: Iterable = None,
-        picks: str | Iterable[str] = "eeg",
-        n_jobs: int | str = "cuda",
+        mne_notch_args: dict = None,
     ):
         """A wrapper for
         `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
@@ -78,9 +83,9 @@ class CleaningPipe(BasePipe):
                 Defaults to "eeg".
             n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
         """
-        if not freqs:
-            freqs = np.arange(50, int(self.sf / 2) + 1, 50)
-        self.mne_raw.notch_filter(freqs=freqs, picks=picks, n_jobs=n_jobs)
+        mne_notch_args = mne_notch_args or dict()
+        mne_notch_args.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
+        self.mne_raw.notch_filter(**mne_notch_args)
 
     def read_bad_channels(self, path=None):
         """Imports bad channels from file to mne raw object.
@@ -88,7 +93,11 @@ class CleaningPipe(BasePipe):
         Args:
             path: Path to the txt file with bad channel name per row. Defaults to None.
         """
-        p = Path(path) if path else self.output_dir / "bad_channels.txt"
+        p = (
+            Path(path)
+            if path
+            else self.output_dir / self.__class__.__name__ / "bad_channels.txt"
+        )
         with open(p, "r") as f:
             self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
 
@@ -100,7 +109,11 @@ class CleaningPipe(BasePipe):
         """
         from mne import read_annotations
 
-        p = Path(path) if path else self.output_dir / "annotations.txt"
+        p = (
+            Path(path)
+            if path
+            else self.output_dir / self.__class__.__name__ / "annotations.txt"
+        )
         self.mne_raw.set_annotations(read_annotations(p))
 
 
@@ -115,7 +128,7 @@ class ICAPipe(BasePipe):
     generated/mne.preprocessing.ICA.html#mne-preprocessing-ica>`_.
     """
 
-    n_components: int | float | None = field(default=15)
+    n_components: int | float | None = field(default=30)
     """Number of principal components (from the pre-whitening PCA step) 
     that are passed to the ICA algorithm during fitting.
     """
@@ -156,17 +169,20 @@ class ICAPipe(BasePipe):
     def __attrs_post_init__(self):
         self.mne_raw.load_data()
 
-    def fit(self, n_jobs="cuda", **kwargs):
+    def fit(self, filter_args=None, ica_fit_args=None):
         """Highpass-filters (1Hz) a copy of the mne_raw object
         and then runs `mne.preprocessing.ICA.fit <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit>`_.
         """
+        filter_args = filter_args or dict()
+        ica_fit_args = ica_fit_args or dict()
+        filter_args.setdefault("l_freq", 1.0)
         if self.mne_raw.info["highpass"] < 1.0:
             filtered_raw = self.mne_raw.copy()
-            filtered_raw.filter(l_freq=1.0, h_freq=None, n_jobs=n_jobs)
+            filtered_raw.filter(**filter_args)
         else:
             filtered_raw = self.mne_raw
-        self.mne_ica.fit(filtered_raw, **kwargs)
+        self.mne_ica.fit(filtered_raw, **ica_fit_args)
 
     def plot_sources(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
@@ -202,10 +218,10 @@ class ICAPipe(BasePipe):
         """
         self.mne_ica.apply(self.mne_raw, exclude=exclude, **kwargs)
 
-    def save_ica(self, fname="ica.fif", overwrite=False):
-        fif_folder = self.output_dir / "saved_ica"
+    def save_ica(self, fname="data-ica.fif", overwrite=False):
+        fif_folder = self.output_dir / self.__class__.__name__ / "saved_ica"
         fif_folder.mkdir(exist_ok=True)
-        self.mne_raw.save(fif_folder / fname, overwrite=overwrite)
+        self.mne_ica.save(fif_folder / fname, overwrite=overwrite)
 
 
 @define(kw_only=True)
@@ -254,9 +270,14 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
         )
         # Save the figure if 'save' set to True
         if save:
-            fig.savefig(self.output_dir / f"spectrogram.png", bbox_inches="tight")
+            fig.savefig(
+                self.output_dir / self.__class__.__name__ / f"spectrogram.png",
+                bbox_inches="tight",
+            )
 
-    def _compute_psd_per_stage(self, picks, sleep_stages, sec_per_seg, avg_ref, dB):
+    def _compute_psd_per_stage(
+        self, picks, sleep_stages, avg_ref, dB, method_args=None
+    ):
         from collections import defaultdict
         from scipy import signal, ndimage
 
@@ -264,6 +285,10 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
             self.hypno.any()
         ), f"Hypnogram hasn't been provided, can't compute PSD per stage"
 
+        method_args = method_args or dict()
+        method_args["axis"] = 1
+        if "nperseg" not in method_args:
+            method_args["nperseg"] = self.sf * 4.096
         # Import data from the raw mne file.
         self.mne_raw.load_data()
         if avg_ref:
@@ -293,10 +318,12 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
                 regions = ndimage.find_objects(ndimage.label(self.hypno_up == index)[0])
             for region in regions:
                 compressed = np.ma.compress_cols(data[:, region[0]])
-                if compressed.size > 0:
+                if compressed.size > method_args["nperseg"]:
                     weights.append(compressed.shape[1])
                     freqs, psd = signal.welch(
-                        compressed, self.sf, nperseg=self.sf * sec_per_seg, axis=1
+                        compressed,
+                        fs=self.sf,
+                        **method_args,
                     )
                     psds[stage].append(psd)
                     n_samples += compressed.shape[1]
@@ -423,23 +450,27 @@ class SpindlesPipe(BaseEventPipe):
 
     def detect(
         self,
-        picks=("eeg"),
-        include=(1, 2, 3),
-        freq_sp=(12, 15),
-        freq_broad=(1, 30),
-        duration=(0.5, 2),
-        min_distance=500,
-        thresh={"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
-        multi_only=False,
-        remove_outliers=False,
-        save=False,
+        picks: str | Iterable[str] = ("eeg"),
+        include: Iterable[int] = (1, 2, 3),
+        freq_sp: Iterable[float] = (12, 15),
+        freq_broad: Iterable[float] = (1, 30),
+        duration: Iterable[float] = (0.5, 2),
+        min_distance: int = 500,
+        thresh: dict = {"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
+        multi_only: bool = False,
+        remove_outliers: bool = False,
+        verbose: bool = False,
+        save: bool = False,
     ):
+        """Wrapper around YASA's `spindles_detect <https://raphaelvallat.com/
+        yasa/build/html/generated/yasa.spindles_detect.html>`_.
+        """
         from yasa import spindles_detect
 
         self.results = spindles_detect(
-            data=self.mne_raw.copy().pick(picks),
+            data=self.mne_raw.copy().load_data().set_eeg_reference().pick(picks),
             hypno=self.hypno_up,
-            verbose=False,
+            verbose=verbose,
             include=include,
             freq_sp=freq_sp,
             freq_broad=freq_broad,
@@ -459,23 +490,26 @@ class SlowWavesPipe(BaseEventPipe):
 
     def detect(
         self,
-        picks=("eeg"),
-        include=(1, 2, 3),
-        freq_sw=(0.3, 1.5),
-        dur_neg=(0.3, 1.5),
-        dur_pos=(0.1, 1),
-        amp_neg=(40, 200),
-        amp_pos=(10, 150),
-        amp_ptp=(75, 350),
-        coupling=False,
-        coupling_params={"freq_sp": (12, 16), "p": 0.05, "time": 1},
-        remove_outliers=False,
-        save=False,
+        picks: str | Iterable[str] = ("eeg"),
+        include: Iterable[int] = (1, 2, 3),
+        freq_sw: Iterable[float] = (0.3, 1.5),
+        dur_neg: Iterable[float] = (0.3, 1.5),
+        dur_pos: Iterable[float] = (0.1, 1),
+        amp_neg: Iterable[float] = (40, 200),
+        amp_pos: Iterable[float] = (10, 150),
+        amp_ptp: Iterable[float] = (75, 350),
+        coupling: bool = False,
+        coupling_params: dict = {"freq_sp": (12, 16), "p": 0.05, "time": 1},
+        remove_outliers: bool = False,
+        save: bool = False,
     ):
+        """Wrapper around YASA's `sw_detect <https://raphaelvallat.com/yasa/
+        build/html/generated/yasa.sw_detect.html>`_.
+        """
         from yasa import sw_detect
 
         self.results = sw_detect(
-            data=self.mne_raw.copy().pick(picks),
+            data=self.mne_raw.copy().load_data().set_eeg_reference().pick(picks),
             hypno=self.hypno_up,
             verbose=False,
             include=include,
@@ -499,23 +533,23 @@ class REMsPipe(BaseEventPipe):
 
     def detect(
         self,
-        loc_chname="E252",
-        roc_chname="E226",
-        include=4,
-        freq_rem=(0.5, 5),
-        duration=(0.3, 1.2),
-        amplitude=(50, 325),
-        remove_outliers=False,
-        save=False,
+        loc_chname: str = "E46",
+        roc_chname: str = "E238",
+        include: int | Iterable[int] = 4,
+        freq_rem: Iterable[float] = (0.5, 5),
+        duration: Iterable[float] = (0.3, 1.2),
+        amplitude: Iterable[float] = (50, 325),
+        remove_outliers: bool = False,
+        save: bool = False,
     ):
+        """Wrapper around YASA's `rem_detect <https://raphaelvallat.com/yasa/
+        build/html/generated/yasa.rem_detect.html>`_.
+        """
         from yasa import rem_detect
 
-        loc = self.mne_raw.get_data(
-            [loc_chname], units="uV", reject_by_annotation="NaN"
-        )
-        roc = self.mne_raw.get_data(
-            [roc_chname], units="uV", reject_by_annotation="NaN"
-        )
+        referenced = self.mne_raw.copy().load_data().set_eeg_reference()
+        loc = referenced.get_data([loc_chname], units="uV", reject_by_annotation="NaN")
+        roc = referenced.get_data([roc_chname], units="uV", reject_by_annotation="NaN")
         self.results = rem_detect(
             loc=loc,
             roc=roc,
@@ -531,10 +565,17 @@ class REMsPipe(BaseEventPipe):
         if save:
             self._save_to_csv()
 
-    def plot_average(self, save=False, **kwargs):
-        self.results.plot_average(**kwargs)
+    def plot_average(self, save=False, yasa_args=None):
+        yasa_args = yasa_args or dict()
+        self.results.plot_average(**yasa_args)
         if save:
             self._save_avg_fig()
+
+    def plot_topomap(self):
+        raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
+
+    def plot_topomap_collage(self):
+        raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
 
 
 @define(kw_only=True)
@@ -544,8 +585,6 @@ class CombinedPipe(BaseSpectrum):
     Contains methods for computing and plotting combined PSD,
     spectrogram and topomaps, per sleep stage.
     """
-
-    from collections.abc import Iterable
 
     pipes: Iterable[BaseHypnoPipe] = field()
     """Stores pipeline elements for multiple subjects.
