@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="BaseSpectrum" href="base.BaseSpectrum.html" /><link rel="prev" title="base module" href="../base.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>BasePipe - sleep-eeg-processing documentation</title>
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -154,16 +154,22 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../base.html">base module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">BasePipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="base.BaseSpectrum.html">BaseSpectrum</a></li>
+  <ul>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.base.BaseTopomap.html">BaseTopomap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.base.BaseSpectrum.html">BaseSpectrum</a></li>
 </ul>
 </li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.CleaningPipe.html">CleaningPipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.ICAPipe.html">ICAPipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../pipeline/pipeline.ResultsPipe.html">ResultsPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.REMsPipe.html">REMsPipe</a></li>
 </ul>
 </li>
 </ul>
@@ -194,7 +200,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -202,123 +208,6 @@
         <article role="main">
           <section id="basepipe">
 <h1>BasePipe<a class="headerlink" href="#basepipe" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="base.BasePipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">base.</span></span><span class="sig-name descname"><span class="pre">BasePipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BasePipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BasePipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
-<p>A template class for the pipeline segments.</p>
-<blockquote class="epigraph">
-<div><p><strong>Methods:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#base.BasePipe.plot" title="base.BasePipe.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#base.BasePipe.save_raw" title="base.BasePipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<blockquote class="epigraph">
-<div><p><strong>Attributes:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#base.BasePipe.prec_pipe" title="base.BasePipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
-<td><p>Preceding pipe that hands over mne_raw attr.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#base.BasePipe.path_to_eeg" title="base.BasePipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
-<td><p>Can be any file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#base.BasePipe.output_dir" title="base.BasePipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
-<td><p>Path to the directory where the output will be saved.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#base.BasePipe.mne_raw" title="base.BasePipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
-<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#base.BasePipe.sf" title="base.BasePipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[&quot;sfreq&quot;]</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="base.BasePipe.prec_pipe">
-<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">BasePipeType</span></code><span class="pre">,</span> <span class="pre">bound=</span> <span class="pre">BasePipe)]</span></em><a class="headerlink" href="#base.BasePipe.prec_pipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Preceding pipe that hands over mne_raw attr.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="base.BasePipe.path_to_eeg">
-<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#base.BasePipe.path_to_eeg" title="Permalink to this definition">#</a></dt>
-<dd><p>Can be any file type supported by
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="base.BasePipe.output_dir">
-<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#base.BasePipe.output_dir" title="Permalink to this definition">#</a></dt>
-<dd><p>Path to the directory where the output will be saved.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="base.BasePipe.mne_raw">
-<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code></em><a class="headerlink" href="#base.BasePipe.mne_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>An instanse of
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="base.BasePipe.sf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="headerlink" href="#base.BasePipe.sf" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[“sfreq”]</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>sampling frequency</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="base.BasePipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">butterfly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_opengl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BasePipe.plot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BasePipe.plot" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>butterfly</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to start in butterfly mode. Defaults to False.</p></li>
-<li><p><strong>save_annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save annotations as txt. Defaults to False.</p></li>
-<li><p><strong>save_bad_channels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save bad channels as txt. Defaults to False.</p></li>
-<li><p><strong>scalings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Scale for amplitude per channel type. Defaults to ‘auto’.</p></li>
-<li><p><strong>use_opengl</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use OpenGL acceleration. Defaults to None.</p></li>
-<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to overwrite annotations and bad_channels files if exist.
-Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="base.BasePipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/base.html#BasePipe.save_raw"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#base.BasePipe.save_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – filename for the fif file being saved.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -326,26 +215,8 @@ Defaults to False.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="base.BaseSpectrum.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">BaseSpectrum</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="../base.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">base module</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -364,36 +235,8 @@ Defaults to False.</p></li>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">BasePipe</a><ul>
-<li><a class="reference internal" href="#base.BasePipe"><code class="docutils literal notranslate"><span class="pre">BasePipe</span></code></a><ul>
-<li><a class="reference internal" href="#base.BasePipe.prec_pipe"><code class="docutils literal notranslate"><span class="pre">BasePipe.prec_pipe</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.path_to_eeg"><code class="docutils literal notranslate"><span class="pre">BasePipe.path_to_eeg</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.output_dir"><code class="docutils literal notranslate"><span class="pre">BasePipe.output_dir</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">BasePipe.mne_raw</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.sf"><code class="docutils literal notranslate"><span class="pre">BasePipe.sf</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.plot"><code class="docutils literal notranslate"><span class="pre">BasePipe.plot()</span></code></a></li>
-<li><a class="reference internal" href="#base.BasePipe.save_raw"><code class="docutils literal notranslate"><span class="pre">BasePipe.save_raw()</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

@@ -1,0 +1,50 @@
+﻿BaseHypnoPipe
+=============
+
+.. currentmodule:: sleepeeg.base
+
+.. autoclass:: BaseHypnoPipe
+   :members:
+   :show-inheritance:
+   :inherited-members:
+
+   
+   
+   .. epigraph:: **Methods:**
+
+   .. autosummary::
+      :nosignatures:
+   
+      
+      
+         ~BaseHypnoPipe.plot
+      
+      
+         ~BaseHypnoPipe.predict_hypno
+      
+      
+         ~BaseHypnoPipe.save_raw
+      
+      
+         ~BaseHypnoPipe.sleep_stats
+      
+   
+   
+
+   
+   
+   .. epigraph:: **Attributes:**
+
+   .. autosummary::
+   
+      ~BaseHypnoPipe.sf
+      ~BaseHypnoPipe.path_to_hypno
+      ~BaseHypnoPipe.hypno_freq
+      ~BaseHypnoPipe.hypno
+      ~BaseHypnoPipe.hypno_up
+      ~BaseHypnoPipe.prec_pipe
+      ~BaseHypnoPipe.path_to_eeg
+      ~BaseHypnoPipe.output_dir
+      ~BaseHypnoPipe.mne_raw
+   
+   

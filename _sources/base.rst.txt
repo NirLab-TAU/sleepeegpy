@@ -1,10 +1,13 @@
 base module
 ===========
 
-.. module:: base
+.. currentmodule:: sleepeeg.base
 
 .. autosummary::
    :toctree: base
 
    BasePipe
+   BaseHypnoPipe
+   BaseTopomap
+   BaseEventPipe
    BaseSpectrum

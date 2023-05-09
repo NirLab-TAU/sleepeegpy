@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ICAPipe" href="pipeline.ICAPipe.html" /><link rel="prev" title="pipeline module" href="../pipeline.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>CleaningPipe - sleep-eeg-processing documentation</title>
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -154,16 +154,22 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../base/base.BasePipe.html">BasePipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../base/base.BaseSpectrum.html">BaseSpectrum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseTopomap.html">BaseTopomap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseSpectrum.html">BaseSpectrum</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">CleaningPipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.ICAPipe.html">ICAPipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.ResultsPipe.html">ResultsPipe</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.REMsPipe.html">REMsPipe</a></li>
 </ul>
 </li>
 </ul>
@@ -194,7 +200,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -202,217 +208,6 @@
         <article role="main">
           <section id="cleaningpipe">
 <h1>CleaningPipe<a class="headerlink" href="#cleaningpipe" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.</span></span><span class="sig-name descname"><span class="pre">CleaningPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base/base.BasePipe.html#base.BasePipe" title="base.BasePipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePipe</span></code></a></p>
-<p>The cleaning pipeline element.</p>
-<p>Contains resampling function, band and notch filters,
-browser for manual selection of bad channels
-and bad data spans.</p>
-<blockquote class="epigraph">
-<div><p><strong>Methods:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.filter" title="pipeline.CleaningPipe.filter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">filter</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter">mne.io.Raw.filter</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.notch" title="pipeline.CleaningPipe.notch"><code class="xref py py-obj docutils literal notranslate"><span class="pre">notch</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter">mne.io.Raw.notch_filter</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.plot" title="pipeline.CleaningPipe.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.read_annotations" title="pipeline.CleaningPipe.read_annotations"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_annotations</span></code></a></p></td>
-<td><p>Imports annotations from file to mne raw object</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.read_bad_channels" title="pipeline.CleaningPipe.read_bad_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_bad_channels</span></code></a></p></td>
-<td><p>Imports bad channels from file to mne raw object.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.resample" title="pipeline.CleaningPipe.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample">mne.io.Raw.resample</a> with an additional option to save the resampled data.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.save_raw" title="pipeline.CleaningPipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<blockquote class="epigraph">
-<div><p><strong>Attributes:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.mne_raw" title="pipeline.CleaningPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
-<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.output_dir" title="pipeline.CleaningPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
-<td><p>Path to the directory where the output will be saved.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.path_to_eeg" title="pipeline.CleaningPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
-<td><p>Can be any file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.prec_pipe" title="pipeline.CleaningPipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
-<td><p>Preceding pipe that hands over mne_raw attr.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.CleaningPipe.sf" title="pipeline.CleaningPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[&quot;sfreq&quot;]</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.resample">
-<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe.resample"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe.resample" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample">mne.io.Raw.resample</a>
-with an additional option to save the resampled data.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>sfreq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – new sampling frequency. Defaults to 250.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The number of jobs to run in parallel or CUDA. Defaults to “cuda”.</p></li>
-<li><p><strong>save</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save a resampled data to a fif file. Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe.filter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe.filter" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter">mne.io.Raw.filter</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>l_freq</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – the lower pass-band edge. Defaults to 0.3.</p></li>
-<li><p><strong>h_freq</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – the higher pass-band edge. Defaults to None.</p></li>
-<li><p><strong>picks</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Union</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]) – Channels to filter, if None - all channels will be filtered.
-Defaults to None.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The number of jobs to run in parallel or CUDA. Defaults to “cuda”.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.notch">
-<span class="sig-name descname"><span class="pre">notch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eeg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cuda'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe.notch"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe.notch" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter">mne.io.Raw.notch_filter</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>freqs</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>]) – Frequencies to filter out from data,
-e.g. np.arange(50, 251, 50) for sampling freq 250 Hz.
-Defaults to None.</p></li>
-<li><p><strong>picks</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – Channels to filter, if None - all channels will be filtered.
-Defaults to None.</p></li>
-<li><p><strong>n_jobs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – The number of jobs to run in parallel or CUDA. Defaults to “cuda”.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.read_bad_channels">
-<span class="sig-name descname"><span class="pre">read_bad_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe.read_bad_channels"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe.read_bad_channels" title="Permalink to this definition">#</a></dt>
-<dd><p>Imports bad channels from file to mne raw object.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – Path to the txt file with bad channel name per row. Defaults to None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.read_annotations">
-<span class="sig-name descname"><span class="pre">read_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#CleaningPipe.read_annotations"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.CleaningPipe.read_annotations" title="Permalink to this definition">#</a></dt>
-<dd><p>Imports annotations from file to mne raw object</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>path</strong> – Path to txt file with mne-style annotations. Defaults to None.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.mne_raw">
-<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">mne.io.Raw</span></em><a class="headerlink" href="#pipeline.CleaningPipe.mne_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>An instanse of
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.output_dir">
-<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#pipeline.CleaningPipe.output_dir" title="Permalink to this definition">#</a></dt>
-<dd><p>Path to the directory where the output will be saved.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.path_to_eeg">
-<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#pipeline.CleaningPipe.path_to_eeg" title="Permalink to this definition">#</a></dt>
-<dd><p>Can be any file type supported by
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">butterfly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_opengl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.CleaningPipe.plot" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>butterfly</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to start in butterfly mode. Defaults to False.</p></li>
-<li><p><strong>save_annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save annotations as txt. Defaults to False.</p></li>
-<li><p><strong>save_bad_channels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save bad channels as txt. Defaults to False.</p></li>
-<li><p><strong>scalings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Scale for amplitude per channel type. Defaults to ‘auto’.</p></li>
-<li><p><strong>use_opengl</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use OpenGL acceleration. Defaults to None.</p></li>
-<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to overwrite annotations and bad_channels files if exist.
-Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.prec_pipe">
-<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type[BasePipeType]</span></em><a class="headerlink" href="#pipeline.CleaningPipe.prec_pipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Preceding pipe that hands over mne_raw attr.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.CleaningPipe.save_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – filename for the fif file being saved.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pipeline.CleaningPipe.sf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="headerlink" href="#pipeline.CleaningPipe.sf" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[“sfreq”]</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>sampling frequency</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -420,26 +215,8 @@ Defaults to False.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pipeline.ICAPipe.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">ICAPipe</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="../pipeline.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">pipeline module</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -458,41 +235,8 @@ Defaults to False.</p></li>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">CleaningPipe</a><ul>
-<li><a class="reference internal" href="#pipeline.CleaningPipe"><code class="docutils literal notranslate"><span class="pre">CleaningPipe</span></code></a><ul>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.resample"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.resample()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.filter"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.filter()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.notch"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.notch()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.read_bad_channels"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.read_bad_channels()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.read_annotations"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.read_annotations()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.mne_raw</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.output_dir"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.output_dir</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.path_to_eeg"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.path_to_eeg</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.plot"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.plot()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.prec_pipe"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.prec_pipe</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.save_raw"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.save_raw()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.CleaningPipe.sf"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.sf</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>

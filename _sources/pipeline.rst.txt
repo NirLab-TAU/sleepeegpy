@@ -1,11 +1,14 @@
 pipeline module
 ===============
 
-.. module:: pipeline
+.. module:: sleepeeg.pipeline
 
 .. autosummary::
    :toctree: pipeline
    
    CleaningPipe
    ICAPipe
-   ResultsPipe
+   SpectralPipe
+   SpindlesPipe
+   SlowWavesPipe
+   REMsPipe

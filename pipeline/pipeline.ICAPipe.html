@@ -3,7 +3,7 @@
   <head><meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1"/>
     <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="ResultsPipe" href="pipeline.ResultsPipe.html" /><link rel="prev" title="CleaningPipe" href="pipeline.CleaningPipe.html" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" />
 
     <!-- Generated with Sphinx 6.1.3 and Furo 2022.12.07 -->
         <title>ICAPipe - sleep-eeg-processing documentation</title>
@@ -134,7 +134,7 @@
           <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
         </button>
       </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
         <div class="visually-hidden">Toggle table of contents sidebar</div>
         <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
       </label>
@@ -154,16 +154,22 @@
   <input type="hidden" name="area" value="default">
 </form>
 <div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
+  <ul>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../base/base.BasePipe.html">BasePipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../base/base.BaseSpectrum.html">BaseSpectrum</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseTopomap.html">BaseTopomap</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../base/sleepeeg.base.BaseSpectrum.html">BaseSpectrum</a></li>
 </ul>
 </li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="pipeline.CleaningPipe.html">CleaningPipe</a></li>
-<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">ICAPipe</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pipeline.ResultsPipe.html">ResultsPipe</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle child pages in navigation</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l2"><a class="reference internal" href="sleepeeg.pipeline.REMsPipe.html">REMsPipe</a></li>
 </ul>
 </li>
 </ul>
@@ -194,7 +200,7 @@
               <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
             </button>
           </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
             <div class="visually-hidden">Toggle table of contents sidebar</div>
             <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
           </label>
@@ -202,228 +208,6 @@
         <article role="main">
           <section id="icapipe">
 <h1>ICAPipe<a class="headerlink" href="#icapipe" title="Permalink to this heading">#</a></h1>
-<dl class="py class">
-<dt class="sig sig-object py" id="pipeline.ICAPipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">pipeline.</span></span><span class="sig-name descname"><span class="pre">ICAPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_components</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">15</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fastica'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mne_ica</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base/base.BasePipe.html#base.BasePipe" title="base.BasePipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePipe</span></code></a></p>
-<p>The ICA pipeline element.</p>
-<p>Contains ica fitting, plotting multiple ica plots,
-selecting ica exclusion components and
-its application to the raw data.
-More at <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne-preprocessing-ica">mne.preprocessing.ICA</a>.</p>
-<blockquote class="epigraph">
-<div><p><strong>Methods:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.apply" title="pipeline.ICAPipe.apply"><code class="xref py py-obj docutils literal notranslate"><span class="pre">apply</span></code></a></p></td>
-<td><p>Remove selected components from the signal.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.fit" title="pipeline.ICAPipe.fit"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code></a></p></td>
-<td><p>Highpass-filters (1Hz) a copy of the mne_raw object and then runs <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit">mne.preprocessing.ICA.fit</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.plot" title="pipeline.ICAPipe.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.plot_components" title="pipeline.ICAPipe.plot_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_components</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components">mne.preprocessing.ICA.plot_components</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.plot_overlay" title="pipeline.ICAPipe.plot_overlay"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_overlay</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay">mne.preprocessing.ICA.plot_overlay</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.plot_properties" title="pipeline.ICAPipe.plot_properties"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_properties</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties">mne.preprocessing.ICA.plot_properties</a>.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.plot_sources" title="pipeline.ICAPipe.plot_sources"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sources</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources">mne.preprocessing.ICA.plot_sources</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.save_raw" title="pipeline.ICAPipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<blockquote class="epigraph">
-<div><p><strong>Attributes:</strong></p>
-</div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
-<table class="autosummary longtable docutils align-default">
-<tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.n_components" title="pipeline.ICAPipe.n_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">n_components</span></code></a></p></td>
-<td><p>Number of principal components (from the pre-whitening PCA step) that are passed to the ICA algorithm during fitting.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.method" title="pipeline.ICAPipe.method"><code class="xref py py-obj docutils literal notranslate"><span class="pre">method</span></code></a></p></td>
-<td><p>The ICA method to use in the fit method.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.fit_params" title="pipeline.ICAPipe.fit_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit_params</span></code></a></p></td>
-<td><p>Additional parameters passed to the ICA estimator as specified by method.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.mne_ica" title="pipeline.ICAPipe.mne_ica"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_ica</span></code></a></p></td>
-<td><p><p>Instance of <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne-preprocessing-ica">mne.preprocessing.ICA</a>.</p>
-</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.mne_raw" title="pipeline.ICAPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
-<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.output_dir" title="pipeline.ICAPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
-<td><p>Path to the directory where the output will be saved.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.path_to_eeg" title="pipeline.ICAPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
-<td><p>Can be any file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#pipeline.ICAPipe.prec_pipe" title="pipeline.ICAPipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
-<td><p>Preceding pipe that hands over mne_raw attr.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#pipeline.ICAPipe.sf" title="pipeline.ICAPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[&quot;sfreq&quot;]</a>.</p></td>
-</tr>
-</tbody>
-</table>
-</div>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.n_components">
-<span class="sig-name descname"><span class="pre">n_components</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">UnionType</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code><span class="pre">,</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code><span class="pre">,</span> <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code><span class="pre">]</span></em><a class="headerlink" href="#pipeline.ICAPipe.n_components" title="Permalink to this definition">#</a></dt>
-<dd><p>Number of principal components (from the pre-whitening PCA step)
-that are passed to the ICA algorithm during fitting.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.method">
-<span class="sig-name descname"><span class="pre">method</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></em><a class="headerlink" href="#pipeline.ICAPipe.method" title="Permalink to this definition">#</a></dt>
-<dd><p>The ICA method to use in the fit method.</p>
-<p>Can be ‘fastica’, ‘infomax’ or ‘picard’
-Use the fit_params argument to set additional parameters.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.fit_params">
-<span class="sig-name descname"><span class="pre">fit_params</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#pipeline.ICAPipe.fit_params" title="Permalink to this definition">#</a></dt>
-<dd><p>Additional parameters passed to the ICA estimator as specified by method.
-Allowed entries are determined by the various algorithm implementations:
-see <a class="reference external" href="https://scikit-learn.org/stable/modules/generated/sklearn.decomposition.FastICA.html#sklearn.decomposition.FastICA">FastICA</a>,
-<a class="reference external" href="https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard">picard</a> and
-<a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax">infomax</a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.mne_ica">
-<span class="sig-name descname"><span class="pre">mne_ica</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ICA</span></code></em><a class="headerlink" href="#pipeline.ICAPipe.mne_ica" title="Permalink to this definition">#</a></dt>
-<dd><p>Instance of
-<a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne-preprocessing-ica">mne.preprocessing.ICA</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.fit">
-<span class="sig-name descname"><span class="pre">fit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.fit"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.fit" title="Permalink to this definition">#</a></dt>
-<dd><p>Highpass-filters (1Hz) a copy of the mne_raw object
-and then runs <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit">mne.preprocessing.ICA.fit</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.plot_sources">
-<span class="sig-name descname"><span class="pre">plot_sources</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.plot_sources"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.plot_sources" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources">mne.preprocessing.ICA.plot_sources</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.plot_components">
-<span class="sig-name descname"><span class="pre">plot_components</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.plot_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.plot_components" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components">mne.preprocessing.ICA.plot_components</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.plot_overlay">
-<span class="sig-name descname"><span class="pre">plot_overlay</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">start</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stop</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">20</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.plot_overlay"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.plot_overlay" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay">mne.preprocessing.ICA.plot_overlay</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.plot_properties">
-<span class="sig-name descname"><span class="pre">plot_properties</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.plot_properties"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.plot_properties" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties">mne.preprocessing.ICA.plot_properties</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.apply">
-<span class="sig-name descname"><span class="pre">apply</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pipeline.html#ICAPipe.apply"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#pipeline.ICAPipe.apply" title="Permalink to this definition">#</a></dt>
-<dd><p>Remove selected components from the signal.</p>
-<p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.apply">mne.preprocessing.ICA.apply</a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.mne_raw">
-<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">mne.io.Raw</span></em><a class="headerlink" href="#pipeline.ICAPipe.mne_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>An instanse of
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne-io-raw">mne.io.Raw</a>.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.output_dir">
-<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#pipeline.ICAPipe.output_dir" title="Permalink to this definition">#</a></dt>
-<dd><p>Path to the directory where the output will be saved.</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.path_to_eeg">
-<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#pipeline.ICAPipe.path_to_eeg" title="Permalink to this definition">#</a></dt>
-<dd><p>Can be any file type supported by
-<a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.read_raw()</a>.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">butterfly</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">scalings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_opengl</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.ICAPipe.plot" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot">mne.io.Raw.plot()</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>butterfly</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to start in butterfly mode. Defaults to False.</p></li>
-<li><p><strong>save_annotations</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save annotations as txt. Defaults to False.</p></li>
-<li><p><strong>save_bad_channels</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save bad channels as txt. Defaults to False.</p></li>
-<li><p><strong>scalings</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Scale for amplitude per channel type. Defaults to ‘auto’.</p></li>
-<li><p><strong>use_opengl</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to use OpenGL acceleration. Defaults to None.</p></li>
-<li><p><strong>overwrite</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to overwrite annotations and bad_channels files if exist.
-Defaults to False.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.prec_pipe">
-<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type[BasePipeType]</span></em><a class="headerlink" href="#pipeline.ICAPipe.prec_pipe" title="Permalink to this definition">#</a></dt>
-<dd><p>Preceding pipe that hands over mne_raw attr.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#pipeline.ICAPipe.save_raw" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save">mne.io.Raw.save</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>fname</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>) – filename for the fif file being saved.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py property">
-<dt class="sig sig-object py" id="pipeline.ICAPipe.sf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="headerlink" href="#pipeline.ICAPipe.sf" title="Permalink to this definition">#</a></dt>
-<dd><p>A wrapper for
-<a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne-info">mne.Info[“sfreq”]</a>.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>sampling frequency</p>
-</dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
 </section>
 
         </article>
@@ -431,26 +215,8 @@ Defaults to False.</p></li>
       <footer>
         
         <div class="related-pages">
-          <a class="next-page" href="pipeline.ResultsPipe.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">ResultsPipe</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="pipeline.CleaningPipe.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">CleaningPipe</div>
-                
-              </div>
-            </a>
+          
+          
         </div>
         <div class="bottom-of-page">
           <div class="left-details">
@@ -469,46 +235,8 @@ Defaults to False.</p></li>
         
       </footer>
     </div>
-    <aside class="toc-drawer">
+    <aside class="toc-drawer no-toc">
       
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">ICAPipe</a><ul>
-<li><a class="reference internal" href="#pipeline.ICAPipe"><code class="docutils literal notranslate"><span class="pre">ICAPipe</span></code></a><ul>
-<li><a class="reference internal" href="#pipeline.ICAPipe.n_components"><code class="docutils literal notranslate"><span class="pre">ICAPipe.n_components</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.method"><code class="docutils literal notranslate"><span class="pre">ICAPipe.method</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.fit_params"><code class="docutils literal notranslate"><span class="pre">ICAPipe.fit_params</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.mne_ica"><code class="docutils literal notranslate"><span class="pre">ICAPipe.mne_ica</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.fit"><code class="docutils literal notranslate"><span class="pre">ICAPipe.fit()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.plot_sources"><code class="docutils literal notranslate"><span class="pre">ICAPipe.plot_sources()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.plot_components"><code class="docutils literal notranslate"><span class="pre">ICAPipe.plot_components()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.plot_overlay"><code class="docutils literal notranslate"><span class="pre">ICAPipe.plot_overlay()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.plot_properties"><code class="docutils literal notranslate"><span class="pre">ICAPipe.plot_properties()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.apply"><code class="docutils literal notranslate"><span class="pre">ICAPipe.apply()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">ICAPipe.mne_raw</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.output_dir"><code class="docutils literal notranslate"><span class="pre">ICAPipe.output_dir</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.path_to_eeg"><code class="docutils literal notranslate"><span class="pre">ICAPipe.path_to_eeg</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.plot"><code class="docutils literal notranslate"><span class="pre">ICAPipe.plot()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.prec_pipe"><code class="docutils literal notranslate"><span class="pre">ICAPipe.prec_pipe</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.save_raw"><code class="docutils literal notranslate"><span class="pre">ICAPipe.save_raw()</span></code></a></li>
-<li><a class="reference internal" href="#pipeline.ICAPipe.sf"><code class="docutils literal notranslate"><span class="pre">ICAPipe.sf</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
-
-          </div>
-        </div>
-      </div>
       
       
     </aside>
