@@ -219,6 +219,13 @@ class ICAPipe(BasePipe):
         self.mne_ica.apply(self.mne_raw, exclude=exclude, **kwargs)
 
     def save_ica(self, fname="data-ica.fif", overwrite=False):
+        """A wrapper for `mne.preprocessing.ICA.save <https://mne.tools/stable/
+        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.save>`_.
+
+        Args:
+            fname: filename for the ica file being saved. Defaults to "data-ica.fif".
+            overwrite: Whether to overwrite the file. Defaults to False.
+        """
         fif_folder = self.output_dir / self.__class__.__name__ / "saved_ica"
         fif_folder.mkdir(exist_ok=True)
         self.mne_ica.save(fif_folder / fname, overwrite=overwrite)

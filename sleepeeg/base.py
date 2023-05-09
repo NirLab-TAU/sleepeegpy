@@ -374,6 +374,15 @@ class BaseHypnoPipe(BasePipe, ABC):
         ref_name: str = "E26",
         save=True,
     ):
+        """Runs YASA's automatic sleep staging
+
+        Args:
+            eeg_name: Preferentially a central electrode. Defaults to "E183".
+            eog_name: Preferentially, the left LOC channel. Defaults to "E252".
+            emg_name: Preferentially a chin electrode. Defaults to "E247".
+            ref_name: Reference channel, preferentially a mastoid. Defaults to "E26".
+            save: Whether to save the hypnogram. Defaults to True.
+        """
         from yasa import SleepStaging, hypno_str_to_int
 
         sls = SleepStaging(

@@ -1,7 +1,7 @@
 ﻿CleaningPipe
 ============
 
-.. currentmodule:: pipeline
+.. currentmodule:: sleepeeg.pipeline
 
 .. autoclass:: CleaningPipe
    :members:
@@ -46,10 +46,10 @@
 
    .. autosummary::
    
-      ~CleaningPipe.mne_raw
-      ~CleaningPipe.output_dir
-      ~CleaningPipe.path_to_eeg
-      ~CleaningPipe.prec_pipe
       ~CleaningPipe.sf
+      ~CleaningPipe.prec_pipe
+      ~CleaningPipe.path_to_eeg
+      ~CleaningPipe.output_dir
+      ~CleaningPipe.mne_raw
    
    

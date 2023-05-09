@@ -1,9 +1,9 @@
-﻿BasePipe
-========
+﻿BaseSpectrum
+============
 
-.. currentmodule:: base
+.. currentmodule:: sleepeeg.base
 
-.. autoclass:: BasePipe
+.. autoclass:: BaseSpectrum
    :members:
    :show-inheritance:
    :inherited-members:
@@ -17,10 +17,13 @@
    
       
       
-         ~BasePipe.plot
+         ~BaseSpectrum.plot_psd_per_stage
       
       
-         ~BasePipe.save_raw
+         ~BaseSpectrum.plot_topomap
+      
+      
+         ~BaseSpectrum.plot_topomap_collage
       
    
    
@@ -31,10 +34,6 @@
 
    .. autosummary::
    
-      ~BasePipe.prec_pipe
-      ~BasePipe.path_to_eeg
-      ~BasePipe.output_dir
-      ~BasePipe.mne_raw
-      ~BasePipe.sf
+      ~BaseSpectrum.psd_per_stage
    
    

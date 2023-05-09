@@ -1,7 +1,7 @@
 ﻿ICAPipe
 =======
 
-.. currentmodule:: pipeline
+.. currentmodule:: sleepeeg.pipeline
 
 .. autoclass:: ICAPipe
    :members:
@@ -38,6 +38,9 @@
          ~ICAPipe.plot_sources
       
       
+         ~ICAPipe.save_ica
+      
+      
          ~ICAPipe.save_raw
       
    
@@ -52,11 +55,12 @@
       ~ICAPipe.n_components
       ~ICAPipe.method
       ~ICAPipe.fit_params
+      ~ICAPipe.path_to_ica
       ~ICAPipe.mne_ica
-      ~ICAPipe.mne_raw
-      ~ICAPipe.output_dir
-      ~ICAPipe.path_to_eeg
-      ~ICAPipe.prec_pipe
       ~ICAPipe.sf
+      ~ICAPipe.prec_pipe
+      ~ICAPipe.path_to_eeg
+      ~ICAPipe.output_dir
+      ~ICAPipe.mne_raw
    
    

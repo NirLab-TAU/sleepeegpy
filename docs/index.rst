@@ -7,10 +7,9 @@ Welcome to sleep-eeg-processing's documentation!
 ================================================
 
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
-   base
-   pipeline
+   api
 
 Indices and tables
 ==================
