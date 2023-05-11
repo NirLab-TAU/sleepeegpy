@@ -10,7 +10,7 @@ import mne.io
 
 from collections.abc import Iterable
 
-from sleepeeg.base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum
+from sleepeeg.base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum, Log
 
 
 @define(kw_only=True)
@@ -22,6 +22,7 @@ class CleaningPipe(BasePipe):
     and bad data spans.
     """
 
+    @Log.update
     def resample(
         self,
         save: bool = False,
@@ -53,6 +54,7 @@ class CleaningPipe(BasePipe):
                 )
             )
 
+    @Log.update
     def filter(
         self,
         mne_filter_args: dict = None,
@@ -68,6 +70,7 @@ class CleaningPipe(BasePipe):
         self.mne_raw.load_data()
         self.mne_raw.filter(**mne_filter_args)
 
+    @Log.update
     def notch(
         self,
         mne_notch_args: dict = None,
@@ -87,6 +90,7 @@ class CleaningPipe(BasePipe):
         mne_notch_args.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
         self.mne_raw.notch_filter(**mne_notch_args)
 
+    @Log.update
     def read_bad_channels(self, path=None):
         """Imports bad channels from file to mne raw object.
 
@@ -101,6 +105,7 @@ class CleaningPipe(BasePipe):
         with open(p, "r") as f:
             self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
 
+    @Log.update
     def read_annotations(self, path=None):
         """Imports annotations from file to mne raw object
 
@@ -115,6 +120,12 @@ class CleaningPipe(BasePipe):
             else self.output_dir / self.__class__.__name__ / "annotations.txt"
         )
         self.mne_raw.set_annotations(read_annotations(p))
+
+    @Log.update
+    def interpolate_bads(self, mne_interp_args=None):
+        mne_interp_args = mne_interp_args or dict()
+        self.log._update("interpolated", self.mne_raw.info["bads"])
+        self.mne_raw.interpolate_bads(**mne_interp_args)
 
 
 @define(kw_only=True)
@@ -169,6 +180,7 @@ class ICAPipe(BasePipe):
     def __attrs_post_init__(self):
         self.mne_raw.load_data()
 
+    @Log.update
     def fit(self, filter_args=None, ica_fit_args=None):
         """Highpass-filters (1Hz) a copy of the mne_raw object
         and then runs `mne.preprocessing.ICA.fit <https://mne.tools/stable/
@@ -184,18 +196,21 @@ class ICAPipe(BasePipe):
             filtered_raw = self.mne_raw
         self.mne_ica.fit(filtered_raw, **ica_fit_args)
 
+    @Log.update
     def plot_sources(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources>`_.
         """
         self.mne_ica.plot_sources(self.mne_raw, block=True, **kwargs)
 
+    @Log.update
     def plot_components(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_components <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components>`_.
         """
         self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
 
+    @Log.update
     def plot_overlay(self, exclude=None, picks=None, start=10, stop=20, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_overlay <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay>`_.
@@ -204,12 +219,14 @@ class ICAPipe(BasePipe):
             self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop, **kwargs
         )
 
+    @Log.update
     def plot_properties(self, picks=None, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_properties <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties>`_.
         """
         self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
 
+    @Log.update
     def apply(self, exclude=None, **kwargs):
         """Remove selected components from the signal.
 
@@ -218,6 +235,7 @@ class ICAPipe(BasePipe):
         """
         self.mne_ica.apply(self.mne_raw, exclude=exclude, **kwargs)
 
+    @Log.update
     def save_ica(self, fname="data-ica.fif", overwrite=False):
         """A wrapper for `mne.preprocessing.ICA.save <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.save>`_.
@@ -239,6 +257,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
     spectrogram and topomaps, per sleep stage.
     """
 
+    @Log.update
     def plot_hypnospectrogram(
         self,
         picks: str | Iterable[str] = ("E101",),
@@ -455,6 +474,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
 class SpindlesPipe(BaseEventPipe):
     """Spindles detection."""
 
+    @Log.update
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
@@ -495,6 +515,7 @@ class SpindlesPipe(BaseEventPipe):
 class SlowWavesPipe(BaseEventPipe):
     """Slow waves detection."""
 
+    @Log.update
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
@@ -538,6 +559,7 @@ class SlowWavesPipe(BaseEventPipe):
 class REMsPipe(BaseEventPipe):
     """Rapid eye movements detection."""
 
+    @Log.update
     def detect(
         self,
         loc_chname: str = "E46",
@@ -572,6 +594,7 @@ class REMsPipe(BaseEventPipe):
         if save:
             self._save_to_csv()
 
+    @Log.update
     def plot_average(self, save=False, yasa_args=None):
         yasa_args = yasa_args or dict()
         self.results.plot_average(**yasa_args)

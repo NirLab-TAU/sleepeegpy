@@ -1,9 +1,13 @@
 import os
 import errno
+import inspect
 
+import json
 from abc import ABC, abstractmethod
+from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
+from functools import wraps
 
 from typing import TypeVar, Type
 from attrs import define, field
@@ -15,6 +19,79 @@ from tqdm import tqdm
 
 # For type annotation of pipe elements.
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
+
+
+@define(kw_only=True)
+class Log:
+    PIPES = {
+        "CleaningPipe": "cleaning",
+        "ICAPipe": "ica",
+        "SpectralPipe": "spectral",
+        "SpindlesPipe": "spindles",
+        "SlowWavesPipe": "slow_waves",
+        "REMsPipe": "rems",
+    }
+    cleaning: dict = field(init=False, default=defaultdict(list))
+    ica: dict = field(init=False, default=defaultdict(list))
+    spectral: dict = field(init=False, default=defaultdict(list))
+    spindles: dict = field(init=False, default=defaultdict(list))
+    slow_waves: dict = field(init=False, default=defaultdict(list))
+    rems: dict = field(init=False, default=defaultdict(list))
+    output_dir = field(init=False)
+
+    @output_dir.default
+    def set_output_dir(self):
+        return inspect.currentframe().f_back.f_back.f_locals["self"].output_dir
+
+    def __str__(self):
+        import yaml
+        from yaml.representer import Representer
+
+        yaml.add_representer(defaultdict, Representer.represent_dict)
+        return yaml.dump(self.data, default_flow_style=False)
+
+    def __repr__(self):
+        return json.dumps(self.data, indent=4)
+
+    @property
+    def data(self):
+        return {value: self.__getattribute__(value) for value in self.PIPES.values()}
+
+    def _update(self, key, value):
+        the_class = inspect.stack()[1][0].f_locals["self"].__class__.__name__
+        x = self.__getattribute__(self.PIPES[the_class])
+        x[key].append(value)
+        self.__setattr__(self.PIPES[the_class], x)
+
+    def update(func):
+        @wraps(func)
+        def wrapper_func(self, *args, **kwargs):
+            wrapper_locals = locals()
+            # Do something before the function.
+            func(self, *args, **kwargs)
+            # Do something after the function.
+            self.log._update(
+                "func: " + func.__name__,
+                dict(args=wrapper_locals["args"], kwargs=wrapper_locals["kwargs"]),
+            )
+            self.log.dump()
+
+        return wrapper_func
+
+    def _load(self):
+        if "log.json" in [f.name for f in self.output_dir.iterdir() if f.is_file()]:
+            with open(self.output_dir / "log.json") as json_file:
+                data = json.load(json_file)
+                for key, value in data.items():
+                    self.__setattr__(key, value)
+
+    def dump(self):
+        with open(self.output_dir / "log.json", "w") as fp:
+            json.dump(
+                self.data,
+                fp,
+                indent=4,
+            )
 
 
 @define(kw_only=True, slots=False)
@@ -72,6 +149,16 @@ class BasePipe(ABC):
         except Exception as err:
             print(f"Unexpected {err=}, {type(err)=}")
             raise
+
+    log: Log = field(init=False)
+
+    @log.default
+    def _initialize_log(self):
+        log = Log()
+        log._load()
+        log._update("eeg_file", self.path_to_eeg.resolve().as_posix())
+        log._update("output_dir", self.output_dir.resolve().as_posix())
+        return log
 
     @property
     def sf(self):
@@ -134,169 +221,57 @@ class BasePipe(ABC):
                         if bad not in bads:
                             f.write(f"{bad}\n")
 
-    def _plot_sensors(
-        self,
-        ch_colors=None,
-        kind="topomap",
-        ch_type=None,
-        title=None,
-        show_names=False,
-        ch_groups=None,
-        to_sphere=True,
-        axes=None,
-        block=False,
-        show=False,
-        sphere=None,
-        pointsize=7,
-        linewidth=1,
-    ):
-        from mne.viz.evoked import _rgb
-        from mne.viz.utils import _plot_sensors
-        from mne.defaults import _handle_default
-        from mne.io.constants import FIFF
-        from mne.io.pick import (
-            channel_type,
-            channel_indices_by_type,
-            pick_channels,
-            _DATA_CH_TYPES_SPLIT,
-            _contains_ch_type,
-        )
-        from mne.utils import _check_ch_locs, _check_option, warn
-        from mne.transforms import apply_trans
+    def plot_sensors(self, legend=None, **kwargs):
+        import matplotlib.patches as mpatches
 
-        info = self.mne_raw.info
-        _check_option("kind", kind, ["topomap", "3d", "select"])
-        if not isinstance(info, mne.io.Info):
-            raise TypeError(f"info must be an instance of Info not {type(info)}")
-        ch_indices = channel_indices_by_type(info)
-        allowed_types = _DATA_CH_TYPES_SPLIT
-        if ch_type is None:
-            for this_type in allowed_types:
-                if _contains_ch_type(info, this_type):
-                    ch_type = this_type
-                    break
-            picks = ch_indices[ch_type]
-        elif ch_type == "all":
-            picks = list()
-            for this_type in allowed_types:
-                picks += ch_indices[this_type]
-        elif ch_type in allowed_types:
-            picks = ch_indices[ch_type]
-        else:
-            raise ValueError(f"ch_type must be one of {allowed_types} not {ch_type}!")
+        ch_groups = kwargs.pop("ch_groups")
+        axes = kwargs.pop("axes")
+        kwargs.setdefault("show", False)
+        if not len(legend) == len(ch_groups):
+            raise ValueError(
+                "Length of the legend and of the ch_groups should be equal"
+            )
 
-        if len(picks) == 0:
-            raise ValueError(f"Could not find any channels of type {ch_type}.")
-
-        if not _check_ch_locs(info=info, picks=picks):
-            raise RuntimeError("No valid channel positions found")
-
-        dev_head_t = info["dev_head_t"]
-        chs = [info["chs"][pick] for pick in picks]
-        pos = np.empty((len(chs), 3))
-        for ci, ch in enumerate(chs):
-            pos[ci] = ch["loc"][:3]
-            if ch["coord_frame"] == FIFF.FIFFV_COORD_DEVICE:
-                if dev_head_t is None:
-                    warn(
-                        "dev_head_t is None, transforming MEG sensors to head "
-                        "coordinate frame using identity transform"
-                    )
-                    dev_head_t = np.eye(4)
-                pos[ci] = apply_trans(dev_head_t, pos[ci])
-        del dev_head_t
-
-        ch_names = np.array([ch["ch_name"] for ch in chs])
-        bads = [idx for idx, name in enumerate(ch_names) if name in info["bads"]]
-        ch_colors = {} if not ch_colors else ch_colors
-        if ch_groups is None:
-            def_colors = _handle_default("color")
-            colors = [
-                ch_colors[self.mne_raw.info.ch_names[pick]]
-                if self.mne_raw.info.ch_names[pick] in ch_colors
-                else def_colors[channel_type(info, pick)]
-                for i, pick in enumerate(picks)
-            ]
-        else:
-            if ch_groups in ["position", "selection"]:
-                # Avoid circular import
-                from mne.channels import (
-                    read_vectorview_selection,
-                    _SELECTIONS,
-                    _EEG_SELECTIONS,
-                    _divide_to_regions,
-                )
-
-                if ch_groups == "position":
-                    ch_groups = _divide_to_regions(info, add_stim=False)
-                    ch_groups = list(ch_groups.values())
-                else:
-                    ch_groups, color_vals = list(), list()
-                    for selection in _SELECTIONS + _EEG_SELECTIONS:
-                        channels = pick_channels(
-                            info["ch_names"],
-                            read_vectorview_selection(selection, info=info),
-                        )
-                        ch_groups.append(channels)
-                color_vals = np.ones((len(ch_groups), 4))
-                for idx, ch_group in enumerate(ch_groups):
-                    color_picks = [
-                        np.where(picks == ch)[0][0] for ch in ch_group if ch in picks
-                    ]
-                    if len(color_picks) == 0:
-                        continue
-                    x, y, z = pos[color_picks].T
-                    color = np.mean(_rgb(x, y, z), axis=0)
-                    color_vals[idx, :3] = color  # mean of spatial color
-            else:
-                import matplotlib.pyplot as plt
-
-                colors = np.linspace(0, 1, len(ch_groups))
-                color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
-            if not isinstance(ch_groups, (np.ndarray, list)):
-                raise ValueError(
-                    "ch_groups must be None, 'position', "
-                    "'selection', or an array. Got %s." % ch_groups
-                )
-            colors = np.zeros((len(picks), 4))
-            for pick_idx, pick in enumerate(picks):
-                for ind, value in enumerate(ch_groups):
-                    if pick in value:
-                        colors[pick_idx] = color_vals[ind]
-                        break
-        title = "Sensor positions (%s)" % ch_type if title is None else title
-        fig = _plot_sensors(
-            pos,
-            info,
-            picks,
-            colors,
-            bads,
-            ch_names,
-            title,
-            show_names,
-            axes,
-            show,
-            kind,
-            block,
-            to_sphere,
-            sphere,
-            pointsize=pointsize,
-            linewidth=linewidth,
+        fig = mne.viz.plot_sensors(
+            self.mne_raw.info, ch_groups=ch_groups, axes=axes, **kwargs
         )
 
-        if kind == "select":
-            return fig, fig.lasso.selection
+        patches = []
+        # if legend:
+        colors = np.linspace(0, 1, len(ch_groups))
+        color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
+        for i, color in enumerate(color_vals):
+            patches.append(mpatches.Patch(color=color, label=legend[i]))
+        if self.mne_raw.info["bads"]:
+            patches.append(mpatches.Patch(color="red", label="Bad"))
+        axes.legend(
+            handles=patches,
+            loc="lower left",
+            bbox_to_anchor=(1, 0),
+            fontsize="x-small",
+        )
         return fig
 
-    def save_raw(self, fname: str):
+    @Log.update
+    def save_raw(self, fname: str, mne_save_args=None):
         """A wrapper for `mne.io.Raw.save <https://mne.tools/stable/
         generated/mne.io.Raw.html#mne.io.Raw.save>`_.
 
         Args:
             fname: filename for the fif file being saved.
         """
+        mne_save_args = mne_save_args or dict()
         fif_folder = self.output_dir / self.__class__.__name__
-        self.mne_raw.save(fif_folder / fname)
+        self.mne_raw.save(fif_folder / fname, **mne_save_args)
+
+    @Log.update
+    def set_eeg_reference(self, mne_ref_args=None):
+        mne_ref_args = mne_ref_args or dict()
+        mne_ref_args.setdefault("ref_channels", "average")
+        mne_ref_args.setdefault("projection", False)
+        if not mne_ref_args["projection"]:
+            self.log.update("reference", mne_ref_args["ref_channels"])
+        self.mne_raw.set_eeg_reference(**mne_ref_args)
 
 
 @define(kw_only=True, slots=False)
@@ -358,6 +333,8 @@ class BaseHypnoPipe(BasePipe, ABC):
     def __attrs_post_init__(self):
         if self.hypno.any():
             self.__upsample_hypno()
+        self.log._update("hypno_file", self.path_to_hypno.resolve().as_posix())
+        self.log._update("hypno_freq", self.hypno_freq)
 
     def __upsample_hypno(self):
         from yasa import hypno_upsample_to_data
@@ -366,6 +343,7 @@ class BaseHypnoPipe(BasePipe, ABC):
             self.hypno, self.hypno_freq, self.mne_raw, verbose=False
         )
 
+    @Log.update
     def predict_hypno(
         self,
         eeg_name: str = "E183",
@@ -492,6 +470,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             / f"{self.__class__.__name__[:-4].lower()}_avg.png"
         )
 
+    @Log.update
     def plot_average(self, save: bool = False, yasa_args=None):
         """Average of YASA's detected event.
 
@@ -504,6 +483,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         if save:
             self._save_avg_fig()
 
+    @Log.update
     def plot_topomap(
         self,
         prop: str,
@@ -580,6 +560,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                 / f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png"
             )
 
+    @Log.update
     def plot_topomap_collage(
         self,
         props: Iterable[str],
@@ -716,6 +697,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                 / f"topomap_{self.__class__.__name__[:-4].lower()}_collage.png"
             )
 
+    @Log.update
     def apply_tfr(
         self,
         freqs: Iterable[float],
@@ -835,6 +817,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                     / f"{self.__class__.__name__[:-4].lower()}_{stage}-tfr.h5"
                 )
 
+    @Log.update
     def read_tfrs(self, dirpath=None):
         """Loads TFRs stored in hdf5 files.
 
@@ -868,6 +851,7 @@ class BaseSpectrum(BaseTopomap, ABC):
     sleep_stage percent from the whole unrejected data]
     """
 
+    @Log.update
     def plot_psd_per_stage(
         self,
         picks: str | Iterable[str] = ("E101",),
@@ -938,35 +922,34 @@ class BaseSpectrum(BaseTopomap, ABC):
 
         if plot_sensors:
             from mne.io.pick import _picks_to_idx
-            import matplotlib.patches as mpatches
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-            color = "cyan"
-            # ax = fig.add_subplot(3, 3, 7)
+            # color = "cyan"
             axins = inset_axes(axis, width="30%", height="30%", loc="lower left")
-            channels = np.array(self.mne_raw.info.ch_names)[
-                _picks_to_idx(self.mne_raw.info, picks)
-            ].tolist()
-            self._plot_sensors(
-                ch_colors={ch: color for ch in channels},
-                axes=axins,
+            psd_channels = _picks_to_idx(self.mne_raw.info, picks)
+            interpolated = (
+                _picks_to_idx(self.mne_raw.info, self.log.cleaning["interpolated"])
+                if "interpolated" in self.log.cleaning
+                else None
             )
-
-            patches = []
-            patches.append(mpatches.Patch(color=color, label="psd"))
-            if self.mne_raw.info["bads"]:
-                patches.append(mpatches.Patch(color="red", label="bad"))
-            axins.legend(
-                handles=patches,
-                loc="lower left",
-                bbox_to_anchor=(1, 0),
-                fontsize="x-small",
+            ch_groups = {
+                k: v
+                for k, v in {"PSD": psd_channels, "Interpolated": interpolated}.items()
+                if v is not None
+            }
+            self.plot_sensors(
+                legend=list(ch_groups.keys()),
+                axes=axins,
+                ch_groups=list(ch_groups.values()),
+                pointsize=7,
+                linewidth=0.7,
             )
 
         # Save the figure if 'save' set to True and no axis has been passed.
         if save and is_new_axis:
             fig.savefig(self.output_dir / self.__class__.__name__ / f"psd.png")
 
+    @Log.update
     def plot_topomap(
         self,
         stage: str = "REM",
@@ -1076,6 +1059,7 @@ class BaseSpectrum(BaseTopomap, ABC):
                 / f"topomap_psd_{list(band)[0]}.png"
             )
 
+    @Log.update
     def plot_topomap_collage(
         self,
         stages_to_plot: tuple = "all",
