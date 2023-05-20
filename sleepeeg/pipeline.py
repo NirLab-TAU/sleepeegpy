@@ -7,10 +7,16 @@ import matplotlib.pyplot as plt
 import numpy as np
 import mne.io
 
-
 from collections.abc import Iterable
 
-from sleepeeg.base import BasePipe, BaseHypnoPipe, BaseEventPipe, BaseSpectrum, Log
+from sleepeeg.base import (
+    BasePipe,
+    BaseHypnoPipe,
+    BaseEventPipe,
+    BaseSpectrum,
+    Log,
+    SleepSpectrum,
+)
 
 
 @define(kw_only=True)
@@ -23,23 +29,18 @@ class CleaningPipe(BasePipe):
     """
 
     @Log.update
-    def resample(
-        self,
-        save: bool = False,
-        mne_resample_args: dict = None,
-    ):
+    def resample(self, save: bool = False, **resample_kwargs):
         """A wrapper for
         `mne.io.Raw.resample <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample>`_
         with an additional option to save the resampled data.
 
         Args:
             save: Whether to save a resampled data to a fif file. Defaults to False.
-            mne_resample_args: Arguments passed to `mne.io.Raw.resample <https://mne.tools/stable/
-                generated/mne.io.Raw.html#mne.io.Raw.resample>`_. Defaults to None.
+            **resample_kwargs: Arguments passed to `mne.io.Raw.resample <https://mne.tools/stable/
+                generated/mne.io.Raw.html#mne.io.Raw.resample>`_.
         """
-        mne_resample_args = mne_resample_args or dict()
-        mne_resample_args.setdefault("sfreq", 250)
-        self.mne_raw.resample(**mne_resample_args)
+        resample_kwargs.setdefault("sfreq", 250)
+        self.mne_raw.resample(**resample_kwargs)
         if save:
             self.save_raw(
                 "_".join(
@@ -47,7 +48,7 @@ class CleaningPipe(BasePipe):
                         None,
                         [
                             "resampled",
-                            str(mne_resample_args["sfreq"]) + "hz",
+                            str(resample_kwargs["sfreq"]) + "hz",
                             "raw.fif",
                         ],
                     )
@@ -55,40 +56,26 @@ class CleaningPipe(BasePipe):
             )
 
     @Log.update
-    def filter(
-        self,
-        mne_filter_args: dict = None,
-    ):
+    def filter(self, **filter_kwargs):
         """A wrapper for
         `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
 
         Args:
-            mne_filter_args: Arguments passed to `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
+            **filter_kwargs: Arguments passed to `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
         """
-        mne_filter_args = mne_filter_args or dict()
-        mne_filter_args.setdefault("l_freq", 0.3)
-        self.mne_raw.load_data()
-        self.mne_raw.filter(**mne_filter_args)
+        filter_kwargs.setdefault("l_freq", 0.3)
+        self.mne_raw.load_data().filter(**filter_kwargs)
 
     @Log.update
-    def notch(
-        self,
-        mne_notch_args: dict = None,
-    ):
+    def notch(self, **notch_kwargs):
         """A wrapper for
         `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
 
         Args:
-            freqs: Frequencies to filter out from data,
-                e.g. np.arange(50, 251, 50) for sampling freq 250 Hz.
-                Defaults to None.
-            picks: Channels to filter, if None - all channels will be filtered.
-                Defaults to "eeg".
-            n_jobs: The number of jobs to run in parallel or CUDA. Defaults to "cuda".
+            **notch_kwargs: Arguments passed to `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
         """
-        mne_notch_args = mne_notch_args or dict()
-        mne_notch_args.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
-        self.mne_raw.notch_filter(**mne_notch_args)
+        notch_kwargs.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
+        self.mne_raw.load_data().notch_filter(**notch_kwargs)
 
     @Log.update
     def read_bad_channels(self, path=None):
@@ -122,10 +109,10 @@ class CleaningPipe(BasePipe):
         self.mne_raw.set_annotations(read_annotations(p))
 
     @Log.update
-    def interpolate_bads(self, mne_interp_args=None):
-        mne_interp_args = mne_interp_args or dict()
-        self.log._update("interpolated", self.mne_raw.info["bads"])
-        self.mne_raw.interpolate_bads(**mne_interp_args)
+    def interpolate_bads(self, **interp_kwargs):
+        bads = self.mne_raw.info["bads"]
+        self.mne_raw.interpolate_bads(**interp_kwargs)
+        self.log._update("interpolated", bads)
 
 
 @define(kw_only=True)
@@ -258,6 +245,71 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
     """
 
     @Log.update
+    def compute_psds_per_stage(
+        self,
+        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
+        reference: Iterable[str] | str = "average",
+        method="welch",
+        fmin=0,
+        fmax=60,
+        save=False,
+        picks="eeg",
+        reject_by_annotation=True,
+        n_jobs=-1,
+        verbose=False,
+        **psd_kwargs,
+    ):
+        import re
+
+        inst = self.mne_raw.copy().load_data().set_eeg_reference(ref_channels=reference)
+        for stage, stage_idx in sleep_stages.items():
+            self.psds[stage] = SleepSpectrum(
+                inst,
+                hypno=self.hypno_up,
+                stage_idx=stage_idx,
+                method=method,
+                fmin=fmin,
+                fmax=fmax,
+                tmin=None,
+                tmax=None,
+                picks=picks,
+                proj=False,
+                reject_by_annotation=reject_by_annotation,
+                n_jobs=n_jobs,
+                verbose=verbose,
+                **psd_kwargs,
+            )
+        if save:
+            for stage, spectrum in self.psds.items():
+                stage = re.sub(r"[^\w\s-]", "_", stage)
+                spectrum.save(
+                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5"
+                )
+
+    @Log.update
+    def read_spectra(self, dirpath=None):
+        """Loads spectra stored in hdf5 files.
+
+        Filenames should end with {sleep_stage}-psd.h5
+
+        Args:
+            dirpath: Path to the directory containing hdf5 files. Defaults to None.
+        """
+        from mne.time_frequency import read_spectrum
+        from pathlib import Path
+        import re
+
+        r = f"(.+)(?:-psd.h5)"
+        self.tfrs = dict()
+        dirpath = (
+            Path(dirpath) if dirpath else self.output_dir / self.__class__.__name__
+        )
+        for p in dirpath.glob("*psd.h5"):
+            m = re.search(r, str(p))
+            if m:
+                self.psds[m.groups()[0]] = read_spectrum(p)
+
+    @Log.update
     def plot_hypnospectrogram(
         self,
         picks: str | Iterable[str] = ("E101",),
@@ -300,66 +352,6 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
                 self.output_dir / self.__class__.__name__ / f"spectrogram.png",
                 bbox_inches="tight",
             )
-
-    def _compute_psd_per_stage(
-        self, picks, sleep_stages, avg_ref, dB, method_args=None
-    ):
-        from collections import defaultdict
-        from scipy import signal, ndimage
-
-        assert (
-            self.hypno.any()
-        ), f"Hypnogram hasn't been provided, can't compute PSD per stage"
-
-        method_args = method_args or dict()
-        method_args["axis"] = 1
-        if "nperseg" not in method_args:
-            method_args["nperseg"] = self.sf * 4.096
-        # Import data from the raw mne file.
-        self.mne_raw.load_data()
-        if avg_ref:
-            data = (
-                self.mne_raw.copy()
-                .set_eeg_reference()
-                .get_data(picks=picks, units="uV", reject_by_annotation="NaN")
-            )
-        else:
-            data = self.mne_raw.get_data(
-                picks=picks, units="uV", reject_by_annotation="NaN"
-            )
-        data = np.ma.array(data, mask=np.isnan(data))
-        n_samples_total = np.ma.compress_cols(data).shape[1]
-        psds = defaultdict(list)
-        psd_per_stage = {}
-        for stage, index in sleep_stages.items():
-            weights = []
-            n_samples = 0
-            try:
-                regions = ndimage.find_objects(
-                    ndimage.label(
-                        np.logical_or.reduce([self.hypno_up == i for i in index])
-                    )[0]
-                )
-            except TypeError:
-                regions = ndimage.find_objects(ndimage.label(self.hypno_up == index)[0])
-            for region in regions:
-                compressed = np.ma.compress_cols(data[:, region[0]])
-                if compressed.size > method_args["nperseg"]:
-                    weights.append(compressed.shape[1])
-                    freqs, psd = signal.welch(
-                        compressed,
-                        fs=self.sf,
-                        **method_args,
-                    )
-                    psds[stage].append(psd)
-                    n_samples += compressed.shape[1]
-            avg = np.average(np.array(psds[stage]), weights=weights, axis=0)
-            psd_per_stage[stage] = [
-                freqs,
-                10 * np.log10(avg) if dB else avg,
-                round(n_samples / n_samples_total * 100, 2),
-            ]
-        return psd_per_stage
 
     def __plot_hypnospectrogram(
         self, data, sf, hypno, win_sec, fmin, fmax, trimperc, cmap, overlap
@@ -478,6 +470,7 @@ class SpindlesPipe(BaseEventPipe):
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
+        reference: Iterable[str] | str = "average",
         include: Iterable[int] = (1, 2, 3),
         freq_sp: Iterable[float] = (12, 15),
         freq_broad: Iterable[float] = (1, 30),
@@ -495,7 +488,10 @@ class SpindlesPipe(BaseEventPipe):
         from yasa import spindles_detect
 
         self.results = spindles_detect(
-            data=self.mne_raw.copy().load_data().set_eeg_reference().pick(picks),
+            data=self.mne_raw.copy()
+            .load_data()
+            .set_eeg_reference(ref_channels=reference)
+            .pick(picks),
             hypno=self.hypno_up,
             verbose=verbose,
             include=include,
@@ -519,6 +515,7 @@ class SlowWavesPipe(BaseEventPipe):
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
+        reference: Iterable[str] | str = "average",
         include: Iterable[int] = (1, 2, 3),
         freq_sw: Iterable[float] = (0.3, 1.5),
         dur_neg: Iterable[float] = (0.3, 1.5),
@@ -537,7 +534,10 @@ class SlowWavesPipe(BaseEventPipe):
         from yasa import sw_detect
 
         self.results = sw_detect(
-            data=self.mne_raw.copy().load_data().set_eeg_reference().pick(picks),
+            data=self.mne_raw.copy()
+            .load_data()
+            .set_eeg_reference(ref_channels=reference)
+            .pick(picks),
             hypno=self.hypno_up,
             verbose=False,
             include=include,
@@ -564,6 +564,7 @@ class REMsPipe(BaseEventPipe):
         self,
         loc_chname: str = "E46",
         roc_chname: str = "E238",
+        reference: Iterable[str] | str = "average",
         include: int | Iterable[int] = 4,
         freq_rem: Iterable[float] = (0.5, 5),
         duration: Iterable[float] = (0.3, 1.2),
@@ -576,7 +577,9 @@ class REMsPipe(BaseEventPipe):
         """
         from yasa import rem_detect
 
-        referenced = self.mne_raw.copy().load_data().set_eeg_reference()
+        referenced = (
+            self.mne_raw.copy().load_data().set_eeg_reference(ref_channels=reference)
+        )
         loc = referenced.get_data([loc_chname], units="uV", reject_by_annotation="NaN")
         roc = referenced.get_data([roc_chname], units="uV", reject_by_annotation="NaN")
         self.results = rem_detect(
@@ -626,24 +629,5 @@ class CombinedPipe(BaseSpectrum):
     def _get_mne_raw_from_pipe(self):
         return self.pipes[0].mne_raw
 
-    def _compute_psd_per_stage(self, picks, sleep_stages, sec_per_seg, avg_ref, dB):
-        psd_per_stage = {}
-        psds = []
-        for pipe in self.pipes:
-            psds.append(
-                pipe._compute_psd_per_stage(
-                    picks=picks,
-                    sleep_stages=sleep_stages,
-                    sec_per_seg=sec_per_seg,
-                    avg_ref=avg_ref,
-                    dB=dB,
-                )
-            )
-
-        for stage in sleep_stages:
-            psd_per_stage[stage] = [
-                psds[0][stage][0],
-                np.sum([psd[stage][1] for psd in psds], axis=0) / len(self.pipes),
-                round(sum([psd[stage][2] for psd in psds]) / len(self.pipes), 2),
-            ]
-        return psd_per_stage
+    def compute_psds_per_stage(self):
+        ...

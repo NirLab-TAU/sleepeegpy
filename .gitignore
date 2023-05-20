@@ -5,3 +5,4 @@ sleepeeg.egg-info
 dist
 setup.py
 pyproject.toml
+notebooks_dev

@@ -2,9 +2,9 @@ import os
 import errno
 import inspect
 
+import yaml
 import json
 from abc import ABC, abstractmethod
-from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 from functools import wraps
@@ -31,12 +31,12 @@ class Log:
         "SlowWavesPipe": "slow_waves",
         "REMsPipe": "rems",
     }
-    cleaning: dict = field(init=False, default=defaultdict(list))
-    ica: dict = field(init=False, default=defaultdict(list))
-    spectral: dict = field(init=False, default=defaultdict(list))
-    spindles: dict = field(init=False, default=defaultdict(list))
-    slow_waves: dict = field(init=False, default=defaultdict(list))
-    rems: dict = field(init=False, default=defaultdict(list))
+    cleaning: dict = field(init=False, factory=dict)
+    ica: dict = field(init=False, factory=dict)
+    spectral: dict = field(init=False, factory=dict)
+    spindles: dict = field(init=False, factory=dict)
+    slow_waves: dict = field(init=False, factory=dict)
+    rems: dict = field(init=False, factory=dict)
     output_dir = field(init=False)
 
     @output_dir.default
@@ -44,10 +44,9 @@ class Log:
         return inspect.currentframe().f_back.f_back.f_locals["self"].output_dir
 
     def __str__(self):
-        import yaml
         from yaml.representer import Representer
 
-        yaml.add_representer(defaultdict, Representer.represent_dict)
+        yaml.add_representer(tuple, Representer.represent_list)
         return yaml.dump(self.data, default_flow_style=False)
 
     def __repr__(self):
@@ -60,7 +59,7 @@ class Log:
     def _update(self, key, value):
         the_class = inspect.stack()[1][0].f_locals["self"].__class__.__name__
         x = self.__getattribute__(self.PIPES[the_class])
-        x[key].append(value)
+        x.setdefault(key, []).append(value)
         self.__setattr__(self.PIPES[the_class], x)
 
     def update(func):
@@ -155,7 +154,8 @@ class BasePipe(ABC):
     @log.default
     def _initialize_log(self):
         log = Log()
-        log._load()
+        if self.output_dir.exists():
+            log._load()
         log._update("eeg_file", self.path_to_eeg.resolve().as_posix())
         log._update("output_dir", self.output_dir.resolve().as_posix())
         return log
@@ -176,7 +176,7 @@ class BasePipe(ABC):
         save_annotations: bool = False,
         save_bad_channels: bool = False,
         overwrite: bool = False,
-        mne_plot_args: dict = None,
+        **kwargs,
     ):
         """A wrapper for `mne.io.Raw.plot() <https://mne.tools/stable/
         generated/mne.io.Raw.html#mne.io.Raw.plot>`_.
@@ -189,15 +189,13 @@ class BasePipe(ABC):
             use_opengl: Whether to use OpenGL acceleration. Defaults to None.
             overwrite: Whether to overwrite annotations and bad_channels files if exist.
                 Defaults to False.
-            mne_plot_args: Arguments passed to `raw.plot() <https://mne.tools/stable/
-                generated/mne.io.Raw.html#mne.io.Raw.plot>`_. Defaults to None.
+            **kwargs: Arguments passed to `raw.plot() <https://mne.tools/stable/
+                generated/mne.io.Raw.html#mne.io.Raw.plot>`_.
         """
-        mne_plot_args = mne_plot_args or dict()
-        mne_plot_args.setdefault("theme", "dark")
-        mne_plot_args.setdefault("block", True)
-        mne_plot_args.setdefault("bad_color", "r")
-        mne_plot_args.setdefault("scalings", "auto")
-        self.mne_raw.plot(**mne_plot_args)
+        kwargs.setdefault("theme", "dark")
+        kwargs.setdefault("bad_color", "r")
+        kwargs.setdefault("scalings", "auto")
+        self.mne_raw.plot(**kwargs)
 
         if save_annotations:
             self.mne_raw.annotations.save(
@@ -253,25 +251,24 @@ class BasePipe(ABC):
         return fig
 
     @Log.update
-    def save_raw(self, fname: str, mne_save_args=None):
+    def save_raw(self, fname: str, **kwargs):
         """A wrapper for `mne.io.Raw.save <https://mne.tools/stable/
         generated/mne.io.Raw.html#mne.io.Raw.save>`_.
 
         Args:
-            fname: filename for the fif file being saved.
+            fname: Filename for the fif file being saved.
+            **kwargs: Arguments passed to raw.save()
         """
-        mne_save_args = mne_save_args or dict()
         fif_folder = self.output_dir / self.__class__.__name__
-        self.mne_raw.save(fif_folder / fname, **mne_save_args)
+        self.mne_raw.save(fif_folder / fname, **kwargs)
 
     @Log.update
-    def set_eeg_reference(self, mne_ref_args=None):
-        mne_ref_args = mne_ref_args or dict()
-        mne_ref_args.setdefault("ref_channels", "average")
-        mne_ref_args.setdefault("projection", False)
-        if not mne_ref_args["projection"]:
-            self.log.update("reference", mne_ref_args["ref_channels"])
-        self.mne_raw.set_eeg_reference(**mne_ref_args)
+    def set_eeg_reference(self, **kwargs):
+        kwargs.setdefault("ref_channels", "average")
+        kwargs.setdefault("projection", False)
+        if not kwargs["projection"]:
+            self.log._update("reference", kwargs["ref_channels"])
+        self.mne_raw.load_data().set_eeg_reference(**kwargs)
 
 
 @define(kw_only=True, slots=False)
@@ -471,15 +468,14 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         )
 
     @Log.update
-    def plot_average(self, save: bool = False, yasa_args=None):
+    def plot_average(self, save: bool = False, **kwargs):
         """Average of YASA's detected event.
 
         Args:
             save: Whether to save the figure to file. Defaults to False.
-            yasa_args: Arguments passed to the YASA's plot_average(). Defaults to None.
+            **kwargs: Arguments passed to the YASA's plot_average().
         """
-        yasa_args = yasa_args or dict()
-        self.results.plot_average(**yasa_args)
+        self.results.plot_average(**kwargs)
         if save:
             self._save_avg_fig()
 
@@ -706,7 +702,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         time_after: float,
         method: str = "morlet",
         save: bool = False,
-        tfr_method_args: dict = None,
+        **tfr_kwargs,
     ):
         """Transforms the events signal to time-frequency representation.
 
@@ -717,10 +713,10 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             time_after: Seconds after the event peak to get from the real data
             method: TFR transform method. Defaults to "morlet".
             save: Whether to save the TFRs to file. Defaults to False.
-            tfr_method_args: Arguments passed to `mne.time_frequency.tfr_array_morlet()
+            **tfr_kwargs: Arguments passed to `mne.time_frequency.tfr_array_morlet()
                 <https://mne.tools/stable/generated/mne.time_frequency.tfr_array_morlet.html>`_
                 or `mne.time_frequency.tfr_array_multitaper() <https://mne.tools/stable/
-                generated/mne.time_frequency.tfr_array_multitaper.html>`_. Defaults to None.
+                generated/mne.time_frequency.tfr_array_multitaper.html>`_.
         """
         assert self.results, "Run detect method first"
         assert (
@@ -738,10 +734,9 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             4: "REM",
         }
 
-        tfr_method_args = tfr_method_args or dict()
-        tfr_method_args.setdefault("n_jobs", -1)
-        tfr_method_args.setdefault("verbose", "error")
-        tfr_method_args["output"] = "avg_power"
+        tfr_kwargs.setdefault("n_jobs", -1)
+        tfr_kwargs.setdefault("verbose", "error")
+        tfr_kwargs["output"] = "avg_power"
 
         freqs = np.linspace(freqs[0], freqs[1], n_freqs)
         df_raw = self.results.get_sync_events(
@@ -777,7 +772,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                         v,
                         self.sf,
                         freqs,
-                        **tfr_method_args,
+                        **tfr_kwargs,
                     )
                     for channel, v in tqdm(for_tfrs.items())
                 }
@@ -787,7 +782,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                         v,
                         self.sf,
                         freqs,
-                        **tfr_method_args,
+                        **tfr_kwargs,
                     )
                     for channel, v in tqdm(for_tfrs.items())
                 }
@@ -845,83 +840,69 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
 class BaseSpectrum(BaseTopomap, ABC):
     """A template class for the spectral analysis."""
 
-    psd_per_stage: dict = field(init=False)
-    """ Dictionary of the form sleep_stage:[freqs array with shape (n_freqs), 
-    psd array with shape (n_electrodes, n_freqs), 
-    sleep_stage percent from the whole unrejected data]
-    """
+    psds: dict = field(init=False, factory=dict)
 
     @Log.update
-    def plot_psd_per_stage(
+    def plot_psds(
         self,
-        picks: str | Iterable[str] = ("E101",),
+        picks,
         psd_range: tuple = (-40, 60),
-        freq_range: tuple = (0, 40),
+        freq_range: tuple = (0, 60),
+        dB=True,
         xscale: str = "linear",
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         axis: plt.axis = None,
         plot_sensors: bool = False,
         save: bool = False,
-        psd_method_args: dict = None,
-        subplots_args: dict = None,
+        **subplots_kw,
     ):
         """Plot PSD per sleep stage.
 
         Args:
-            picks: Channels to calculate PSD on, more info at
-                `mne.io.Raw.get_data <https://mne.tools/stable/generated/
-                mne.io.Raw.html#mne.io.Raw.get_data>`_.
-                Defaults to ("E101",).
             psd_range: Range of y axis on PSD plot. Defaults to (-40, 60).
             freq_range: Range of x axis on PSD plot. Defaults to (0, 40).
+            dB:
             xscale: Scale of the X axis, check available values at
                 `matplotlib.axes.Axes.set_xscale <https://mne.tools/stable/
                 generated/mne.io.Raw.html#mne.io.Raw.get_data>`_.
                 Defaults to "linear".
-            sleep_stages: Mapping between sleep stages names and their integer representations.
-                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
             axis: Instance of `matplotlib.pyplot.axis <https://matplotlib.org/
                 stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis>`_.
                 Defaults to None.
             plot_sensors: Whether to plot sensor map showing which channels were used for
                 computing PSD. Defaults to False.
             save: Whether to save the figure. Defaults to False.
-            psd_method_args: Arguments passed to the PSD method, e.g., welch. Defaults to None.
-            subplots_args: Arguments passed to the plt.subplots(). Have no effect if axis is provided.
+            **subplots_kw: Arguments passed to the plt.subplots(). Have no effect if axis is provided.
                 Defaults to None.
         """
-        subplots_args = subplots_args or dict()
+        from mne.io.pick import _picks_to_idx
+
         is_new_axis = False
 
         if not axis:
-            fig, axis = plt.subplots(**subplots_args)
+            fig, axis = plt.subplots(**subplots_kw)
             is_new_axis = True
 
-        psd_per_stage = self._compute_psd_per_stage(
-            picks=picks,
-            sleep_stages=sleep_stages,
-            avg_ref=False,
-            dB=True,
-            method_args=psd_method_args,
-        )
-
-        for stage in sleep_stages:
+        for stage, spectrum in self.psds.items():
+            psds = np.mean(
+                spectrum._data[_picks_to_idx(spectrum.info, picks=picks), :], axis=0
+            )
+            psds = 10 * np.log10(10**12 * psds) if dB else 10**12 * psds
             axis.plot(
-                psd_per_stage[stage][0],
-                psd_per_stage[stage][1][0],
-                label=f"{stage} ({psd_per_stage[stage][2]}%)",
+                spectrum._freqs,
+                psds,
+                label=f"{stage} ({spectrum.info.description}%)",
             )
 
         axis.set_xlim(freq_range)
         axis.set_ylim(psd_range)
         axis.set_xscale(xscale)
         axis.set_title("Welch's PSD")
-        axis.set_ylabel("PSD [dB/Hz]")
+        units = "[dB/Hz]" if dB else r"[$\mu V^{2}/\sqrt{Hz}$]"
+        axis.set_ylabel("PSD " + units)
         axis.set_xlabel(f"{xscale} frequency [Hz]".capitalize())
         axis.legend()
 
         if plot_sensors:
-            from mne.io.pick import _picks_to_idx
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
             # color = "cyan"
@@ -955,11 +936,9 @@ class BaseSpectrum(BaseTopomap, ABC):
         stage: str = "REM",
         band: dict = {"Delta": (0, 4)},
         dB: bool = False,
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         axis: plt.axis = None,
         fooof: bool = False,
         save: bool = False,
-        psd_method_args: dict = None,
         topomap_args: dict = None,
         cbar_args: dict = None,
         fooof_group_args: dict = None,
@@ -1002,25 +981,15 @@ class BaseSpectrum(BaseTopomap, ABC):
         subplots_args = subplots_args or dict()
         topomap_args.setdefault("cmap", "plasma")
         cbar_args.setdefault(
-            "label", "dB/Hz" if dB else r"$\mu V^{2}/Hz$" if not fooof else None
+            "label", "dB/Hz" if dB else r"$\mu V^{2}/\sqrt{Hz}$" if not fooof else None
         )
-        assert (
-            stage in sleep_stages.keys()
-        ), f"sleep_stages should contain provided stage"
+        assert stage in self.psds, f"{stage} is not in self.psds"
 
         is_new_axis = False
 
         if axis is None:
             fig, axis = plt.subplots(**subplots_args)
             is_new_axis = True
-
-        self.psd_per_stage = self._compute_psd_per_stage(
-            picks=["eeg"],
-            sleep_stages=sleep_stages,
-            avg_ref=True,
-            dB=dB,
-            method_args=psd_method_args,
-        )
 
         [(_, b)] = band.items()
 
@@ -1033,12 +1002,17 @@ class BaseSpectrum(BaseTopomap, ABC):
             )
 
         else:
+            psds = (
+                10 * np.log10(10**12 * self.psds[stage]._data)
+                if dB
+                else 10**12 * self.psds[stage]._data
+            )
             psds = np.take(
-                self.psd_per_stage[stage][1],
+                psds,
                 np.where(
                     np.logical_and(
-                        self.psd_per_stage[stage][0] >= b[0],
-                        self.psd_per_stage[stage][0] <= b[1],
+                        self.psds[stage]._freqs >= b[0],
+                        self.psds[stage]._freqs <= b[1],
                     )
                 )[0],
                 axis=1,
@@ -1072,12 +1046,10 @@ class BaseSpectrum(BaseTopomap, ABC):
             "Gamma": (30, 60),
         },
         dB: bool = False,
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         fooof: bool = False,
         low_percentile: float = 5,
         high_percentile: float = 95,
         save: bool = False,
-        psd_method_args: dict = None,
         topomap_args: dict = None,
         cbar_args: dict = None,
         fooof_group_args: dict = None,
@@ -1126,11 +1098,11 @@ class BaseSpectrum(BaseTopomap, ABC):
         topomap_args.setdefault("cmap", "plasma")
         topomap_args.setdefault("vlim", [None, None])
         cbar_args.setdefault(
-            "label", "dB/Hz" if dB else r"$\mu V^{2}/Hz$" if not fooof else None
+            "label", "dB/Hz" if dB else r"$\mu V^{2}/\sqrt{Hz}$" if not fooof else None
         )
 
         if stages_to_plot == "all":
-            stages_to_plot = sleep_stages.keys()
+            stages_to_plot = self.psds.keys()
         n_rows = len(stages_to_plot)
         n_cols = len(bands)
 
@@ -1138,14 +1110,6 @@ class BaseSpectrum(BaseTopomap, ABC):
         figure_args.setdefault("layout", "constrained")
         fig = plt.figure(**figure_args)
         subfigs = fig.subfigures(n_rows, 1)
-
-        self.psd_per_stage = self._compute_psd_per_stage(
-            picks=["eeg"],
-            sleep_stages=sleep_stages,
-            avg_ref=True,
-            dB=dB,
-            method_args=psd_method_args,
-        )
 
         if low_percentile:
             perc_low = dict()
@@ -1158,7 +1122,7 @@ class BaseSpectrum(BaseTopomap, ABC):
         )
         for col_index, (band_key, b) in enumerate(bands.items()):
             for_perc = []
-            for row_index, stage in enumerate(self.psd_per_stage):
+            for row_index, stage in enumerate(self.psds):
                 if fooof:
                     psds = self._fooof(
                         band={band_key: b},
@@ -1167,12 +1131,17 @@ class BaseSpectrum(BaseTopomap, ABC):
                         get_band_peak_fg_args=fooof_get_band_peak_fg_args,
                     )
                 else:
+                    psds = (
+                        10 * np.log10(10**12 * self.psds[stage]._data)
+                        if dB
+                        else 10**12 * self.psds[stage]._data
+                    )
                     psds = np.take(
-                        self.psd_per_stage[stage][1],
+                        psds,
                         np.where(
                             np.logical_and(
-                                self.psd_per_stage[stage][0] >= b[0],
-                                self.psd_per_stage[stage][0] <= b[1],
+                                self.psds[stage]._freqs >= b[0],
+                                self.psds[stage]._freqs <= b[1],
                             )
                         )[0],
                         axis=1,
@@ -1204,7 +1173,7 @@ class BaseSpectrum(BaseTopomap, ABC):
                 )
 
             subfigs[row_index].suptitle(
-                f"{stage} ({self.psd_per_stage[stage][2]}%)", fontsize="xx-large"
+                f"{stage} ({self.psds[stage].info.description}%)", fontsize="xx-large"
             )
 
         if save:
@@ -1230,8 +1199,8 @@ class BaseSpectrum(BaseTopomap, ABC):
         freq_range = [1, 45]
 
         fg.fit(
-            self.psd_per_stage[stage][0],
-            self.psd_per_stage[stage][1],
+            self.psds[stage]._freqs,
+            self.psds[stage]._data,
             freq_range=freq_range,
         )
 
@@ -1248,5 +1217,104 @@ class BaseSpectrum(BaseTopomap, ABC):
         return psds
 
     @abstractmethod
-    def _compute_psd_per_stage(self):
+    def compute_psds_per_stage(self):
         pass
+
+
+@define(kw_only=True, slots=False)
+class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
+    def __init__(
+        self,
+        inst,
+        hypno,
+        stage_idx,
+        method,
+        fmin,
+        fmax,
+        tmin,
+        tmax,
+        picks,
+        proj,
+        reject_by_annotation,
+        *,
+        n_jobs,
+        verbose=None,
+        **method_kw,
+    ):
+        # triage reading from file
+        if isinstance(inst, dict):
+            self.__setstate__(inst)
+            return
+        # do the basic setup
+        super().__init__(
+            inst,
+            method,
+            fmin,
+            fmax,
+            tmin,
+            tmax,
+            picks,
+            proj,
+            n_jobs=n_jobs,
+            verbose=verbose,
+            **method_kw,
+        )
+        data = self.inst.get_data(
+            self._picks,
+            reject_by_annotation="NaN" if reject_by_annotation else None,
+        )
+        # compute the spectra
+        self._compute_spectra(
+            data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+        )
+        # check for correct shape and bad values
+        self._check_values()
+        del self._shape
+        # save memory
+        del self.inst
+
+    def _compute_spectra(
+        self, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+    ):
+        from scipy import ndimage
+
+        n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
+        psds_list = []
+        weights = []
+        n_samples = 0
+        try:
+            regions = ndimage.find_objects(
+                ndimage.label(np.logical_or.reduce([hypno == i for i in stage_idx]))[0]
+            )
+        except TypeError:
+            regions = ndimage.find_objects(ndimage.label(hypno == stage_idx)[0])
+
+        for region in regions:
+            n_samples_per_region = np.count_nonzero(
+                ~np.isnan(data[:, region[0]]), axis=1
+            )[0]
+            # make the spectra
+            psds, freqs = self._psd_func(
+                data[:, region[0]],
+                self.sfreq,
+                fmin=fmin,
+                fmax=fmax,
+                n_jobs=n_jobs,
+                verbose=verbose,
+            )
+            psds_list.append(psds)
+            weights.append(n_samples_per_region)
+            n_samples += n_samples_per_region
+
+        avg_psds = np.average(np.array(psds_list), weights=weights, axis=0)
+
+        self._data = avg_psds
+        self._freqs = freqs
+        self.info.description = str(round(n_samples / n_samples_total * 100, 2))
+        # this is *expected* shape, it gets asserted later in _check_values()
+        # (and then deleted afterwards)
+        self._shape = (len(self.ch_names), len(self.freqs))
+        # we don't need these anymore, and they make save/load harder
+        del self._picks
+        del self._psd_func
+        del self._time_mask
