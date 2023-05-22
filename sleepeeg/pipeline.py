@@ -77,7 +77,6 @@ class CleaningPipe(BasePipe):
         notch_kwargs.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
         self.mne_raw.load_data().notch_filter(**notch_kwargs)
 
-    @Log.update
     def read_bad_channels(self, path=None):
         """Imports bad channels from file to mne raw object.
 
@@ -92,7 +91,6 @@ class CleaningPipe(BasePipe):
         with open(p, "r") as f:
             self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
 
-    @Log.update
     def read_annotations(self, path=None):
         """Imports annotations from file to mne raw object
 
@@ -183,21 +181,18 @@ class ICAPipe(BasePipe):
             filtered_raw = self.mne_raw
         self.mne_ica.fit(filtered_raw, **ica_fit_args)
 
-    @Log.update
     def plot_sources(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources>`_.
         """
         self.mne_ica.plot_sources(self.mne_raw, block=True, **kwargs)
 
-    @Log.update
     def plot_components(self, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_components <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components>`_.
         """
         self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
 
-    @Log.update
     def plot_overlay(self, exclude=None, picks=None, start=10, stop=20, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_overlay <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay>`_.
@@ -206,7 +201,6 @@ class ICAPipe(BasePipe):
             self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop, **kwargs
         )
 
-    @Log.update
     def plot_properties(self, picks=None, **kwargs):
         """A wrapper for `mne.preprocessing.ICA.plot_properties <https://mne.tools/stable/
         generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties>`_.
@@ -609,6 +603,27 @@ class REMsPipe(BaseEventPipe):
 
     def plot_topomap_collage(self):
         raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
+
+
+@define(kw_only=True)
+class Dashboard(BaseHypnoPipe):
+    def create(self):
+        n_cols = 2
+        n_rows = 2
+        fig, axes = plt.subplots(n_cols, n_rows, figsize=(n_cols * 4, n_rows * 4))
+        self.sensors(axes[0, 0])
+
+    def sensors(self, axes):
+        from more_itertools import flatten
+        from mne.io.pick import _picks_to_idx
+
+        interpolated = list(set(flatten(self.log.cleaning["interpolated"])))
+        self.plot_sensors(
+            legend=["Interpolated"],
+            ch_groups=[_picks_to_idx(self.mne_raw.info, interpolated)],
+            axes=axes,
+            legend_args=dict(loc=(0, 1), fontsize="x-small"),
+        )
 
 
 @define(kw_only=True)

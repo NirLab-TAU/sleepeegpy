@@ -30,18 +30,19 @@ class Log:
         "SpindlesPipe": "spindles",
         "SlowWavesPipe": "slow_waves",
         "REMsPipe": "rems",
+        "Dashboard": "dashboard",
     }
+    output_dir = field(converter=Path)
     cleaning: dict = field(init=False, factory=dict)
     ica: dict = field(init=False, factory=dict)
     spectral: dict = field(init=False, factory=dict)
     spindles: dict = field(init=False, factory=dict)
     slow_waves: dict = field(init=False, factory=dict)
     rems: dict = field(init=False, factory=dict)
-    output_dir = field(init=False)
+    dashboard: dict = field(init=False, factory=dict)
 
-    @output_dir.default
-    def set_output_dir(self):
-        return inspect.currentframe().f_back.f_back.f_locals["self"].output_dir
+    def __attrs_post_init__(self):
+        self._load()
 
     def __str__(self):
         from yaml.representer import Representer
@@ -65,14 +66,14 @@ class Log:
     def update(func):
         @wraps(func)
         def wrapper_func(self, *args, **kwargs):
-            wrapper_locals = locals()
             # Do something before the function.
             func(self, *args, **kwargs)
             # Do something after the function.
-            self.log._update(
-                "func: " + func.__name__,
-                dict(args=wrapper_locals["args"], kwargs=wrapper_locals["kwargs"]),
-            )
+
+            # args_values = args_dict.values()
+            all_args = {"args": list(args)} if args else dict()
+            all_args |= kwargs
+            self.log._update("func: " + func.__name__, all_args)
             self.log.dump()
 
         return wrapper_func
@@ -153,9 +154,7 @@ class BasePipe(ABC):
 
     @log.default
     def _initialize_log(self):
-        log = Log()
-        if self.output_dir.exists():
-            log._load()
+        log = Log(output_dir=self.output_dir)
         log._update("eeg_file", self.path_to_eeg.resolve().as_posix())
         log._update("output_dir", self.output_dir.resolve().as_posix())
         return log
@@ -219,35 +218,32 @@ class BasePipe(ABC):
                         if bad not in bads:
                             f.write(f"{bad}\n")
 
-    def plot_sensors(self, legend=None, **kwargs):
+    def plot_sensors(self, legend=None, legend_args=None, **kwargs):
         import matplotlib.patches as mpatches
 
-        ch_groups = kwargs.pop("ch_groups")
-        axes = kwargs.pop("axes")
+        legend_args = legend_args or dict()
+
+        ch_groups = kwargs.pop("ch_groups", None)
+        axes = kwargs.pop("axes", None)
         kwargs.setdefault("show", False)
-        if not len(legend) == len(ch_groups):
-            raise ValueError(
-                "Length of the legend and of the ch_groups should be equal"
-            )
 
         fig = mne.viz.plot_sensors(
             self.mne_raw.info, ch_groups=ch_groups, axes=axes, **kwargs
         )
-
-        patches = []
-        # if legend:
-        colors = np.linspace(0, 1, len(ch_groups))
-        color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
-        for i, color in enumerate(color_vals):
-            patches.append(mpatches.Patch(color=color, label=legend[i]))
-        if self.mne_raw.info["bads"]:
-            patches.append(mpatches.Patch(color="red", label="Bad"))
-        axes.legend(
-            handles=patches,
-            loc="lower left",
-            bbox_to_anchor=(1, 0),
-            fontsize="x-small",
-        )
+        if legend is not None:
+            if not len(legend) == len(ch_groups):
+                raise ValueError(
+                    "Length of the legend and of the ch_groups should be equal"
+                )
+            patches = []
+            # if legend:
+            colors = np.linspace(0, 1, len(ch_groups))
+            color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
+            for i, color in enumerate(color_vals):
+                patches.append(mpatches.Patch(color=color, label=legend[i]))
+            if self.mne_raw.info["bads"]:
+                patches.append(mpatches.Patch(color="red", label="Bad"))
+            axes.legend(handles=patches, **legend_args)
         return fig
 
     @Log.update
@@ -921,6 +917,9 @@ class BaseSpectrum(BaseTopomap, ABC):
             self.plot_sensors(
                 legend=list(ch_groups.keys()),
                 axes=axins,
+                legend_args=dict(
+                    loc="lower left", bbox_to_anchor=(1, 0), fontsize="x-small"
+                ),
                 ch_groups=list(ch_groups.values()),
                 pointsize=7,
                 linewidth=0.7,
@@ -1216,10 +1215,6 @@ class BaseSpectrum(BaseTopomap, ABC):
 
         return psds
 
-    @abstractmethod
-    def compute_psds_per_stage(self):
-        pass
-
 
 @define(kw_only=True, slots=False)
 class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
@@ -1265,7 +1260,7 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         )
         # compute the spectra
         self._compute_spectra(
-            data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+            method, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
         )
         # check for correct shape and bad values
         self._check_values()
@@ -1274,28 +1269,46 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         del self.inst
 
     def _compute_spectra(
-        self, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+        self, method, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
     ):
         from scipy import ndimage
+        from more_itertools import collapse
 
         n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
         psds_list = []
         weights = []
         n_samples = 0
         try:
-            regions = ndimage.find_objects(
-                ndimage.label(np.logical_or.reduce([hypno == i for i in stage_idx]))[0]
+            regions = collapse(
+                ndimage.find_objects(
+                    ndimage.label(
+                        np.logical_or.reduce([hypno == i for i in stage_idx])
+                    )[0]
+                )
             )
         except TypeError:
-            regions = ndimage.find_objects(ndimage.label(hypno == stage_idx)[0])
+            regions = collapse(
+                ndimage.find_objects(ndimage.label(hypno == stage_idx)[0])
+            )
+
+        if method == "multitaper":
+            from more_itertools import flatten
+
+            n_times = 2000
+            ranges = [
+                list(range(region.start, region.stop, n_times)) for region in regions
+            ]
+            slice_ranges = flatten([list(zip(r[:-1], r[1:])) for r in ranges])
+            regions = [slice(z[0], z[1]) for z in slice_ranges]
 
         for region in regions:
-            n_samples_per_region = np.count_nonzero(
-                ~np.isnan(data[:, region[0]]), axis=1
-            )[0]
+            n_samples_per_region = np.count_nonzero(~np.isnan(data[:, region]), axis=1)[
+                0
+            ]
+
             # make the spectra
             psds, freqs = self._psd_func(
-                data[:, region[0]],
+                data[:, region],
                 self.sfreq,
                 fmin=fmin,
                 fmax=fmax,
@@ -1306,7 +1319,12 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
             weights.append(n_samples_per_region)
             n_samples += n_samples_per_region
 
-        avg_psds = np.average(np.array(psds_list), weights=weights, axis=0)
+        # avg_psds = np.average(np.array(psds_list), weights=weights, axis=0)
+        masked_data = np.ma.masked_array(
+            np.array(psds_list), np.isnan(np.array(psds_list))
+        )
+        average = np.ma.average(masked_data, weights=weights, axis=0)
+        avg_psds = average.filled(np.nan)
 
         self._data = avg_psds
         self._freqs = freqs
