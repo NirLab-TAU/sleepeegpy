@@ -900,12 +900,16 @@ class BaseSpectrum(BaseTopomap, ABC):
 
         if plot_sensors:
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
+            from more_itertools import flatten
 
             # color = "cyan"
             axins = inset_axes(axis, width="30%", height="30%", loc="lower left")
             psd_channels = _picks_to_idx(self.mne_raw.info, picks)
             interpolated = (
-                _picks_to_idx(self.mne_raw.info, self.log.cleaning["interpolated"])
+                _picks_to_idx(
+                    self.mne_raw.info,
+                    list(flatten(self.log.cleaning["interpolated"])),
+                )
                 if "interpolated" in self.log.cleaning
                 else None
             )
@@ -1294,9 +1298,9 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         if method == "multitaper":
             from more_itertools import flatten
 
-            n_times = 2000
+            uniform_region_samples = 2000
             ranges = [
-                list(range(region.start, region.stop, n_times)) for region in regions
+                list(range(region.start, region.stop, uniform_region_samples)) for region in regions
             ]
             slice_ranges = flatten([list(zip(r[:-1], r[1:])) for r in ranges])
             regions = [slice(z[0], z[1]) for z in slice_ranges]

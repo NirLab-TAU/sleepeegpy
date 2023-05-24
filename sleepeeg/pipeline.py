@@ -312,6 +312,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
         cmap: str = "inferno",
         overlap: bool = False,
         save: bool = False,
+        axis: plt.axis = None,
     ):
         """Plots hypnogram and spectrogram.
 
@@ -348,7 +349,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
             )
 
     def __plot_hypnospectrogram(
-        self, data, sf, hypno, win_sec, fmin, fmax, trimperc, cmap, overlap
+        self, data, sf, hypno, win_sec, fmin, fmax, trimperc, cmap, overlap, axis=None,
     ):
         """
         ?
@@ -358,7 +359,10 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
         plt.rcParams.update({"font.size": 18})
 
         if overlap or not hypno.any():
-            fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
+            if axis:
+                fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
+            else:
+                ax=axis
             im = self.__plot_spectrogram(
                 data, sf, win_sec, fmin, fmax, trimperc, cmap, ax
             )
@@ -366,7 +370,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
                 ax_hypno = ax.twinx()
                 self.__plot_hypnogram(sf, hypno, ax_hypno)
             # Add colorbar
-            cbar = fig.colorbar(
+            cbar = plt.colorbar(
                 im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1
             )
             cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=90, labelpad=20)
@@ -603,27 +607,6 @@ class REMsPipe(BaseEventPipe):
 
     def plot_topomap_collage(self):
         raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
-
-
-@define(kw_only=True)
-class Dashboard(BaseHypnoPipe):
-    def create(self):
-        n_cols = 2
-        n_rows = 2
-        fig, axes = plt.subplots(n_cols, n_rows, figsize=(n_cols * 4, n_rows * 4))
-        self.sensors(axes[0, 0])
-
-    def sensors(self, axes):
-        from more_itertools import flatten
-        from mne.io.pick import _picks_to_idx
-
-        interpolated = list(set(flatten(self.log.cleaning["interpolated"])))
-        self.plot_sensors(
-            legend=["Interpolated"],
-            ch_groups=[_picks_to_idx(self.mne_raw.info, interpolated)],
-            axes=axes,
-            legend_args=dict(loc=(0, 1), fontsize="x-small"),
-        )
 
 
 @define(kw_only=True)
