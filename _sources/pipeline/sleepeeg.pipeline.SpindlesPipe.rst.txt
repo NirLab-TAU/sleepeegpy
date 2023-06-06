@@ -29,6 +29,9 @@
          ~SpindlesPipe.plot_average
       
       
+         ~SpindlesPipe.plot_sensors
+      
+      
          ~SpindlesPipe.plot_topomap
       
       
@@ -42,6 +45,9 @@
       
       
          ~SpindlesPipe.save_raw
+      
+      
+         ~SpindlesPipe.set_eeg_reference
       
       
          ~SpindlesPipe.sleep_stats

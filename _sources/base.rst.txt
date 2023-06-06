@@ -8,6 +8,6 @@ base module
 
    BasePipe
    BaseHypnoPipe
-   BaseTopomap
    BaseEventPipe
-   BaseSpectrum
+   SpectrumPlots
+   SleepSpectrum

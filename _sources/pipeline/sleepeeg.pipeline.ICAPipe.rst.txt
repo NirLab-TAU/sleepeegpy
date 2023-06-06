@@ -29,10 +29,10 @@
          ~ICAPipe.plot_components
       
       
-         ~ICAPipe.plot_overlay
-      
-      
          ~ICAPipe.plot_properties
+      
+      
+         ~ICAPipe.plot_sensors
       
       
          ~ICAPipe.plot_sources
@@ -43,6 +43,9 @@
       
          ~ICAPipe.save_raw
       
+      
+         ~ICAPipe.set_eeg_reference
+      
    
    
 
@@ -52,10 +55,6 @@
 
    .. autosummary::
    
-      ~ICAPipe.n_components
-      ~ICAPipe.method
-      ~ICAPipe.fit_params
-      ~ICAPipe.path_to_ica
       ~ICAPipe.mne_ica
       ~ICAPipe.sf
       ~ICAPipe.prec_pipe

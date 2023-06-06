@@ -20,10 +20,16 @@
          ~BaseHypnoPipe.plot
       
       
+         ~BaseHypnoPipe.plot_sensors
+      
+      
          ~BaseHypnoPipe.predict_hypno
       
       
          ~BaseHypnoPipe.save_raw
+      
+      
+         ~BaseHypnoPipe.set_eeg_reference
       
       
          ~BaseHypnoPipe.sleep_stats

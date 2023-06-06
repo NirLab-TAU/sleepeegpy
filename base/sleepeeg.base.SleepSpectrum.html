@@ -1,0 +1,1173 @@
+<!doctype html>
+<html class="no-js" lang="en">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="pipeline module" href="../pipeline.html" /><link rel="prev" title="SpectrumPlots" href="sleepeeg.base.SpectrumPlots.html" />
+
+    <!-- Generated with Sphinx 7.0.1 and Furo 2023.05.20 -->
+        <title>SleepSpectrum - sleepeeg documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?digest=e6660623a769aa55fea372102b9bf3151b292993" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?digest=30d1aed668e5c3a91c3e3bf6a60b675221979f0e" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeeg  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeeg  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../base.html">base module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeeg.base.SpectrumPlots.html">SpectrumPlots</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">SleepSpectrum</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="sleepspectrum">
+<h1>SleepSpectrum<a class="headerlink" href="#sleepspectrum" title="Permalink to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeeg.base.</span></span><span class="sig-name descname"><span class="pre">SleepSpectrum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inst</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmin</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tmax</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">proj</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_by_annotation</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">method_kw</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L1153-L1282"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum" title="Permalink to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">BaseSpectrum</span></code></p>
+<p>Spectral representation of sleep stage data.</p>
+<p>Adapted from <a class="reference external" href="https://mne.tools/stable/index.html">MNE</a>.</p>
+<blockquote class="epigraph">
+<div><p><strong>Methods:</strong></p>
+</div></blockquote>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.add_channels" title="sleepeeg.base.SleepSpectrum.add_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_channels</span></code></a></p></td>
+<td><p>Append new channels to the instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.add_reference_channels" title="sleepeeg.base.SleepSpectrum.add_reference_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">add_reference_channels</span></code></a></p></td>
+<td><p>Add reference channels to data that consists of all zeros.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.copy" title="sleepeeg.base.SleepSpectrum.copy"><code class="xref py py-obj docutils literal notranslate"><span class="pre">copy</span></code></a></p></td>
+<td><p>Return copy of the Spectrum instance.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.drop_channels" title="sleepeeg.base.SleepSpectrum.drop_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_channels</span></code></a></p></td>
+<td><p>Drop channel(s).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.get_channel_types" title="sleepeeg.base.SleepSpectrum.get_channel_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_channel_types</span></code></a></p></td>
+<td><p>Get a list of channel type for each channel.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.get_data" title="sleepeeg.base.SleepSpectrum.get_data"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_data</span></code></a></p></td>
+<td><p>Get spectrum data in NumPy array format.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick" title="sleepeeg.base.SleepSpectrum.pick"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick</span></code></a></p></td>
+<td><p>Pick a subset of channels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_channels" title="sleepeeg.base.SleepSpectrum.pick_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_channels</span></code></a></p></td>
+<td><p><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>LEGACY: New code should use inst.pick(...).</p>
+</div>
+</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_types" title="sleepeeg.base.SleepSpectrum.pick_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_types</span></code></a></p></td>
+<td><p><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>LEGACY: New code should use inst.pick(...).</p>
+</div>
+</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot" title="sleepeeg.base.SleepSpectrum.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
+<td><p>Plot power or amplitude spectra.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot_topo" title="sleepeeg.base.SleepSpectrum.plot_topo"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topo</span></code></a></p></td>
+<td><p>Plot power spectral density, separately for each channel.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot_topomap" title="sleepeeg.base.SleepSpectrum.plot_topomap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap</span></code></a></p></td>
+<td><p>Plot scalp topography of PSD for chosen frequency bands.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.reorder_channels" title="sleepeeg.base.SleepSpectrum.reorder_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reorder_channels</span></code></a></p></td>
+<td><p>Reorder channels.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.save" title="sleepeeg.base.SleepSpectrum.save"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save</span></code></a></p></td>
+<td><p>Save spectrum data to disk (in HDF5 format).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.to_data_frame" title="sleepeeg.base.SleepSpectrum.to_data_frame"><code class="xref py py-obj docutils literal notranslate"><span class="pre">to_data_frame</span></code></a></p></td>
+<td><p>Export data in tabular structure as a pandas DataFrame.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.units" title="sleepeeg.base.SleepSpectrum.units"><code class="xref py py-obj docutils literal notranslate"><span class="pre">units</span></code></a></p></td>
+<td><p>Get the spectrum units for each channel type.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote class="epigraph">
+<div><p><strong>Attributes:</strong></p>
+</div></blockquote>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">ch_names</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.compensation_grade" title="sleepeeg.base.SleepSpectrum.compensation_grade"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compensation_grade</span></code></a></p></td>
+<td><p>The current gradient compensation grade.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">freqs</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">method</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">sfreq</span></code></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">shape</span></code></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.add_channels">
+<span class="sig-name descname"><span class="pre">add_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">add_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_update_info</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L1012-L1124"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.add_channels" title="Permalink to this definition">#</a></dt>
+<dd><p>Append new channels to the instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>add_list</strong> (<em>list</em>) – A list of objects to append to self. Must contain all the same
+type as the current object.</p></li>
+<li><p><strong>force_update_info</strong> (<em>bool</em>) – <p>If True, force the info for objects to be appended to match the
+values in <code class="docutils literal notranslate"><span class="pre">self</span></code>. This should generally only be used when adding
+stim channels for which important metadata won’t be overwritten.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.12.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.drop_channels" title="sleepeeg.base.SleepSpectrum.drop_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_channels</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">self</span></code> is a Raw instance that has been preloaded into a
+<code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.memmap</span></code> instance, the memmap will be resized.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.add_reference_channels">
+<span class="sig-name descname"><span class="pre">add_reference_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L1126-L1145"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.add_reference_channels" title="Permalink to this definition">#</a></dt>
+<dd><p>Add reference channels to data that consists of all zeros.</p>
+<p>Adds reference channels to data that were not included during
+recording. This is useful when you need to re-reference your data
+to different channels. These added channels will consist of all zeros.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ref_channels</strong> (<em>str</em><em> | </em><em>list</em><em> of </em><em>str</em>) – Name of the electrode(s) which served as the reference in the
+recording. If a name is provided, a corresponding channel is added
+and its data is set to 0. This is useful for later re-referencing.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw | Epochs | Evoked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.compensation_grade">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">compensation_grade</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.compensation_grade" title="Permalink to this definition">#</a></dt>
+<dd><p>The current gradient compensation grade.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.copy">
+<span class="sig-name descname"><span class="pre">copy</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L510-L518"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.copy" title="Permalink to this definition">#</a></dt>
+<dd><p>Return copy of the Spectrum instance.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spectrum</strong> – A copy of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>instance of Spectrum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.drop_channels">
+<span class="sig-name descname"><span class="pre">drop_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ch_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">on_missing</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L896-L945"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.drop_channels" title="Permalink to this definition">#</a></dt>
+<dd><p>Drop channel(s).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ch_names</strong> (<em>iterable</em><em> or </em><em>str</em>) – Iterable (e.g. list) of channel name(s) or channel name to remove.</p></li>
+<li><p><strong>on_missing</strong> (<em>'raise'</em><em> | </em><em>'warn'</em><em> | </em><em>'ignore'</em>) – <p>Can be <code class="docutils literal notranslate"><span class="pre">'raise'</span></code> (default) to raise an error, <code class="docutils literal notranslate"><span class="pre">'warn'</span></code> to emit a
+warning, or <code class="docutils literal notranslate"><span class="pre">'ignore'</span></code> to ignore when entries in ch_names are not present in the raw instance.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.23.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.reorder_channels" title="sleepeeg.base.SleepSpectrum.reorder_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reorder_channels</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_channels" title="sleepeeg.base.SleepSpectrum.pick_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_channels</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_types" title="sleepeeg.base.SleepSpectrum.pick_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_types</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.get_channel_types">
+<span class="sig-name descname"><span class="pre">get_channel_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unique</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">only_data_chs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L469-L489"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.get_channel_types" title="Permalink to this definition">#</a></dt>
+<dd><p>Get a list of channel type for each channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<em>str</em><em> | </em><em>array-like</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – Channels to include. Slices and lists of integers will be interpreted as
+channel indices. In lists, channel <em>type</em> strings (e.g., <code class="docutils literal notranslate"><span class="pre">['meg',</span>
+<span class="pre">'eeg']</span></code>) will pick channels of those types, channel <em>name</em> strings (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['MEG0111',</span> <span class="pre">'MEG2623']</span></code> will pick the given channels. Can also be the
+string values “all” to pick all channels, or “data” to pick <span class="xref std std-term">data
+channels</span>. None (default) will pick all channels. Note that channels in
+<code class="docutils literal notranslate"><span class="pre">info['bads']</span></code> <em>will be included</em> if their names or indices are
+explicitly provided.</p></li>
+<li><p><strong>unique</strong> (<em>bool</em>) – Whether to return only unique channel types. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>only_data_chs</strong> (<em>bool</em>) – Whether to ignore non-data channels. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>channel_types</strong> – The channel types.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.get_data">
+<span class="sig-name descname"><span class="pre">get_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bads'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">inf</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_freqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L520-L560"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.get_data" title="Permalink to this definition">#</a></dt>
+<dd><p>Get spectrum data in NumPy array format.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<em>str</em><em> | </em><em>array-like</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – Channels to include. Slices and lists of integers will be interpreted as
+channel indices. In lists, channel <em>type</em> strings (e.g., <code class="docutils literal notranslate"><span class="pre">['meg',</span>
+<span class="pre">'eeg']</span></code>) will pick channels of those types, channel <em>name</em> strings (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['MEG0111',</span> <span class="pre">'MEG2623']</span></code> will pick the given channels. Can also be the
+string values “all” to pick all channels, or “data” to pick <span class="xref std std-term">data
+channels</span>. None (default) will pick good data channels (excluding reference
+MEG channels). Note that channels in <code class="docutils literal notranslate"><span class="pre">info['bads']</span></code> <em>will be included</em> if
+their names or indices are explicitly provided.</p></li>
+<li><p><strong>exclude</strong> (<em>list</em><em> of </em><em>str</em><em> | </em><em>'bads'</em><em> | </em><em>None</em>) – Channel names to exclude. If <code class="docutils literal notranslate"><span class="pre">'bads'</span></code>, channels
+in <code class="docutils literal notranslate"><span class="pre">spectrum.info['bads']</span></code> are excluded; pass an empty list or tuple to
+plot all channels (including “bad” channels, if any).</p></li>
+<li><p><strong>fmin</strong> (<em>float</em>) – The lower- and upper-bound on frequencies of interest. Default is <code class="docutils literal notranslate"><span class="pre">fmin=0,</span> <span class="pre">fmax=np.inf</span></code> (spans all frequencies present in the data).</p></li>
+<li><p><strong>fmax</strong> (<em>float</em>) – The lower- and upper-bound on frequencies of interest. Default is <code class="docutils literal notranslate"><span class="pre">fmin=0,</span> <span class="pre">fmax=np.inf</span></code> (spans all frequencies present in the data).</p></li>
+<li><p><strong>return_freqs</strong> (<em>bool</em>) – Whether to return the frequency bin values for the requested
+frequency range. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>data</strong> (<em>array</em>) – The requested data in a NumPy array.</p></li>
+<li><p><strong>freqs</strong> (<em>array</em>) – The frequency values for the requested range. Only returned if
+<code class="docutils literal notranslate"><span class="pre">return_freqs</span></code> is <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.pick">
+<span class="sig-name descname"><span class="pre">pick</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L839-L859"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.pick" title="Permalink to this definition">#</a></dt>
+<dd><p>Pick a subset of channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<em>str</em><em> | </em><em>array-like</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – Channels to include. Slices and lists of integers will be interpreted as
+channel indices. In lists, channel <em>type</em> strings (e.g., <code class="docutils literal notranslate"><span class="pre">['meg',</span>
+<span class="pre">'eeg']</span></code>) will pick channels of those types, channel <em>name</em> strings (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['MEG0111',</span> <span class="pre">'MEG2623']</span></code> will pick the given channels. Can also be the
+string values “all” to pick all channels, or “data” to pick <span class="xref std std-term">data
+channels</span>. None (default) will pick all channels. Note that channels in
+<code class="docutils literal notranslate"><span class="pre">info['bads']</span></code> <em>will be included</em> if their names or indices are
+explicitly provided.</p></li>
+<li><p><strong>exclude</strong> (<em>list</em><em> | </em><em>str</em>) – Set of channels to exclude, only used when picking based on
+types (e.g., exclude=”bads” when picks=”meg”).</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>str</em><em> | </em><em>int</em><em> | </em><em>None</em>) – <p>Control verbosity of the logging output. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the default
+verbosity level. See the <span class="xref std std-ref">logging documentation</span> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mne.verbose()</span></code> for details. Should only be passed as a keyword
+argument.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.24.0.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.pick_channels">
+<span class="sig-name descname"><span class="pre">pick_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ch_names</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ordered</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L803-L837"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.pick_channels" title="Permalink to this definition">#</a></dt>
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>LEGACY: New code should use inst.pick(…).</p>
+</div>
+<p>Pick some channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ch_names</strong> (<em>list</em>) – The list of channels to select.</p></li>
+<li><p><strong>ordered</strong> (<em>bool</em>) – <p>If True (default False), ensure that the order of the channels in
+the modified instance matches the order of <code class="docutils literal notranslate"><span class="pre">ch_names</span></code>.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.20.0.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.5: </span>The default changed from False in 1.4 to True in 1.5.</p>
+</div>
+</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>str</em><em> | </em><em>int</em><em> | </em><em>None</em>) – <p>Control verbosity of the logging output. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the default
+verbosity level. See the <span class="xref std std-ref">logging documentation</span> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mne.verbose()</span></code> for details. Should only be passed as a keyword
+argument.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 1.1.</span></p>
+</div>
+</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.drop_channels" title="sleepeeg.base.SleepSpectrum.drop_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_channels</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_types" title="sleepeeg.base.SleepSpectrum.pick_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_types</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.reorder_channels" title="sleepeeg.base.SleepSpectrum.reorder_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">reorder_channels</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>The channel names given are assumed to be a set, i.e. the order
+does not matter. The original order of the channels is preserved.
+You can use <code class="docutils literal notranslate"><span class="pre">reorder_channels</span></code> to set channel order if necessary.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.pick_types">
+<span class="sig-name descname"><span class="pre">pick_types</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">meg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_meg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">misc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chpi</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ias</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">syst</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dipole</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gof</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bio</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ecog</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fnirs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">csd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dbs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temperature</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gsr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eyetrack</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">()</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'bads'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">selection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L701-L801"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.pick_types" title="Permalink to this definition">#</a></dt>
+<dd><div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>LEGACY: New code should use inst.pick(…).</p>
+</div>
+<p>Pick some channels by type and names.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>meg</strong> (<em>bool</em><em> | </em><em>str</em>) – If True include MEG channels. If string it can be ‘mag’, ‘grad’,
+‘planar1’ or ‘planar2’ to select only magnetometers, all
+gradiometers, or a specific type of gradiometer.</p></li>
+<li><p><strong>eeg</strong> (<em>bool</em>) – If True include EEG channels.</p></li>
+<li><p><strong>stim</strong> (<em>bool</em>) – If True include stimulus channels.</p></li>
+<li><p><strong>eog</strong> (<em>bool</em>) – If True include EOG channels.</p></li>
+<li><p><strong>ecg</strong> (<em>bool</em>) – If True include ECG channels.</p></li>
+<li><p><strong>emg</strong> (<em>bool</em>) – If True include EMG channels.</p></li>
+<li><p><strong>ref_meg</strong> (<em>bool</em><em> | </em><em>str</em>) – If True include CTF / 4D reference channels. If ‘auto’, reference
+channels are included if compensations are present and <code class="docutils literal notranslate"><span class="pre">meg</span></code> is
+not False. Can also be the string options for the <code class="docutils literal notranslate"><span class="pre">meg</span></code>
+parameter.</p></li>
+<li><p><strong>misc</strong> (<em>bool</em>) – If True include miscellaneous analog channels.</p></li>
+<li><p><strong>resp</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code> include respiratory channels.</p></li>
+<li><p><strong>chpi</strong> (<em>bool</em>) – If True include continuous HPI coil channels.</p></li>
+<li><p><strong>exci</strong> (<em>bool</em>) – Flux excitation channel used to be a stimulus channel.</p></li>
+<li><p><strong>ias</strong> (<em>bool</em>) – Internal Active Shielding data (maybe on Triux only).</p></li>
+<li><p><strong>syst</strong> (<em>bool</em>) – System status channel information (on Triux systems only).</p></li>
+<li><p><strong>seeg</strong> (<em>bool</em>) – Stereotactic EEG channels.</p></li>
+<li><p><strong>dipole</strong> (<em>bool</em>) – Dipole time course channels.</p></li>
+<li><p><strong>gof</strong> (<em>bool</em>) – Dipole goodness of fit channels.</p></li>
+<li><p><strong>bio</strong> (<em>bool</em>) – Bio channels.</p></li>
+<li><p><strong>ecog</strong> (<em>bool</em>) – Electrocorticography channels.</p></li>
+<li><p><strong>fnirs</strong> (<em>bool</em><em> | </em><em>str</em>) – Functional near-infrared spectroscopy channels. If True include all
+fNIRS channels. If False (default) include none. If string it can
+be ‘hbo’ (to include channels measuring oxyhemoglobin) or ‘hbr’ (to
+include channels measuring deoxyhemoglobin).</p></li>
+<li><p><strong>csd</strong> (<em>bool</em>) – EEG-CSD channels.</p></li>
+<li><p><strong>dbs</strong> (<em>bool</em>) – Deep brain stimulation channels.</p></li>
+<li><p><strong>temperature</strong> (<em>bool</em>) – Temperature channels.</p></li>
+<li><p><strong>gsr</strong> (<em>bool</em>) – Galvanic skin response channels.</p></li>
+<li><p><strong>eyetrack</strong> (<em>bool</em><em> | </em><em>str</em>) – Eyetracking channels. If True include all eyetracking channels. If False
+(default) include none. If string it can be ‘eyegaze’ (to include
+eye position channels) or ‘pupil’ (to include pupil-size
+channels).</p></li>
+<li><p><strong>include</strong> (<em>list</em><em> of </em><em>str</em>) – List of additional channels to include. If empty do not include
+any.</p></li>
+<li><p><strong>exclude</strong> (<em>list</em><em> of </em><em>str</em><em> | </em><em>str</em>) – List of channels to exclude. If ‘bads’ (default), exclude channels
+in <code class="docutils literal notranslate"><span class="pre">info['bads']</span></code>.</p></li>
+<li><p><strong>selection</strong> (<em>list</em><em> of </em><em>str</em>) – Restrict sensor channels (MEG, EEG, etc.) to this list of channel names.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>str</em><em> | </em><em>int</em><em> | </em><em>None</em>) – Control verbosity of the logging output. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the default
+verbosity level. See the <span class="xref std std-ref">logging documentation</span> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mne.verbose()</span></code> for details. Should only be passed as a keyword
+argument.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_channels" title="sleepeeg.base.SleepSpectrum.pick_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_channels</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.9.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">amplitude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'sd'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ci_alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'black'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spatial_colors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L562-L730"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.plot" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot power or amplitude spectra.</p>
+<p>Separate plots are drawn for each channel type. When the data have been
+processed with a bandpass, lowpass or highpass filter, dashed lines (╎)
+indicate the boundaries of the filter. The line noise frequency is also
+indicated with a dashed line (⋮). If <code class="docutils literal notranslate"><span class="pre">average=False</span></code>, the plot will
+be interactive, and click-dragging on the spectrum will generate a
+scalp topography plot for the chosen frequency range in a new figure.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<em>str</em><em> | </em><em>array-like</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – <p>Channels to include. Slices and lists of integers will be interpreted as
+channel indices. In lists, channel <em>type</em> strings (e.g., <code class="docutils literal notranslate"><span class="pre">['meg',</span>
+<span class="pre">'eeg']</span></code>) will pick channels of those types, channel <em>name</em> strings (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['MEG0111',</span> <span class="pre">'MEG2623']</span></code> will pick the given channels. Can also be the
+string values “all” to pick all channels, or “data” to pick <span class="xref std std-term">data
+channels</span>. None (default) will pick good data channels (excluding reference
+MEG channels). Note that channels in <code class="docutils literal notranslate"><span class="pre">info['bads']</span></code> <em>will be included</em> if
+their names or indices are explicitly provided.</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.5: </span>In version 1.5, the default behavior will change so that all
+<span class="xref std std-term">data channels</span> (not just “good” data channels) are shown
+by default.</p>
+</div>
+</p></li>
+<li><p><strong>average</strong> (<em>bool</em>) – Whether to average across channels before plotting. If <code class="docutils literal notranslate"><span class="pre">True</span></code>,
+interactive plotting of scalp topography is disabled, and
+parameters <code class="docutils literal notranslate"><span class="pre">ci</span></code> and <code class="docutils literal notranslate"><span class="pre">ci_alpha</span></code> control the style of the
+confidence band around the mean. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>dB</strong> (<em>bool</em>) – Whether to plot on a decibel-like scale. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, plots
+10 × log₁₀(spectral power).</p></li>
+<li><p><strong>amplitude</strong> (<em>bool</em><em> | </em><em>'auto'</em>) – Whether to plot an amplitude spectrum (<code class="docutils literal notranslate"><span class="pre">True</span></code>) or power spectrum
+(<code class="docutils literal notranslate"><span class="pre">False</span></code>). If <code class="docutils literal notranslate"><span class="pre">'auto'</span></code>, will plot a power spectrum when
+<code class="docutils literal notranslate"><span class="pre">dB=True</span></code> and an amplitude spectrum otherwise. Default is
+<code class="docutils literal notranslate"><span class="pre">'auto'</span></code>.</p></li>
+<li><p><strong>xscale</strong> (<em>'linear'</em><em> | </em><em>'log'</em>) – Scale of the frequency axis. Default is <code class="docutils literal notranslate"><span class="pre">'linear'</span></code>.</p></li>
+<li><p><strong>ci</strong> (<em>float</em><em> | </em><em>'sd'</em><em> | </em><em>'range'</em><em> | </em><em>None</em>) – Type of confidence band drawn around the mean when
+<code class="docutils literal notranslate"><span class="pre">average=True</span></code>. If <code class="docutils literal notranslate"><span class="pre">'sd'</span></code> the band spans ±1 standard deviation
+across channels. If <code class="docutils literal notranslate"><span class="pre">'range'</span></code> the band spans the range across
+channels at each frequency. If a <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, it indicates the
+(bootstrapped) confidence interval to display, and must satisfy
+<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;</span> <span class="pre">ci</span> <span class="pre">&lt;=</span> <span class="pre">100</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, no band is drawn. Default is
+<code class="docutils literal notranslate"><span class="pre">sd</span></code>.</p></li>
+<li><p><strong>ci_alpha</strong> (<em>float</em>) – Opacity of the confidence band. Must satisfy
+<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">ci_alpha</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>. Default is 0.3.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>tuple</em>) – A matplotlib-compatible color to use. Has no effect when
+spatial_colors=True.</p></li>
+<li><p><strong>alpha</strong> (<em>float</em><em> | </em><em>None</em>) – Opacity of the spectrum line(s). If <code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>, must satisfy
+<code class="docutils literal notranslate"><span class="pre">0</span> <span class="pre">&lt;=</span> <span class="pre">alpha</span> <span class="pre">&lt;=</span> <span class="pre">1</span></code>. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, opacity will be <code class="docutils literal notranslate"><span class="pre">1</span></code> when
+<code class="docutils literal notranslate"><span class="pre">average=True</span></code> and <code class="docutils literal notranslate"><span class="pre">0.1</span></code> when <code class="docutils literal notranslate"><span class="pre">average=False</span></code>. Default is
+<code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>spatial_colors</strong> (<em>bool</em>) – Whether to color spectrum lines by channel location. Ignored if
+<code class="docutils literal notranslate"><span class="pre">average=True</span></code>.</p></li>
+<li><p><strong>sphere</strong> (<em>float</em><em> | </em><em>array-like</em><em> | </em><em>instance</em><em> of </em><em>ConductorModel</em><em> | </em><em>None</em><em>  | </em><em>'auto'</em><em> | </em><em>'eeglab'</em>) – <p>The sphere parameters to use for the head outline. Can be array-like of
+shape (4,) to give the X/Y/Z origin and radius in meters, or a single float
+to give just the radius (origin assumed 0, 0, 0). Can also be an instance
+of a spherical <code class="xref py py-class docutils literal notranslate"><span class="pre">ConductorModel</span></code> to use the origin and
+radius from that object. If <code class="docutils literal notranslate"><span class="pre">'auto'</span></code> the sphere is fit to digitization
+points. If <code class="docutils literal notranslate"><span class="pre">'eeglab'</span></code> the head circle is defined by EEG electrodes
+<code class="docutils literal notranslate"><span class="pre">'Fpz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Oz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'T7'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'T8'</span></code> (if <code class="docutils literal notranslate"><span class="pre">'Fpz'</span></code> is not present,
+it will be approximated from the coordinates of <code class="docutils literal notranslate"><span class="pre">'Oz'</span></code>). <code class="docutils literal notranslate"><span class="pre">None</span></code> (the
+default) is equivalent to <code class="docutils literal notranslate"><span class="pre">'auto'</span></code> when enough extra digitization points
+are available, and (0, 0, 0, 0.095) otherwise.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.20.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.1: </span>Added <code class="docutils literal notranslate"><span class="pre">'eeglab'</span></code> option.</p>
+</div>
+</p></li>
+<li><p><strong>exclude</strong> (<em>list</em><em> of </em><em>str</em><em> | </em><em>'bads'</em><em> | </em><em>None</em>) – <p>Channel names to exclude from being drawn. If <code class="docutils literal notranslate"><span class="pre">'bads'</span></code>, channels
+in <code class="docutils literal notranslate"><span class="pre">spectrum.info['bads']</span></code> are excluded; pass an empty list or tuple to
+plot all channels (including “bad” channels, if any).</p>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.5: </span>In version 1.5, the default behavior will change from
+<code class="docutils literal notranslate"><span class="pre">exclude='bads'</span></code> to <code class="docutils literal notranslate"><span class="pre">exclude=()</span></code>.</p>
+</div>
+</p></li>
+<li><p><strong>axes</strong> (<em>instance</em><em> of </em><em>Axes</em><em> | </em><em>list</em><em> of </em><em>Axes</em><em> | </em><em>None</em>) – The axes to plot to. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>
+will be created with the correct number of axes. If <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> are provided (either as a single instance or a <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of axes), the number of axes provided must match the length of <code class="docutils literal notranslate"><span class="pre">bands</span></code>.Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – Show the figure if <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – Figure with spectra plotted in separate subplots for each channel
+type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.plot_topo">
+<span class="sig-name descname"><span class="pre">plot_topo</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">layout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">color</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'w'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig_facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis_facecolor</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'k'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">block</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L732-L794"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.plot_topo" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot power spectral density, separately for each channel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>dB</strong> (<em>bool</em>) – Whether to plot on a decibel-like scale. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, plots
+10 × log₁₀(spectral power). Ignored if <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>.</p></li>
+<li><p><strong>layout</strong> (<em>instance</em><em> of </em><em>Layout</em><em> | </em><em>None</em>) – Layout instance specifying sensor positions (does not need to be
+specified for Neuromag data). If <code class="docutils literal notranslate"><span class="pre">None</span></code> (default), the layout is
+inferred from the data.</p></li>
+<li><p><strong>color</strong> (<em>str</em><em> | </em><em>tuple</em>) – A matplotlib-compatible color to use for the curves. Defaults to
+white.</p></li>
+<li><p><strong>fig_facecolor</strong> (<em>str</em><em> | </em><em>tuple</em>) – A matplotlib-compatible color to use for the figure background.
+Defaults to black.</p></li>
+<li><p><strong>axis_facecolor</strong> (<em>str</em><em> | </em><em>tuple</em>) – A matplotlib-compatible color to use for the axis background.
+Defaults to black.</p></li>
+<li><p><strong>axes</strong> (<em>instance</em><em> of </em><em>Axes</em><em> | </em><em>list</em><em> of </em><em>Axes</em><em> | </em><em>None</em>) – The axes to plot to. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>
+will be created with the correct number of axes. If <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> are provided (either as a single instance or a <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of axes), the number of axes provided must be length 1 (for efficiency, subplots for each channel are simulated within a single <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> object).Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>block</strong> (<em>bool</em>) – Whether to halt program execution until the figure is closed.
+May not work on all systems / platforms. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – Show the figure if <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – Figure distributing one image per channel across sensor topography.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of matplotlib.figure.Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.plot_topomap">
+<span class="sig-name descname"><span class="pre">plot_topomap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ch_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">normalize</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">agg_fun</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show_names</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mask_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">contours</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">outlines</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'head'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sphere</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_interp</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'cubic'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">extrapolate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">border</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">res</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">64</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vlim</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(None,</span> <span class="pre">None)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cnorm</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">colorbar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_fmt</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'auto'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">show</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L796-L917"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.plot_topomap" title="Permalink to this definition">#</a></dt>
+<dd><p>Plot scalp topography of PSD for chosen frequency bands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>bands</strong> (<em>None</em><em> | </em><em>dict</em><em> | </em><em>list</em><em> of </em><em>tuple</em>) – <p>The frequencies or frequency ranges to plot. If a <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>, keys will
+be used as subplot titles and values should be either a single frequency
+(e.g., <code class="docutils literal notranslate"><span class="pre">{'presentation</span> <span class="pre">rate':</span> <span class="pre">6.5}</span></code>) or a length-two sequence of lower
+and upper frequency band edges (e.g., <code class="docutils literal notranslate"><span class="pre">{'theta':</span> <span class="pre">(4,</span> <span class="pre">8)}</span></code>). If a single
+frequency is provided, the plot will show the frequency bin that is closest
+to the requested value. If <code class="docutils literal notranslate"><span class="pre">None</span></code> (the default), expands to:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">bands</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;Delta (0-4 Hz)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="s1">&#39;Theta (4-8 Hz)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">8</span><span class="p">),</span>
+         <span class="s1">&#39;Alpha (8-12 Hz)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">12</span><span class="p">),</span> <span class="s1">&#39;Beta (12-30 Hz)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>
+         <span class="s1">&#39;Gamma (30-45 Hz)&#39;</span><span class="p">:</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">45</span><span class="p">)}</span>
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>For backwards compatibility, <code class="xref py py-class docutils literal notranslate"><span class="pre">tuples</span></code> of length 2 or 3 are
+also accepted, where the last element of the tuple is the subplot title
+and the other entries are frequency values (a single value or band
+edges). New code should use <code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code> or <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.2: </span>Allow passing a dict and discourage passing tuples.</p>
+</div>
+</p></li>
+<li><p><strong>ch_type</strong> (<em>'mag'</em><em> | </em><em>'grad'</em><em> | </em><em>'planar1'</em><em> | </em><em>'planar2'</em><em> | </em><em>'eeg'</em><em> | </em><em>None</em>) – The channel type to plot. For <code class="docutils literal notranslate"><span class="pre">'grad'</span></code>, the gradiometers are
+collected in pairs and the mean for each pair is plotted. If
+<code class="docutils literal notranslate"><span class="pre">None</span></code> the first available channel type from order shown above is used. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>normalize</strong> (<em>bool</em>) – If True, each band will be divided by the total power. Defaults to
+False.</p></li>
+<li><p><strong>agg_fun</strong> (<em>callable</em>) – The function used to aggregate over frequencies. Defaults to
+<code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.sum()</span></code> if <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>, else <code class="xref py py-func docutils literal notranslate"><span class="pre">numpy.mean()</span></code>.</p></li>
+<li><p><strong>dB</strong> (<em>bool</em>) – Whether to plot on a decibel-like scale. If <code class="docutils literal notranslate"><span class="pre">True</span></code>, plots
+10 × log₁₀(spectral power) following the application of <code class="docutils literal notranslate"><span class="pre">agg_fun</span></code>. Ignored if <code class="docutils literal notranslate"><span class="pre">normalize=True</span></code>.</p></li>
+<li><p><strong>sensors</strong> (<em>bool</em><em> | </em><em>str</em>) – Whether to add markers for sensor locations. If <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, should be a
+valid matplotlib format string (e.g., <code class="docutils literal notranslate"><span class="pre">'r+'</span></code> for red plusses, see the
+Notes section of <code class="xref py py-meth docutils literal notranslate"><span class="pre">plot()</span></code>). If <code class="docutils literal notranslate"><span class="pre">True</span></code> (the
+default), black circles will be used.</p></li>
+<li><p><strong>show_names</strong> (<em>bool</em><em> | </em><em>callable</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, show channel names next to each sensor marker. If callable,
+channel names will be formatted using the callable; e.g., to
+delete the prefix ‘MEG ‘ from all channel names, pass the function
+<code class="docutils literal notranslate"><span class="pre">lambda</span> <span class="pre">x:</span> <span class="pre">x.replace('MEG</span> <span class="pre">',</span> <span class="pre">'')</span></code>. If <code class="docutils literal notranslate"><span class="pre">mask</span></code> is not <code class="docutils literal notranslate"><span class="pre">None</span></code>, only
+non-masked sensor names will be shown.</p></li>
+<li><p><strong>mask</strong> (<em>ndarray</em><em> of </em><em>bool</em><em>, </em><em>shape</em><em> (</em><em>n_channels</em><em>, </em><em>n_times</em><em>) </em><em>| </em><em>None</em>) – Array indicating channel-time combinations to highlight with a distinct
+plotting style (useful for, e.g. marking which channels at which times a statistical test of the data reaches significance). Array elements set to <code class="docutils literal notranslate"><span class="pre">True</span></code> will be plotted
+with the parameters given in <code class="docutils literal notranslate"><span class="pre">mask_params</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+equivalent to an array of all <code class="docutils literal notranslate"><span class="pre">False</span></code> elements.</p></li>
+<li><p><strong>mask_params</strong> (<em>dict</em><em> | </em><em>None</em>) – <p>Additional plotting parameters for plotting significant sensors.
+Default (None) equals:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">dict</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="s1">&#39;o&#39;</span><span class="p">,</span> <span class="n">markerfacecolor</span><span class="o">=</span><span class="s1">&#39;w&#39;</span><span class="p">,</span> <span class="n">markeredgecolor</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span>
+        <span class="n">linewidth</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">markersize</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+</pre></div>
+</div>
+</p></li>
+<li><p><strong>contours</strong> (<em>int</em><em> | </em><em>array-like</em>) – The number of contour lines to draw. If <code class="docutils literal notranslate"><span class="pre">0</span></code>, no contours will be drawn.
+If a positive integer, that number of contour levels are chosen using the
+matplotlib tick locator (may sometimes be inaccurate, use array for
+accuracy). If array-like, the array values are used as the contour levels.
+The values should be in µV for EEG, fT for magnetometers and fT/m for
+gradiometers. If <code class="docutils literal notranslate"><span class="pre">colorbar=True</span></code>, the colorbar will have ticks
+corresponding to the contour levels. Default is <code class="docutils literal notranslate"><span class="pre">6</span></code>.</p></li>
+<li><p><strong>outlines</strong> (<em>'head'</em><em> | </em><em>dict</em><em> | </em><em>None</em>) – The outlines to be drawn. If ‘head’, the default head scheme will be
+drawn. If dict, each key refers to a tuple of x and y positions, the values
+in ‘mask_pos’ will serve as image mask.
+Alternatively, a matplotlib patch object can be passed for advanced
+masking options, either directly or as a function that returns patches
+(required for multi-axis plots). If None, nothing will be drawn.
+Defaults to ‘head’.</p></li>
+<li><p><strong>sphere</strong> (<em>float</em><em> | </em><em>array-like</em><em> | </em><em>instance</em><em> of </em><em>ConductorModel</em><em> | </em><em>None</em><em>  | </em><em>'auto'</em><em> | </em><em>'eeglab'</em>) – <p>The sphere parameters to use for the head outline. Can be array-like of
+shape (4,) to give the X/Y/Z origin and radius in meters, or a single float
+to give just the radius (origin assumed 0, 0, 0). Can also be an instance
+of a spherical <code class="xref py py-class docutils literal notranslate"><span class="pre">ConductorModel</span></code> to use the origin and
+radius from that object. If <code class="docutils literal notranslate"><span class="pre">'auto'</span></code> the sphere is fit to digitization
+points. If <code class="docutils literal notranslate"><span class="pre">'eeglab'</span></code> the head circle is defined by EEG electrodes
+<code class="docutils literal notranslate"><span class="pre">'Fpz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'Oz'</span></code>, <code class="docutils literal notranslate"><span class="pre">'T7'</span></code>, and <code class="docutils literal notranslate"><span class="pre">'T8'</span></code> (if <code class="docutils literal notranslate"><span class="pre">'Fpz'</span></code> is not present,
+it will be approximated from the coordinates of <code class="docutils literal notranslate"><span class="pre">'Oz'</span></code>). <code class="docutils literal notranslate"><span class="pre">None</span></code> (the
+default) is equivalent to <code class="docutils literal notranslate"><span class="pre">'auto'</span></code> when enough extra digitization points
+are available, and (0, 0, 0, 0.095) otherwise.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.20.</span></p>
+</div>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 1.1: </span>Added <code class="docutils literal notranslate"><span class="pre">'eeglab'</span></code> option.</p>
+</div>
+</p></li>
+<li><p><strong>image_interp</strong> (<em>str</em>) – The image interpolation to be used. Options are <code class="docutils literal notranslate"><span class="pre">'cubic'</span></code> (default)
+to use <code class="xref py py-class docutils literal notranslate"><span class="pre">scipy.interpolate.CloughTocher2DInterpolator</span></code>,
+<code class="docutils literal notranslate"><span class="pre">'nearest'</span></code> to use <code class="xref py py-class docutils literal notranslate"><span class="pre">scipy.spatial.Voronoi</span></code> or
+<code class="docutils literal notranslate"><span class="pre">'linear'</span></code> to use <code class="xref py py-class docutils literal notranslate"><span class="pre">scipy.interpolate.LinearNDInterpolator</span></code>.</p></li>
+<li><p><strong>extrapolate</strong> (<em>str</em>) – <p>Options:</p>
+<ul>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'box'</span></code></dt><dd><p>Extrapolate to four points placed to form a square encompassing all
+data points, where each side of the square is three times the range
+of the data in the respective dimension.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'local'</span></code> (default for MEG sensors)</dt><dd><p>Extrapolate only to nearby points (approximately to points closer than
+median inter-electrode distance). This will also set the
+mask to be polygonal based on the convex hull of the sensors.</p>
+</dd>
+</dl>
+</li>
+<li><dl class="simple">
+<dt><code class="docutils literal notranslate"><span class="pre">'head'</span></code> (default for non-MEG sensors)</dt><dd><p>Extrapolate out to the edges of the clipping circle. This will be on
+the head circle when the sensors are contained within the head circle,
+but it can extend beyond the head when sensors are plotted outside
+the head circle.</p>
+</dd>
+</dl>
+</li>
+</ul>
+<div class="versionchanged">
+<p><span class="versionmodified changed">Changed in version 0.21: </span></p>
+<ul>
+<li><p>The default was changed to <code class="docutils literal notranslate"><span class="pre">'local'</span></code> for MEG sensors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'local'</span></code> was changed to use a convex hull mask</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">'head'</span></code> was changed to extrapolate out to the clipping circle.</p></li>
+</ul>
+</div>
+</p></li>
+<li><p><strong>border</strong> (<em>float</em><em> | </em><em>'mean'</em>) – <p>Value to extrapolate to on the topomap borders. If <code class="docutils literal notranslate"><span class="pre">'mean'</span></code> (default),
+then each extrapolated point has the average value of its neighbours.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.20.</span></p>
+</div>
+</p></li>
+<li><p><strong>res</strong> (<em>int</em>) – The resolution of the topomap image (number of pixels along each side).</p></li>
+<li><p><strong>size</strong> (<em>float</em>) – Side length of each subplot in inches.</p></li>
+<li><p><strong>cmap</strong> (<em>matplotlib colormap</em><em> | </em><em>(</em><em>colormap</em><em>, </em><em>bool</em><em>) </em><em>| </em><em>'interactive'</em><em> | </em><em>None</em>) – <p>Colormap to use. If <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code>, the first value indicates the colormap
+to use and the second value is a boolean defining interactivity. In
+interactive mode the colors are adjustable by clicking and dragging the
+colorbar with left and right mouse button. Left mouse button moves the
+scale up and down and right mouse button adjusts the range. Hitting
+space bar resets the range. Up and down arrows can be used to change
+the colormap. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">'Reds'</span></code> is used for data that is either
+all-positive or all-negative, and <code class="docutils literal notranslate"><span class="pre">'RdBu_r'</span></code> is used otherwise.
+<code class="docutils literal notranslate"><span class="pre">'interactive'</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">True)</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Interactive mode works smoothly only for a small amount
+of topomaps. Interactive mode is disabled by default for more than
+2 topomaps.</p>
+</div>
+</p></li>
+<li><p><strong>vlim</strong> (<em>tuple</em><em> of </em><em>length 2</em><em> | </em><em>'joint'</em>) – Colormap limits to use. If a <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> of floats, specifies the
+lower and upper bounds of the colormap (in that order); providing
+<code class="docutils literal notranslate"><span class="pre">None</span></code> for either entry will set the corresponding boundary at the
+min/max of the data (separately for each topomap). Elements of the <code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code> may also be callable functions which take in a <code class="xref py py-class docutils literal notranslate"><span class="pre">NumPy</span> <span class="pre">array</span></code> and return a scalar. If <code class="docutils literal notranslate"><span class="pre">vlim='joint'</span></code>, will compute the colormap limits jointly across all topomaps of the same channel type, using the min/max of the data for that channel type. Defaults to <code class="docutils literal notranslate"><span class="pre">(None,</span> <span class="pre">None)</span></code>.</p></li>
+<li><p><strong>cnorm</strong> (<em>matplotlib.colors.Normalize</em><em> | </em><em>None</em>) – How to normalize the colormap. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, standard linear normalization
+is performed. If not <code class="docutils literal notranslate"><span class="pre">None</span></code>, <code class="docutils literal notranslate"><span class="pre">vmin</span></code> and <code class="docutils literal notranslate"><span class="pre">vmax</span></code> will be ignored.
+See <span class="xref std std-doc">Matplotlib docs</span>
+for more details on colormap normalization, and
+<span class="xref std std-ref">the ERDs example</span> for an example of its use.</p></li>
+<li><p><strong>colorbar</strong> (<em>bool</em>) – Plot a colorbar in the rightmost column of the figure.</p></li>
+<li><p><strong>cbar_fmt</strong> (<em>str</em>) – Formatting string for colorbar tick labels. See <span class="xref std std-ref">formatspec</span> for
+details.
+If <code class="docutils literal notranslate"><span class="pre">'auto'</span></code>, is equivalent to ‘%0.3f’ if <code class="docutils literal notranslate"><span class="pre">dB=False</span></code> and ‘%0.1f’ if
+<code class="docutils literal notranslate"><span class="pre">dB=True</span></code>. Defaults to <code class="docutils literal notranslate"><span class="pre">'auto'</span></code>.</p></li>
+<li><p><strong>units</strong> (<em>str</em><em> | </em><em>None</em>) – The units to use for the colorbar label. Ignored if <code class="docutils literal notranslate"><span class="pre">colorbar=False</span></code>.
+If <code class="docutils literal notranslate"><span class="pre">None</span></code> the label will be “AU” indicating arbitrary units.
+Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>axes</strong> (<em>instance</em><em> of </em><em>Axes</em><em> | </em><em>list</em><em> of </em><em>Axes</em><em> | </em><em>None</em>) – The axes to plot to. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a new <code class="xref py py-class docutils literal notranslate"><span class="pre">Figure</span></code>
+will be created with the correct number of axes. If <code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code> are provided (either as a single instance or a <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code> of axes), the number of axes provided must match the length of <code class="docutils literal notranslate"><span class="pre">bands</span></code>.Default is <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>show</strong> (<em>bool</em>) – Show the figure if <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>fig</strong> – Figure showing one scalp topography per frequency band.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Figure</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.reorder_channels">
+<span class="sig-name descname"><span class="pre">reorder_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ch_names</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L861-L894"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.reorder_channels" title="Permalink to this definition">#</a></dt>
+<dd><p>Reorder channels.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>ch_names</strong> (<em>list</em>) – The desired channel order.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>inst</strong> – The modified instance.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>instance of Raw, Epochs, or Evoked</p>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.drop_channels" title="sleepeeg.base.SleepSpectrum.drop_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">drop_channels</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_types" title="sleepeeg.base.SleepSpectrum.pick_types"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_types</span></code></a>, <a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_channels" title="sleepeeg.base.SleepSpectrum.pick_channels"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pick_channels</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p>Channel names must be unique. Channels that are not in <code class="docutils literal notranslate"><span class="pre">ch_names</span></code>
+are dropped.</p>
+<div class="versionadded">
+<p><span class="versionmodified added">New in version 0.16.0.</span></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L919-L938"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.save" title="Permalink to this definition">#</a></dt>
+<dd><p>Save spectrum data to disk (in HDF5 format).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<em>path-like</em>) – Path of file to save to.</p></li>
+<li><p><strong>overwrite</strong> (<em>bool</em>) – If True (default False), overwrite the destination file if it
+exists.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>str</em><em> | </em><em>int</em><em> | </em><em>None</em>) – Control verbosity of the logging output. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the default
+verbosity level. See the <span class="xref std std-ref">logging documentation</span> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mne.verbose()</span></code> for details. Should only be passed as a keyword
+argument.</p></li>
+</ul>
+</dd>
+</dl>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne.time_frequency.read_spectrum</span></code></p>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.to_data_frame">
+<span class="sig-name descname"><span class="pre">to_data_frame</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">copy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">long_format</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L940-L1026"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.to_data_frame" title="Permalink to this definition">#</a></dt>
+<dd><p>Export data in tabular structure as a pandas DataFrame.</p>
+<p>Channels are converted to columns in the DataFrame. By default,
+an additional column “freq” is added, unless <code class="docutils literal notranslate"><span class="pre">index='freq'</span></code>
+(in which case frequency values form the DataFrame’s index).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<em>str</em><em> | </em><em>array-like</em><em> | </em><em>slice</em><em> | </em><em>None</em>) – Channels to include. Slices and lists of integers will be interpreted as
+channel indices. In lists, channel <em>type</em> strings (e.g., <code class="docutils literal notranslate"><span class="pre">['meg',</span>
+<span class="pre">'eeg']</span></code>) will pick channels of those types, channel <em>name</em> strings (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['MEG0111',</span> <span class="pre">'MEG2623']</span></code> will pick the given channels. Can also be the
+string values “all” to pick all channels, or “data” to pick <span class="xref std std-term">data
+channels</span>. None (default) will pick all channels. Note that channels in
+<code class="docutils literal notranslate"><span class="pre">info['bads']</span></code> <em>will be included</em> if their names or indices are
+explicitly provided.</p></li>
+<li><p><strong>index</strong> (<em>str</em><em> | </em><em>list</em><em> of </em><em>str</em><em> | </em><em>None</em>) – Kind of index to use for the DataFrame. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, a sequential
+integer index (<code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.RangeIndex</span></code>) will be used. If a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, a <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.Index</span></code> will be used (see Notes). If
+a list of two or more string values, a <code class="xref py py-class docutils literal notranslate"><span class="pre">pandas.MultiIndex</span></code>
+will be used. Defaults to <code class="docutils literal notranslate"><span class="pre">None</span></code>.</p></li>
+<li><p><strong>copy</strong> (<em>bool</em>) – If <code class="docutils literal notranslate"><span class="pre">True</span></code>, data will be copied. Otherwise data may be modified in place.
+Defaults to <code class="docutils literal notranslate"><span class="pre">True</span></code>.</p></li>
+<li><p><strong>long_format</strong> (<em>bool</em>) – If True, the DataFrame is returned in long format where each row is one
+observation of the signal at a unique combination of frequency and channel.
+For convenience, a <code class="docutils literal notranslate"><span class="pre">ch_type</span></code> column is added to facilitate subsetting the resulting DataFrame. Defaults to <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p></li>
+<li><p><strong>verbose</strong> (<em>bool</em><em> | </em><em>str</em><em> | </em><em>int</em><em> | </em><em>None</em>) – Control verbosity of the logging output. If <code class="docutils literal notranslate"><span class="pre">None</span></code>, use the default
+verbosity level. See the <span class="xref std std-ref">logging documentation</span> and
+<code class="xref py py-func docutils literal notranslate"><span class="pre">mne.verbose()</span></code> for details. Should only be passed as a keyword
+argument.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li></li>
+<li><p><strong>df</strong> (<em>instance of pandas.DataFrame</em>) – A dataframe suitable for usage with other statistical/plotting/analysis
+packages.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Notes</p>
+<p>Valid values for <code class="docutils literal notranslate"><span class="pre">index</span></code> depend on whether the Spectrum was created
+from continuous data (<code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code>, <code class="xref py py-class docutils literal notranslate"><span class="pre">Evoked</span></code>) or
+discontinuous data (<code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code>). For continuous data, only
+<code class="docutils literal notranslate"><span class="pre">None</span></code> or <code class="docutils literal notranslate"><span class="pre">'freq'</span></code> is supported. For discontinuous data, additional
+valid values are <code class="docutils literal notranslate"><span class="pre">'epoch'</span></code> and <code class="docutils literal notranslate"><span class="pre">'condition'</span></code>, or a <code class="xref py py-class docutils literal notranslate"><span class="pre">list</span></code>
+comprising some of the valid string values (e.g.,
+<code class="docutils literal notranslate"><span class="pre">['freq',</span> <span class="pre">'epoch']</span></code>).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeeg.base.SleepSpectrum.units">
+<span class="sig-name descname"><span class="pre">units</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">latex</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L1028-L1047"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.SleepSpectrum.units" title="Permalink to this definition">#</a></dt>
+<dd><p>Get the spectrum units for each channel type.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>latex</strong> (<em>bool</em>) – Whether to format the unit strings as LaTeX. Default is <code class="docutils literal notranslate"><span class="pre">False</span></code>.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>units</strong> – Mapping from channel type to a string representation of the units
+for that channel type.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../pipeline.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">pipeline module</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="sleepeeg.base.SpectrumPlots.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">SpectrumPlots</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">SleepSpectrum</a><ul>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum</span></code></a><ul>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.add_channels"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.add_channels()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.add_reference_channels"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.add_reference_channels()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.compensation_grade"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.compensation_grade</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.copy"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.copy()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.drop_channels"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.drop_channels()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.get_channel_types"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.get_channel_types()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.get_data"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.get_data()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.pick()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_channels"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.pick_channels()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.pick_types"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.pick_types()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.plot()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot_topo"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.plot_topo()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.plot_topomap"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.plot_topomap()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.reorder_channels"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.reorder_channels()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.save"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.save()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.to_data_frame"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.to_data_frame()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.SleepSpectrum.units"><code class="docutils literal notranslate"><span class="pre">SleepSpectrum.units()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/sphinx_highlight.js"></script>
+    <script src="../_static/scripts/furo.js"></script>
+    </body>
+</html>

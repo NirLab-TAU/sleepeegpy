@@ -20,10 +20,16 @@
          ~CleaningPipe.filter
       
       
+         ~CleaningPipe.interpolate_bads
+      
+      
          ~CleaningPipe.notch
       
       
          ~CleaningPipe.plot
+      
+      
+         ~CleaningPipe.plot_sensors
       
       
          ~CleaningPipe.read_annotations
@@ -36,6 +42,9 @@
       
       
          ~CleaningPipe.save_raw
+      
+      
+         ~CleaningPipe.set_eeg_reference
       
    
    

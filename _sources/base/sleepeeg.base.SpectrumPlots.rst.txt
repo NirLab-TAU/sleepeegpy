@@ -1,9 +1,9 @@
-﻿BaseSpectrum
-============
+﻿SpectrumPlots
+=============
 
-.. currentmodule:: base
+.. currentmodule:: sleepeeg.base
 
-.. autoclass:: BaseSpectrum
+.. autoclass:: SpectrumPlots
    :members:
    :show-inheritance:
    :inherited-members:
@@ -17,13 +17,13 @@
    
       
       
-         ~BaseSpectrum.plot_psd_per_stage
+         ~SpectrumPlots.plot_psds
       
       
-         ~BaseSpectrum.plot_topomap_collage
+         ~SpectrumPlots.plot_topomap
       
       
-         ~BaseSpectrum.plot_topomap_per_stage
+         ~SpectrumPlots.plot_topomap_collage
       
    
    

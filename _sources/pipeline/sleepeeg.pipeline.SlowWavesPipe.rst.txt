@@ -29,6 +29,9 @@
          ~SlowWavesPipe.plot_average
       
       
+         ~SlowWavesPipe.plot_sensors
+      
+      
          ~SlowWavesPipe.plot_topomap
       
       
@@ -42,6 +45,9 @@
       
       
          ~SlowWavesPipe.save_raw
+      
+      
+         ~SlowWavesPipe.set_eeg_reference
       
       
          ~SlowWavesPipe.sleep_stats

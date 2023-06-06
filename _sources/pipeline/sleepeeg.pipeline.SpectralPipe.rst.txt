@@ -17,13 +17,19 @@
    
       
       
+         ~SpectralPipe.compute_psds_per_stage
+      
+      
          ~SpectralPipe.plot
       
       
          ~SpectralPipe.plot_hypnospectrogram
       
       
-         ~SpectralPipe.plot_psd_per_stage
+         ~SpectralPipe.plot_psds
+      
+      
+         ~SpectralPipe.plot_sensors
       
       
          ~SpectralPipe.plot_topomap
@@ -35,7 +41,13 @@
          ~SpectralPipe.predict_hypno
       
       
+         ~SpectralPipe.read_spectra
+      
+      
          ~SpectralPipe.save_raw
+      
+      
+         ~SpectralPipe.set_eeg_reference
       
       
          ~SpectralPipe.sleep_stats
@@ -49,6 +61,7 @@
 
    .. autosummary::
    
+      ~SpectralPipe.psds
       ~SpectralPipe.sf
       ~SpectralPipe.path_to_hypno
       ~SpectralPipe.hypno_freq
@@ -58,6 +71,5 @@
       ~SpectralPipe.path_to_eeg
       ~SpectralPipe.output_dir
       ~SpectralPipe.mne_raw
-      ~SpectralPipe.psd_per_stage
    
    
