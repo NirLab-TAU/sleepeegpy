@@ -2,12 +2,13 @@ import os
 import errno
 import inspect
 
+from loguru import logger
 import yaml
 import json
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from pathlib import Path
-from functools import wraps
+import functools
 
 from typing import TypeVar, Type
 from attrs import define, field
@@ -21,96 +22,41 @@ from tqdm import tqdm
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
 
 
-@define(kw_only=True)
-class Log:
-    PIPES = {
-        "CleaningPipe": "cleaning",
-        "ICAPipe": "ica",
-        "SpectralPipe": "spectral",
-        "SpindlesPipe": "spindles",
-        "SlowWavesPipe": "slow_waves",
-        "REMsPipe": "rems",
-        "Dashboard": "dashboard",
-    }
-    output_dir = field(converter=Path)
-    cleaning: dict = field(init=False, factory=dict)
-    ica: dict = field(init=False, factory=dict)
-    spectral: dict = field(init=False, factory=dict)
-    spindles: dict = field(init=False, factory=dict)
-    slow_waves: dict = field(init=False, factory=dict)
-    rems: dict = field(init=False, factory=dict)
-    dashboard: dict = field(init=False, factory=dict)
+def logger_wraps(*, level="DEBUG"):
+    def wrapper(func):
+        name = func.__name__
 
-    def __attrs_post_init__(self):
-        self._load()
-
-    def __str__(self):
-        from yaml.representer import Representer
-
-        yaml.add_representer(tuple, Representer.represent_list)
-        return yaml.dump(self.data, default_flow_style=False)
-
-    def __repr__(self):
-        return json.dumps(self.data, indent=4)
-
-    @property
-    def data(self):
-        return {value: self.__getattribute__(value) for value in self.PIPES.values()}
-
-    def _update(self, key, value):
-        the_class = inspect.stack()[1][0].f_locals["self"].__class__.__name__
-        x = self.__getattribute__(self.PIPES[the_class])
-        x.setdefault(key, []).append(value)
-        self.__setattr__(self.PIPES[the_class], x)
-
-    def update(func):
-        @wraps(func)
-        def wrapper_func(self, *args, **kwargs):
-            # Do something before the function.
-            func(self, *args, **kwargs)
-            # Do something after the function.
-
-            # args_values = args_dict.values()
-            all_args = {"args": list(args)} if args else dict()
-            all_args |= kwargs
-            self.log._update("func: " + func.__name__, all_args)
-            self.log.dump()
-
-        return wrapper_func
-
-    def _load(self):
-        if "log.json" in [f.name for f in self.output_dir.iterdir() if f.is_file()]:
-            with open(self.output_dir / "log.json") as json_file:
-                data = json.load(json_file)
-                for key, value in data.items():
-                    self.__setattr__(key, value)
-
-    def dump(self):
-        with open(self.output_dir / "log.json", "w") as fp:
-            json.dump(
-                self.data,
-                fp,
-                indent=4,
+        @functools.wraps(func)
+        def wrapped(self, *args, **kwargs):
+            logger_ = logger.opt(depth=1)
+            logger_.log(
+                level,
+                f"Entering '{self.__class__.__name__}.{name}' (args={args}, kwargs={kwargs})",
             )
+            result = func(self, *args, **kwargs)
+
+            return result
+
+        return wrapped
+
+    return wrapper
 
 
 @define(kw_only=True, slots=False)
 class BasePipe(ABC):
     """A template class for the pipeline segments."""
 
-    prec_pipe: Type[BasePipeType] = field(default=None, metadata={"my_metadata": 1})
-    """Preceding pipe that hands over mne_raw attr."""
+    prec_pipe: Type[BasePipeType] = field(default=None)
+    """Preceding pipe that hands over mne_raw attribute."""
 
     path_to_eeg: Path = field(converter=Path)
-    """Can be any file type supported by 
-    `mne.io.read_raw() <https://mne.tools/stable/generated/
-    mne.io.Raw.html#mne.io.Raw.save>`_.
+    """Can be any file type supported by :py:func:`mne:mne.io.read_raw`.
     """
 
     @path_to_eeg.default
     def _set_path_to_eeg(self):
         if self.prec_pipe:
-            return "/"
+            return self.prec_pipe.path_to_eeg
         raise TypeError('Provide either "pipe" or "path_to_eeg" arguments')
 
     @path_to_eeg.validator
@@ -131,39 +77,23 @@ class BasePipe(ABC):
     def _validate_output_dir(self, attr, value):
         self.output_dir.mkdir(exist_ok=True)
         (self.output_dir / self.__class__.__name__).mkdir(exist_ok=True)
+        logger.remove()
+        logger.add(self.output_dir / "pipeline.log")
 
     mne_raw: mne.io.Raw = field(init=False)
-    """An instanse of  
-    `mne.io.Raw <https://mne.tools/stable/generated/
-    mne.io.Raw.html#mne-io-raw>`_.
+    """An instanse of :py:class:`mne:mne.io.Raw`.
     """
 
     @mne_raw.default
     def _read_mne_raw(self):
-        from mne.io import read_raw
-
-        try:
-            return (
-                self.prec_pipe.mne_raw if self.prec_pipe else read_raw(self.path_to_eeg)
-            )
-        except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
-
-    log: Log = field(init=False)
-
-    @log.default
-    def _initialize_log(self):
-        log = Log(output_dir=self.output_dir)
-        log._update("eeg_file", self.path_to_eeg.resolve().as_posix())
-        log._update("output_dir", self.output_dir.resolve().as_posix())
-        return log
+        if self.prec_pipe:
+            return self.prec_pipe.mne_raw
+        else:
+            return mne.io.read_raw(self.path_to_eeg)
 
     @property
     def sf(self):
-        """A wrapper for
-        `mne.Info["sfreq"] <https://mne.tools/stable/generated/
-        mne.Info.html#mne-info>`_.
+        """A wrapper for :py:class:`raw.info["sfreq"] <mne:mne.Info>`.
 
         Returns:
             float: sampling frequency
@@ -177,19 +107,14 @@ class BasePipe(ABC):
         overwrite: bool = False,
         **kwargs,
     ):
-        """A wrapper for `mne.io.Raw.plot() <https://mne.tools/stable/
-        generated/mne.io.Raw.html#mne.io.Raw.plot>`_.
+        """A wrapper for :py:meth:`mne:mne.io.Raw.plot`.
 
         Args:
-            butterfly: Whether to start in butterfly mode. Defaults to False.
             save_annotations: Whether to save annotations as txt. Defaults to False.
             save_bad_channels: Whether to save bad channels as txt. Defaults to False.
-            scalings: Scale for amplitude per channel type. Defaults to 'auto'.
-            use_opengl: Whether to use OpenGL acceleration. Defaults to None.
             overwrite: Whether to overwrite annotations and bad_channels files if exist.
                 Defaults to False.
-            **kwargs: Arguments passed to `raw.plot() <https://mne.tools/stable/
-                generated/mne.io.Raw.html#mne.io.Raw.plot>`_.
+            **kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.plot`.
         """
         kwargs.setdefault("theme", "dark")
         kwargs.setdefault("bad_color", "r")
@@ -218,7 +143,17 @@ class BasePipe(ABC):
                         if bad not in bads:
                             f.write(f"{bad}\n")
 
-    def plot_sensors(self, legend=None, legend_args=None, **kwargs):
+    def plot_sensors(
+        self, legend: Iterable[str] = None, legend_args: dict = None, **kwargs
+    ):
+        """A wrapper for :py:func:`mne:mne.viz.plot_sensors` with a legend.
+
+        Args:
+            legend: ch_groups names to connect to colors. Defaults to None.
+            legend_args: Arguments passed to :py:meth:`mpl:matplotlib.axes.Axes.legend`.
+                Defaults to None.
+            **kwargs: Arguments passed to :py:func:`mne:mne.viz.plot_sensors`.
+        """
         import matplotlib.patches as mpatches
 
         legend_args = legend_args or dict()
@@ -230,41 +165,51 @@ class BasePipe(ABC):
         fig = mne.viz.plot_sensors(
             self.mne_raw.info, ch_groups=ch_groups, axes=axes, **kwargs
         )
-        if legend is not None:
+        if axes is None:
+            axes = fig.axes[0]
+        if legend:
             if not len(legend) == len(ch_groups):
                 raise ValueError(
                     "Length of the legend and of the ch_groups should be equal"
                 )
+
             patches = []
             # if legend:
             colors = np.linspace(0, 1, len(ch_groups))
             color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
             for i, color in enumerate(color_vals):
-                patches.append(mpatches.Patch(color=color, label=legend[i]))
+                if legend[i]:
+                    patches.append(mpatches.Patch(color=color, label=legend[i]))
             if self.mne_raw.info["bads"]:
                 patches.append(mpatches.Patch(color="red", label="Bad"))
             axes.legend(handles=patches, **legend_args)
         return fig
 
-    @Log.update
+    @logger_wraps()
     def save_raw(self, fname: str, **kwargs):
-        """A wrapper for `mne.io.Raw.save <https://mne.tools/stable/
-        generated/mne.io.Raw.html#mne.io.Raw.save>`_.
+        """A wrapper for :py:meth:`mne:mne.io.Raw.save`.
 
         Args:
             fname: Filename for the fif file being saved.
-            **kwargs: Arguments passed to raw.save()
+            **kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.save`.
         """
         fif_folder = self.output_dir / self.__class__.__name__
         self.mne_raw.save(fif_folder / fname, **kwargs)
 
-    @Log.update
-    def set_eeg_reference(self, **kwargs):
-        kwargs.setdefault("ref_channels", "average")
-        kwargs.setdefault("projection", False)
-        if not kwargs["projection"]:
-            self.log._update("reference", kwargs["ref_channels"])
-        self.mne_raw.load_data().set_eeg_reference(**kwargs)
+    @logger_wraps()
+    def set_eeg_reference(self, ref_channels="average", projection=False, **kwargs):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
+
+        Args:
+            ref_channels: :py:meth:`ref_channels <mne:mne.io.Raw.set_eeg_reference>`. Defaults to 'average'.
+            projection: :py:meth:`projection <mne:mne.io.Raw.set_eeg_reference>`. Defaults to False.
+            **kwargs: Additional arguments passed to :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
+        """
+        if not projection:
+            logger.info(f"{ref_channels} reference has been applied")
+        self.mne_raw.load_data().set_eeg_reference(
+            ref_channels=ref_channels, projection=projection, **kwargs
+        )
 
 
 @define(kw_only=True, slots=False)
@@ -326,8 +271,6 @@ class BaseHypnoPipe(BasePipe, ABC):
     def __attrs_post_init__(self):
         if self.hypno.any():
             self.__upsample_hypno()
-        self.log._update("hypno_file", self.path_to_hypno.resolve().as_posix())
-        self.log._update("hypno_freq", self.hypno_freq)
 
     def __upsample_hypno(self):
         from yasa import hypno_upsample_to_data
@@ -336,14 +279,14 @@ class BaseHypnoPipe(BasePipe, ABC):
             self.hypno, self.hypno_freq, self.mne_raw, verbose=False
         )
 
-    @Log.update
+    @logger_wraps()
     def predict_hypno(
         self,
         eeg_name: str = "E183",
         eog_name: str = "E252",
         emg_name: str = "E247",
         ref_name: str = "E26",
-        save=True,
+        save: bool = True,
     ):
         """Runs YASA's automatic sleep staging
 
@@ -352,7 +295,7 @@ class BaseHypnoPipe(BasePipe, ABC):
             eog_name: Preferentially, the left LOC channel. Defaults to "E252".
             emg_name: Preferentially a chin electrode. Defaults to "E247".
             ref_name: Reference channel, preferentially a mastoid. Defaults to "E26".
-            save: Whether to save the hypnogram. Defaults to True.
+            save: Whether to save the hypnogram to file. Defaults to True.
         """
         from yasa import SleepStaging, hypno_str_to_int
 
@@ -380,8 +323,7 @@ class BaseHypnoPipe(BasePipe, ABC):
             )
 
     def sleep_stats(self, save: bool = False):
-        """A wrapper for
-        `yasa.sleep_statistics <https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa-sleep-statistics>`_.
+        """A wrapper for :py:func:`yasa:yasa.sleep_statistics`.
 
         Args:
             save: Whether to save the stats to csv. Defaults to False.
@@ -437,15 +379,16 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
     results = field(init=False)
     """Event detection results as returned by YASA's event detection methods. 
     Depending on the child class can be instance of either 
-    SpindlesResults, SWResults or REMResults classes. 
+    :py:class:`yasa:yasa.SpindlesResults`, :py:class:`yasa:yasa.SWResults` or :py:class:`yasa:yasa.REMResults` classes. 
     """
 
     tfrs: dict = field(init=False)
-    """Instances of mne.time_frequency.AverageTFR per sleep stage.
+    """Instances of :py:class:`mne:mne.time_frequency.AverageTFR` per sleep stage.
     """
 
     @abstractmethod
     def detect():
+        """Each event class should contain the detection method"""
         pass
 
     def _save_to_csv(self):
@@ -463,9 +406,9 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             / f"{self.__class__.__name__[:-4].lower()}_avg.png"
         )
 
-    @Log.update
+    @logger_wraps()
     def plot_average(self, save: bool = False, **kwargs):
-        """Average of YASA's detected event.
+        """Plot average of the detected event.
 
         Args:
             save: Whether to save the figure to file. Defaults to False.
@@ -475,7 +418,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         if save:
             self._save_avg_fig()
 
-    @Log.update
+    @logger_wraps()
     def plot_topomap(
         self,
         prop: str,
@@ -496,12 +439,12 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             aggfunc: Averaging function, "mean" or "median". Defaults to "mean".
             sleep_stages: Mapping between sleep stages names and their integer representations.
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
-            axis: Instance of `matplotlib.pyplot.axis <https://matplotlib.org/
-                stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis>`_.
+            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
                 Defaults to None.
-            cmap: Matplotlib `colormap <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_.
-                Defaults to "plasma".
             save: Whether to save the figure. Defaults to False.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
+            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
         """
         from natsort import natsort_keygen
         from more_itertools import collapse
@@ -552,7 +495,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                 / f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png"
             )
 
-    @Log.update
+    @logger_wraps()
     def plot_topomap_collage(
         self,
         props: Iterable[str],
@@ -581,12 +524,9 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             high_percentile: Set max color value by percentile of the property data.
                 Defaults to 95.
             save: Whether to save the figure. Defaults to False.
-            topomap_args: Arguments passed to `mne.viz.plot_topomap() <https://mne.tools/
-                stable/generated/mne.viz.plot_topomap.html>`_. Defaults to None.
-            cbar_args: Arguments passed to `plt.colorbar() <https://matplotlib.org/stable
-                /api/_as_gen/matplotlib.pyplot.colorbar.html>`_. Defaults to None.
-            figure_args: Arguments passed to `plt.figure() <https://matplotlib.org/stable/
-                api/_as_gen/matplotlib.pyplot.figure.html>`_. Defaults to None.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
+            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.Defaults to None.
 
         """
         from natsort import natsort_keygen
@@ -689,7 +629,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                 / f"topomap_{self.__class__.__name__[:-4].lower()}_collage.png"
             )
 
-    @Log.update
+    @logger_wraps()
     def apply_tfr(
         self,
         freqs: Iterable[float],
@@ -709,10 +649,8 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             time_after: Seconds after the event peak to get from the real data
             method: TFR transform method. Defaults to "morlet".
             save: Whether to save the TFRs to file. Defaults to False.
-            **tfr_kwargs: Arguments passed to `mne.time_frequency.tfr_array_morlet()
-                <https://mne.tools/stable/generated/mne.time_frequency.tfr_array_morlet.html>`_
-                or `mne.time_frequency.tfr_array_multitaper() <https://mne.tools/stable/
-                generated/mne.time_frequency.tfr_array_multitaper.html>`_.
+            **tfr_kwargs: Arguments passed to :py:func:`mne:mne.time_frequency.tfr_array_morlet`
+                or :py:func:`mne:mne.time_frequency.tfr_array_multitaper`.
         """
         assert self.results, "Run detect method first"
         assert (
@@ -786,6 +724,8 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             data = np.squeeze(
                 np.array([tfr for channel, tfr in natsorted(tfrs.items())])
             )
+
+            # Matrix should be 3D, so if there was only one channel need to expand.
             if data.ndim == 2:
                 data = np.expand_dims(data, axis=0)
             self.tfrs[sleep_stages[stage]] = mne.time_frequency.AverageTFR(
@@ -808,8 +748,8 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                     / f"{self.__class__.__name__[:-4].lower()}_{stage}-tfr.h5"
                 )
 
-    @Log.update
-    def read_tfrs(self, dirpath=None):
+    @logger_wraps()
+    def read_tfrs(self, dirpath: str | None = None):
         """Loads TFRs stored in hdf5 files.
 
         Filenames should end with {type_of_event}_{sleep_stage}-tfr.h5
@@ -817,8 +757,6 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         Args:
             dirpath: Path to the directory containing hdf5 files. Defaults to None.
         """
-        from mne.time_frequency import read_tfrs
-        from pathlib import Path
         import re
 
         r = f"{self.__class__.__name__[:-4].lower()}_(.+)(?:-tfr.h5)"
@@ -829,16 +767,14 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         for p in dirpath.glob("*tfr.h5"):
             m = re.search(r, str(p))
             if m:
-                self.tfrs[m.groups()[0]] = read_tfrs(p)
+                self.tfrs[m.groups()[0]] = mne.time_frequency.read_tfrs(p)
 
 
 @define(kw_only=True, slots=False)
-class BaseSpectrum(BaseTopomap, ABC):
-    """A template class for the spectral analysis."""
+class SpectrumPlots(BaseTopomap, ABC):
+    """Plotting spectral data."""
 
-    psds: dict = field(init=False, factory=dict)
-
-    @Log.update
+    @logger_wraps()
     def plot_psds(
         self,
         picks,
@@ -849,6 +785,7 @@ class BaseSpectrum(BaseTopomap, ABC):
         axis: plt.axis = None,
         plot_sensors: bool = False,
         save: bool = False,
+        legend_args: dict = None,
         **subplots_kw,
     ):
         """Plot PSD per sleep stage.
@@ -858,19 +795,18 @@ class BaseSpectrum(BaseTopomap, ABC):
             freq_range: Range of x axis on PSD plot. Defaults to (0, 40).
             dB:
             xscale: Scale of the X axis, check available values at
-                `matplotlib.axes.Axes.set_xscale <https://mne.tools/stable/
-                generated/mne.io.Raw.html#mne.io.Raw.get_data>`_.
-                Defaults to "linear".
-            axis: Instance of `matplotlib.pyplot.axis <https://matplotlib.org/
-                stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis>`_.
+                :py:meth:`mpl:matplotlib.axes.Axes.set_xscale`. Defaults to "linear".
+            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
                 Defaults to None.
             plot_sensors: Whether to plot sensor map showing which channels were used for
                 computing PSD. Defaults to False.
             save: Whether to save the figure. Defaults to False.
-            **subplots_kw: Arguments passed to the plt.subplots(). Have no effect if axis is provided.
-                Defaults to None.
+            **subplots_kw: Arguments passed to the :py:func:`mpl:matplotlib.pyplot.subplots`.
+                Have no effect if axis is provided.Defaults to None.
         """
         from mne.io.pick import _picks_to_idx
+
+        legend_args = legend_args or dict()
 
         is_new_axis = False
 
@@ -892,25 +828,35 @@ class BaseSpectrum(BaseTopomap, ABC):
         axis.set_xlim(freq_range)
         axis.set_ylim(psd_range)
         axis.set_xscale(xscale)
-        axis.set_title("Welch's PSD")
-        units = "[dB/Hz]" if dB else r"[$\mu V^{2}/\sqrt{Hz}$]"
-        axis.set_ylabel("PSD " + units)
-        axis.set_xlabel(f"{xscale} frequency [Hz]".capitalize())
-        axis.legend()
+        units = r"$\mu V^{2}/Hz$ (dB)" if dB else r"$\mu V^{2}/Hz$"
+        axis.set_ylabel(f"Power ({units})")
+        xlabel = (
+            "Frequency (Hz)"
+            if xscale == "linear"
+            else f"{xscale} frequency [Hz]".capitalize()
+        )
+        axis.set_xlabel(xlabel)
+        axis.legend(**legend_args)
 
         if plot_sensors:
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
             from more_itertools import flatten
+            from ast import literal_eval
 
             # color = "cyan"
             axins = inset_axes(axis, width="30%", height="30%", loc="lower left")
             psd_channels = _picks_to_idx(self.mne_raw.info, picks)
+
+            # Parse log to get interpolated channels
+
+            reg = r"(?:.*) \| (?:.*) \| (?:.*) Interpolated channels: (?P<channels>.*)"
+            interpolated = [
+                literal_eval(e["channels"])
+                for e in logger.parse(self.output_dir / "pipeline.log", reg)
+            ]
             interpolated = (
-                _picks_to_idx(
-                    self.mne_raw.info,
-                    list(flatten(self.log.cleaning["interpolated"])),
-                )
-                if "interpolated" in self.log.cleaning
+                _picks_to_idx(self.mne_raw.info, list(flatten(interpolated)))
+                if interpolated
                 else None
             )
             ch_groups = {
@@ -933,7 +879,7 @@ class BaseSpectrum(BaseTopomap, ABC):
         if save and is_new_axis:
             fig.savefig(self.output_dir / self.__class__.__name__ / f"psd.png")
 
-    @Log.update
+    @logger_wraps()
     def plot_topomap(
         self,
         stage: str = "REM",
@@ -956,35 +902,25 @@ class BaseSpectrum(BaseTopomap, ABC):
                 and value=(l_freq, h_freq).
                 Defaults to {"Delta": (0, 4)}.
             dB: Whether transform PSD to dB. Defaults to False.
-            sleep_stages: Mapping between sleep stages names and their integer representations.
-                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
-            axis: Instance of `matplotlib.pyplot.axis <https://matplotlib.org/
-                stable/api/_as_gen/matplotlib.pyplot.axis.html#matplotlib-pyplot-axis>`_.
+            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
                 Defaults to None.
             fooof: Whether to plot parametrised spectra.
-                More at `fooof <https://fooof-tools.github.io/fooof/auto_examples/analyses/
-                plot_mne_example.html#sphx-glr-auto-examples-analyses-plot-mne-example-py>`_.
+                More at :std:doc:`fooof:auto_examples/analyses/plot_mne_example`.
                 Defaults to False.
             save: Whether to save the figure. Defaults to False.
-            psd_method_args: Arguments passed to the PSD method, e.g., welch. Defaults to None.
-            topomap_args: Arguments passed to `mne.viz.plot_topomap() <https://mne.tools/
-                stable/generated/mne.viz.plot_topomap.html>`_. Defaults to None.
-            cbar_args: Arguments passed to `plt.colorbar() <https://matplotlib.org/stable
-                /api/_as_gen/matplotlib.pyplot.colorbar.html>`_. Defaults to None.
-            fooof_group_args: Arguments passed to `fooof.FOOOFGroup() <https://fooof-tools.github.io/
-                fooof/generated/fooof.FOOOFGroup.html#fooof.FOOOFGroup>`_. Defaults to None.
-            fooof_get_band_peak_fg_args: Arguments passed to the `fooof.analysis.get_band_peak_fg()
-                <https://fooof-tools.github.io/fooof/generated/fooof.analysis.get_band_peak_fg.html>`_.
-                Defaults to None.
-            subplots_args: Arguments passed to the plt.subplots(). Have no effect if axis is provided.
-                Defaults to None.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
+            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
+            fooof_group_args: Arguments passed to :py:class:`fooof:fooof.FOOOFGroup`. Defaults to None.
+            fooof_get_band_peak_fg_args: Arguments passed to the :py:func:`fooof:fooof.analysis.get_band_peak_fg`. Defaults to None.
         """
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
         subplots_args = subplots_args or dict()
         topomap_args.setdefault("cmap", "plasma")
         cbar_args.setdefault(
-            "label", "dB/Hz" if dB else r"$\mu V^{2}/\sqrt{Hz}$" if not fooof else None
+            "label",
+            r"$\mu V^{2}/Hz$ (dB)" if dB else r"$\mu V^{2}/Hz$" if not fooof else None,
         )
         assert stage in self.psds, f"{stage} is not in self.psds"
 
@@ -1027,6 +963,7 @@ class BaseSpectrum(BaseTopomap, ABC):
             topomap_args=topomap_args,
             cbar_args=cbar_args,
         )
+
         if is_new_axis:
             fig.suptitle(f"{stage} ({b[0]}-{b[1]} Hz)")
         if save and is_new_axis:
@@ -1036,7 +973,7 @@ class BaseSpectrum(BaseTopomap, ABC):
                 / f"topomap_psd_{list(band)[0]}.png"
             )
 
-    @Log.update
+    @logger_wraps()
     def plot_topomap_collage(
         self,
         stages_to_plot: tuple = "all",
@@ -1074,26 +1011,18 @@ class BaseSpectrum(BaseTopomap, ABC):
             sleep_stages: Mapping between sleep stages names and their integer representations.
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
             fooof: Whether to plot parametrised spectra.
-                More at `fooof <https://fooof-tools.github.io/fooof/auto_examples/analyses/
-                plot_mne_example.html#sphx-glr-auto-examples-analyses-plot-mne-example-py>`_.
+                More at :std:doc:`fooof:auto_examples/analyses/plot_mne_example`.
                 Defaults to False.
             low_percentile: Set min color value by percentile of the band data.
                 Defaults to 5.
             high_percentile: Set max color value by percentile of the band data.
                 Defaults to 95.
             save: Whether to save the figure. Defaults to False.
-            psd_method_args: Arguments passed to the PSD method, e.g., welch. Defaults to None.
-            topomap_args: Arguments passed to `mne.viz.plot_topomap() <https://mne.tools/
-                stable/generated/mne.viz.plot_topomap.html>`_. Defaults to None.
-            cbar_args: Arguments passed to `plt.colorbar() <https://matplotlib.org/stable
-                /api/_as_gen/matplotlib.pyplot.colorbar.html>`_. Defaults to None.
-            fooof_group_args: Arguments passed to `fooof.FOOOFGroup() <https://fooof-tools.github.io/
-                fooof/generated/fooof.FOOOFGroup.html#fooof.FOOOFGroup>`_. Defaults to None.
-            fooof_get_band_peak_fg_args: Arguments passed to the `fooof.analysis.get_band_peak_fg()
-                <https://fooof-tools.github.io/fooof/generated/fooof.analysis.get_band_peak_fg.html>`_.
-                Defaults to None.
-            figure_args: Arguments passed to `plt.figure() <https://matplotlib.org/stable/
-                api/_as_gen/matplotlib.pyplot.figure.html>`_. Defaults to None.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
+            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.Defaults to None.
+            fooof_group_args: Arguments passed to :py:class:`fooof:fooof.FOOOFGroup`. Defaults to None.
+            fooof_get_band_peak_fg_args: Arguments passed to the :py:func:`fooof:fooof.analysis.get_band_peak_fg`. Defaults to None.
         """
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
@@ -1101,7 +1030,8 @@ class BaseSpectrum(BaseTopomap, ABC):
         topomap_args.setdefault("cmap", "plasma")
         topomap_args.setdefault("vlim", [None, None])
         cbar_args.setdefault(
-            "label", "dB/Hz" if dB else r"$\mu V^{2}/\sqrt{Hz}$" if not fooof else None
+            "label",
+            r"$\mu V^{2}/Hz$ (dB)" if dB else r"$\mu V^{2}/Hz$" if not fooof else None,
         )
 
         if stages_to_plot == "all":
@@ -1222,6 +1152,11 @@ class BaseSpectrum(BaseTopomap, ABC):
 
 @define(kw_only=True, slots=False)
 class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
+    """Spectral representation of sleep stage data.
+
+    Adapted from `MNE <https://mne.tools/stable/index.html>`_.
+    """
+
     def __init__(
         self,
         inst,
@@ -1264,7 +1199,7 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         )
         # compute the spectra
         self._compute_spectra(
-            method, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+            method, data, hypno, stage_idx, fmin, fmax, n_jobs, verbose
         )
         # check for correct shape and bad values
         self._check_values()
@@ -1273,8 +1208,12 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         del self.inst
 
     def _compute_spectra(
-        self, method, data, hypno, stage_idx, fmin, fmax, n_jobs, method_kw, verbose
+        self, method, data, hypno, stage_idx, fmin, fmax, n_jobs, verbose
     ):
+        """
+        Weighted average for Welch's PSD.
+        Average of uniform sample regions for Multitaper's PSD.
+        """
         from scipy import ndimage
         from more_itertools import collapse
 
@@ -1300,7 +1239,8 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
 
             uniform_region_samples = 2000
             ranges = [
-                list(range(region.start, region.stop, uniform_region_samples)) for region in regions
+                list(range(region.start, region.stop, uniform_region_samples))
+                for region in regions
             ]
             slice_ranges = flatten([list(zip(r[:-1], r[1:])) for r in ranges])
             regions = [slice(z[0], z[1]) for z in slice_ranges]

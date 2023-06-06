@@ -11,4 +11,4 @@ pipeline module
    SpectralPipe
    SpindlesPipe
    SlowWavesPipe
-   REMsPipe
+   RapidEyeMovementsPipe

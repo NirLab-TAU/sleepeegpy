@@ -1,9 +1,4 @@
-test.ipynb
 docs/_build
 .vscode/settings.json
 sleepeeg.egg-info
 dist
-setup.py
-pyproject.toml
-notebooks_dev
-create_dashboard.py

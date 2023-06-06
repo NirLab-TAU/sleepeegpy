@@ -2,21 +2,27 @@
 """
 
 from attrs import define, field
+from loguru import logger
+from typing import TypeVar
 from pathlib import Path
-import matplotlib.pyplot as plt
-import numpy as np
-import mne.io
-
 from collections.abc import Iterable
 
-from sleepeeg.base import (
+import numpy as np
+import matplotlib.pyplot as plt
+import mne
+
+
+from .base import (
     BasePipe,
     BaseHypnoPipe,
     BaseEventPipe,
-    BaseSpectrum,
-    Log,
+    SpectrumPlots,
     SleepSpectrum,
+    logger_wraps,
 )
+
+# For type annotation of pipe elements.
+BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
 
 
 @define(kw_only=True)
@@ -28,19 +34,16 @@ class CleaningPipe(BasePipe):
     and bad data spans.
     """
 
-    @Log.update
-    def resample(self, save: bool = False, **resample_kwargs):
-        """A wrapper for
-        `mne.io.Raw.resample <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample>`_
+    @logger_wraps()
+    def resample(self, sfreq: float = 250, save: bool = False, **resample_kwargs):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.resample`
         with an additional option to save the resampled data.
 
         Args:
             save: Whether to save a resampled data to a fif file. Defaults to False.
-            **resample_kwargs: Arguments passed to `mne.io.Raw.resample <https://mne.tools/stable/
-                generated/mne.io.Raw.html#mne.io.Raw.resample>`_.
+            **resample_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.resample`.
         """
-        resample_kwargs.setdefault("sfreq", 250)
-        self.mne_raw.resample(**resample_kwargs)
+        self.mne_raw.resample(sfreq=sfreq, **resample_kwargs)
         if save:
             self.save_raw(
                 "_".join(
@@ -48,36 +51,38 @@ class CleaningPipe(BasePipe):
                         None,
                         [
                             "resampled",
-                            str(resample_kwargs["sfreq"]) + "hz",
+                            str(sfreq) + "hz",
                             "raw.fif",
                         ],
                     )
                 )
             )
 
-    @Log.update
-    def filter(self, **filter_kwargs):
-        """A wrapper for
-        `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
+    @logger_wraps()
+    def filter(
+        self, l_freq: float | None = 0.3, h_freq: float | None = None, **filter_kwargs
+    ):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.filter`.
 
         Args:
-            **filter_kwargs: Arguments passed to `mne.io.Raw.filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter>`_.
+            **filter_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.filter`.
         """
-        filter_kwargs.setdefault("l_freq", 0.3)
-        self.mne_raw.load_data().filter(**filter_kwargs)
+        self.mne_raw.load_data().filter(l_freq=l_freq, h_freq=h_freq, **filter_kwargs)
 
-    @Log.update
-    def notch(self, **notch_kwargs):
-        """A wrapper for
-        `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
+    @logger_wraps()
+    def notch(self, freqs: str | Iterable[float] = "50s", **notch_kwargs):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.notch_filter`.
 
         Args:
-            **notch_kwargs: Arguments passed to `mne.io.Raw.notch_filter <https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter>`_.
+            **notch_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.notch_filter`.
         """
-        notch_kwargs.setdefault("freqs", np.arange(50, int(self.sf / 2), 50))
-        self.mne_raw.load_data().notch_filter(**notch_kwargs)
+        if freqs == "50s":
+            freqs = np.arange(50, int(self.sf / 2), 50)
+        elif freqs == "60s":
+            freqs = np.arange(50, int(self.sf / 2), 50)
+        self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
 
-    def read_bad_channels(self, path=None):
+    def read_bad_channels(self, path: str | None = None):
         """Imports bad channels from file to mne raw object.
 
         Args:
@@ -91,7 +96,7 @@ class CleaningPipe(BasePipe):
         with open(p, "r") as f:
             self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
 
-    def read_annotations(self, path=None):
+    def read_annotations(self, path: str | None = None):
         """Imports annotations from file to mne raw object
 
         Args:
@@ -106,11 +111,16 @@ class CleaningPipe(BasePipe):
         )
         self.mne_raw.set_annotations(read_annotations(p))
 
-    @Log.update
+    @logger_wraps()
     def interpolate_bads(self, **interp_kwargs):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.interpolate_bads`
+
+        Args:
+            **interp_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.interpolate_bads`.
+        """
         bads = self.mne_raw.info["bads"]
         self.mne_raw.interpolate_bads(**interp_kwargs)
-        self.log._update("interpolated", bads)
+        logger.info(f"Interpolated channels: {bads}")
 
 
 @define(kw_only=True)
@@ -120,142 +130,168 @@ class ICAPipe(BasePipe):
     Contains ica fitting, plotting multiple ica plots,
     selecting ica exclusion components and
     its application to the raw data.
-    More at `mne.preprocessing.ICA <https://mne.tools/stable/
-    generated/mne.preprocessing.ICA.html#mne-preprocessing-ica>`_.
+    More at :py:class:`mne:mne.preprocessing.ICA`.
     """
-
-    n_components: int | float | None = field(default=30)
-    """Number of principal components (from the pre-whitening PCA step) 
-    that are passed to the ICA algorithm during fitting.
-    """
-
-    method: str = field(default="fastica")
-    """The ICA method to use in the fit method. 
-
-    Can be 'fastica', 'infomax' or 'picard'
-    Use the fit_params argument to set additional parameters.
-    """
-    fit_params: dict = field(default=None)
-    """Additional parameters passed to the ICA estimator as specified by method. 
-    Allowed entries are determined by the various algorithm implementations: 
-    see `FastICA <https://scikit-learn.org/stable/modules/generated/sklearn.
-    decomposition.FastICA.html#sklearn.decomposition.FastICA>`_, 
-    `picard <https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard>`_ and
-    `infomax <https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax>`_.
-    """
-
-    path_to_ica: Path = field(converter=Path, default="/")
 
     mne_ica: mne.preprocessing.ICA = field()
-    """Instance of 
-    `mne.preprocessing.ICA <https://mne.tools/stable/
-    generated/mne.preprocessing.ICA.html#mne-preprocessing-ica>`_.
+    """Instance of :py:class:`mne:mne.preprocessing.ICA`.
     """
 
-    @mne_ica.default
-    def _set_mne_ica(self):
-        if self.path_to_ica == Path("/"):
-            return mne.preprocessing.ICA(
-                n_components=self.n_components,
-                method=self.method,
-                fit_params=self.fit_params,
-            )
-        return mne.preprocessing.read_ica(self.path_to_ica)
+    def __init__(
+        self,
+        prec_pipe: BasePipeType | None = None,
+        path_to_eeg: str = "",
+        output_dir: str = "",
+        method: str = "fastica",
+        n_components: int | float | None = None,
+        fit_params: dict | None = None,
+        path_to_ica: str | None = None,
+        **ica_kwargs,
+    ):
+        """
 
-    def __attrs_post_init__(self):
+        Args:
+            prec_pipe: Preceding pipe that hands over mne_raw attribute. Defaults to None.
+            path_to_eeg: Can be any file type supported by :py:func:`mne:mne.io.read_raw`. Defaults to None.
+            output_dir: Path to the directory where the output will be saved. Defaults to None.
+            method: The ICA method to use in the fit method. Defaults to 'fastica'.
+            n_components: Number of principal components (from the pre-whitening PCA step)
+                that are passed to the ICA algorithm during fitting:
+                read more at :py:class:`mne:mne.preprocessing.ICA`. Defaults to None.
+            fit_params:
+                Additional parameters passed to the ICA estimator as specified by method.
+                Allowed entries are determined by the various algorithm implementations:
+                see `FastICA <https://scikit-learn.org/stable/modules/generated/sklearn.
+                decomposition. FastICA.html#sklearn.decomposition.FastICA>`_,
+                `picard <https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard>`_ and
+                `infomax <https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax>`_.
+                Defaults to None.
+            path_to_ica: Path to the saved -ica.fif file you want to continue work with.
+            **ica_kwargs: Arguments passed to :py:class:`mne:mne.preprocessing.ICA`.
+        """
+        if path_to_ica is not None:
+            ica = mne.preprocessing.read_ica(path_to_ica)
+        else:
+            ica = mne.preprocessing.ICA(
+                n_components=n_components,
+                method=method,
+                fit_params=fit_params,
+                **ica_kwargs,
+            )
+        if prec_pipe is not None:
+            self.__attrs_init__(prec_pipe=prec_pipe, mne_ica=ica)
+        else:
+            self.__attrs_init__(
+                path_to_eeg=path_to_eeg,
+                output_dir=output_dir,
+                mne_ica=ica,
+            )
         self.mne_raw.load_data()
 
-    @Log.update
-    def fit(self, filter_args=None, ica_fit_args=None):
-        """Highpass-filters (1Hz) a copy of the mne_raw object
-        and then runs `mne.preprocessing.ICA.fit <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.fit>`_.
+    @logger_wraps()
+    def fit(self, filter_kwargs: dict = None, **fit_kwargs):
+        """Highpass-filters (1 Hz) a copy of the mne_raw object
+        and then runs :py:meth:`mne:mne.preprocessing.ICA.fit`.
+
+        Args:
+            filter_args: Arguments passed to :py:meth:`mne:mne.io.Raw.filter`.
+            **fit_kwargs: Arguments passed to :py:meth:`mne:mne.preprocessing.ICA.fit`.
         """
-        filter_args = filter_args or dict()
-        ica_fit_args = ica_fit_args or dict()
-        filter_args.setdefault("l_freq", 1.0)
+        filter_kwargs = filter_kwargs or dict()
+        filter_kwargs.setdefault("l_freq", 1.0)
+        filter_kwargs.setdefault("h_freq", None)
         if self.mne_raw.info["highpass"] < 1.0:
             filtered_raw = self.mne_raw.copy()
-            filtered_raw.filter(**filter_args)
+            filtered_raw.filter(**filter_kwargs)
         else:
             filtered_raw = self.mne_raw
-        self.mne_ica.fit(filtered_raw, **ica_fit_args)
+        self.mne_ica.fit(filtered_raw, **fit_kwargs)
 
     def plot_sources(self, **kwargs):
-        """A wrapper for `mne.preprocessing.ICA.plot_sources <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_sources>`_.
-        """
-        self.mne_ica.plot_sources(self.mne_raw, block=True, **kwargs)
+        """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_sources`."""
+        self.mne_ica.plot_sources(inst=self.mne_raw, **kwargs)
 
     def plot_components(self, **kwargs):
-        """A wrapper for `mne.preprocessing.ICA.plot_components <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_components>`_.
-        """
+        """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_components`."""
         self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
 
-    def plot_overlay(self, exclude=None, picks=None, start=10, stop=20, **kwargs):
-        """A wrapper for `mne.preprocessing.ICA.plot_overlay <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_overlay>`_.
-        """
-        self.mne_ica.plot_overlay(
-            self.mne_raw, exclude=exclude, picks=picks, start=start, stop=stop, **kwargs
-        )
-
     def plot_properties(self, picks=None, **kwargs):
-        """A wrapper for `mne.preprocessing.ICA.plot_properties <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.plot_properties>`_.
-        """
+        """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_properties`."""
         self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
 
-    @Log.update
+    @logger_wraps()
     def apply(self, exclude=None, **kwargs):
-        """Remove selected components from the signal.
-
-        A wrapper for `mne.preprocessing.ICA.apply <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.apply>`_.
-        """
+        """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.apply`."""
+        logger.info(
+            f"Excluded ICA components: {list(set((exclude or [])+(self.mne_ica.exclude or [])))}"
+        )
         self.mne_ica.apply(self.mne_raw, exclude=exclude, **kwargs)
 
-    @Log.update
-    def save_ica(self, fname="data-ica.fif", overwrite=False):
-        """A wrapper for `mne.preprocessing.ICA.save <https://mne.tools/stable/
-        generated/mne.preprocessing.ICA.html#mne.preprocessing.ICA.save>`_.
+    @logger_wraps()
+    def save_ica(self, fname: str = "data-ica.fif", overwrite: bool = False):
+        """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.save`.
 
         Args:
             fname: filename for the ica file being saved. Defaults to "data-ica.fif".
             overwrite: Whether to overwrite the file. Defaults to False.
         """
-        fif_folder = self.output_dir / self.__class__.__name__ / "saved_ica"
+        fif_folder = self.output_dir / self.__class__.__name__
         fif_folder.mkdir(exist_ok=True)
         self.mne_ica.save(fif_folder / fname, overwrite=overwrite)
 
 
 @define(kw_only=True)
-class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
+class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     """The spectral analyses pipeline element.
 
     Contains methods for computing and plotting PSD,
-    spectrogram and topomaps, per sleep stage.
+    spectrogram and topomaps per sleep stage.
     """
 
-    @Log.update
+    psds: dict = field(init=False, factory=dict)
+    """Instances of :class:`.SleepSpectrum` per sleep stage.
+    """
+
+    @logger_wraps()
     def compute_psds_per_stage(
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
-        reference: Iterable[str] | str = "average",
-        method="welch",
-        fmin=0,
-        fmax=60,
-        save=False,
-        picks="eeg",
-        reject_by_annotation=True,
-        n_jobs=-1,
-        verbose=False,
+        reference: Iterable[str] | str | None = None,
+        method: str = "welch",
+        fmin: float = 0,
+        fmax: float = 60,
+        picks: str | Iterable[str] = "eeg",
+        reject_by_annotation: bool = True,
+        save: bool = False,
+        overwrite: bool = False,
+        n_jobs: bool = -1,
+        verbose: bool = False,
         **psd_kwargs,
     ):
-        import re
+        """For each sleep stage creates a :class:`.SleepSpectrum` object.
 
-        inst = self.mne_raw.copy().load_data().set_eeg_reference(ref_channels=reference)
+        Args:
+            sleep_stages: Sleep stages mapping in hypnogram.
+                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
+            reference: Which eeg reference to compute PSD with.
+                If None, the reference isn't changed. Defaults to None.
+            method: Spectral estimation method.. Defaults to "welch".
+            fmin: Lower frequency bound. Defaults to 0.
+            fmax: Upper frequency bound. Defaults to 60.
+            picks: Channels to compute spectra for. Refer to :py:meth:`mne:mne.io.Raw.pick`.
+                Defaults to "eeg".
+            reject_by_annotation: Whether to not use the annotations for the spectra computation.
+                Defaults to True.
+            save: Whether to save the spectra in .h5 files. Defaults to False.
+            overwrite: Whether to overwrite the file. Defaults to False.
+            n_jobs: _description_. Defaults to -1.
+            verbose: _description_. Defaults to False.
+            **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
+                or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
+        """
+        inst = self.mne_raw.copy().load_data()
+        if reference is not None:
+            inst.set_eeg_reference(ref_channels=reference)
         for stage, stage_idx in sleep_stages.items():
             self.psds[stage] = SleepSpectrum(
                 inst,
@@ -274,14 +310,17 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
                 **psd_kwargs,
             )
         if save:
+            import re
+
             for stage, spectrum in self.psds.items():
                 stage = re.sub(r"[^\w\s-]", "_", stage)
                 spectrum.save(
-                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5"
+                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5",
+                    overwrite=overwrite,
                 )
 
-    @Log.update
-    def read_spectra(self, dirpath=None):
+    @logger_wraps()
+    def read_spectra(self, dirpath: str | None = None):
         """Loads spectra stored in hdf5 files.
 
         Filenames should end with {sleep_stage}-psd.h5
@@ -303,96 +342,92 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
             if m:
                 self.psds[m.groups()[0]] = read_spectrum(p)
 
-    @Log.update
+    @logger_wraps()
     def plot_hypnospectrogram(
         self,
         picks: str | Iterable[str] = ("E101",),
-        sec_per_seg: float = 4.096,
+        win_sec: float = 30,
+        trimperc: float = 2.5,
         freq_range: tuple = (0, 40),
-        cmap: str = "inferno",
+        cmap: str = "Spectral_r",
         overlap: bool = False,
         save: bool = False,
-        axis: plt.axis = None,
+        axis: plt.Axes = None,
     ):
         """Plots hypnogram and spectrogram.
 
+        Adapted from yasa.
+
         Args:
-            picks: Channels to calculate spectrogram on, more info at
-                `mne.io.Raw.get_data <https://mne.tools/stable/generated/
-                mne.io.Raw.html#mne.io.Raw.get_data>`_.
-                Defaults to ("E101",).
-            sec_per_seg: Segment length in seconds. Defaults to 4.096.
+            picks: Channels to compute the spectrogram on. Defaults to ("E101",).
+            win_sec: The length of the sliding window, in seconds, used for multitaper PSD calculation. Defaults to 30.
+            trimperc: The amount of data to trim on both ends of the distribution when normalizing the colormap. Defaults to 2.5.
             freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
-            cmap: Matplotlib `colormap <https://matplotlib.org/stable/tutorials/colors/colormaps.html>`_. Defaults to "inferno".
+            cmap: Matplotlib colormap. :std:doc:`mpl:tutorials/colors/colormaps`. Defaults to "Spectral_r".
             overlap: Whether to plot hypnogram over the spectrogram or on top of it. Defaults to False.
             save: Whether to save the figure. Defaults to False.
+            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
+                Defaults to None.
         """
         # Import data from the raw mne file.
         data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation="NaN")[0]
         # Create a plot figure
-        fig = self.__plot_hypnospectrogram(
-            data,
-            self.sf,
-            self.hypno_up,
-            win_sec=sec_per_seg,
-            fmin=freq_range[0],
-            fmax=freq_range[1],
-            trimperc=0,
-            cmap=cmap,
-            overlap=overlap,
-        )
+        if overlap or not self.hypno_up.any():
+            if axis is None:
+                fig, axis = plt.subplots(nrows=1, figsize=(12, 4))
+
+            im = self.__plot_spectrogram(
+                data,
+                self.sf,
+                win_sec,
+                freq_range[0],
+                freq_range[1],
+                trimperc,
+                cmap,
+                axis,
+            )
+            if self.hypno_up.any():
+                ax_hypno = axis.twinx()
+                self.__plot_hypnogram(self.sf, self.hypno_up, ax_hypno)
+            # Add colorbar
+            cbar = plt.colorbar(im, ax=axis, shrink=0.95, fraction=0.1, aspect=25)
+            cbar.ax.set_ylabel(r"$\mu V^{2}/Hz$ (dB)", rotation=90)
+            return None if axis is not None else fig
+        else:
+            if axis is None:
+                fig, (ax0, ax1) = plt.subplots(
+                    nrows=2, figsize=(12, 6), gridspec_kw={"height_ratios": [1, 2]}
+                )
+                plt.subplots_adjust(hspace=0.1)
+            else:
+                ax0 = axis[0]
+                ax1 = axis[1]
+
+            if self.hypno_up.any():
+                # Hypnogram (top axis)
+                self.__plot_hypnogram(self.sf, self.hypno_up, ax0)
+            # Spectrogram (bottom axis)
+            self.__plot_spectrogram(
+                data,
+                self.sf,
+                win_sec,
+                freq_range[0],
+                freq_range[1],
+                trimperc,
+                cmap,
+                ax1,
+            )
+
         # Save the figure if 'save' set to True
-        if save:
+        if save and fig:
             fig.savefig(
                 self.output_dir / self.__class__.__name__ / f"spectrogram.png",
                 bbox_inches="tight",
             )
 
-    def __plot_hypnospectrogram(
-        self, data, sf, hypno, win_sec, fmin, fmax, trimperc, cmap, overlap, axis=None,
-    ):
-        """
-        ?
-        """
-        # Increase font size while preserving original
-        old_fontsize = plt.rcParams["font.size"]
-        plt.rcParams.update({"font.size": 18})
-
-        if overlap or not hypno.any():
-            if axis:
-                fig, ax = plt.subplots(nrows=1, figsize=(12, 4))
-            else:
-                ax=axis
-            im = self.__plot_spectrogram(
-                data, sf, win_sec, fmin, fmax, trimperc, cmap, ax
-            )
-            if hypno.any():
-                ax_hypno = ax.twinx()
-                self.__plot_hypnogram(sf, hypno, ax_hypno)
-            # Add colorbar
-            cbar = plt.colorbar(
-                im, ax=ax, shrink=0.95, fraction=0.1, aspect=25, pad=0.1
-            )
-            cbar.ax.set_ylabel("Log Power (dB / Hz)", rotation=90, labelpad=20)
-            # Revert font-size
-            plt.rcParams.update({"font.size": old_fontsize})
-            return fig
-
-        fig, (ax0, ax1) = plt.subplots(
-            nrows=2, figsize=(12, 6), gridspec_kw={"height_ratios": [1, 2]}
-        )
-        plt.subplots_adjust(hspace=0.1)
-
-        # Hypnogram (top axis)
-        self.__plot_hypnogram(sf, hypno, ax0)
-        # Spectrogram (bottom axis)
-        self.__plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax1)
-        # Revert font-size
-        plt.rcParams.update({"font.size": old_fontsize})
-        return fig
-
     @staticmethod
     def __plot_hypnogram(sf, hypno, ax0):
+        """Adapted from :py:func:`yasa:yasa.plot_hypnogram`."""
         from pandas import Series
 
         hypno = np.asarray(hypno).astype(int)
@@ -423,7 +458,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
             ax0.set_yticklabels(["W", "R", "N1", "N2", "N3"])
             ax0.set_ylim(-4.5, 0.5)
         ax0.set_xlim(0, t_hyp.max())
-        ax0.set_ylabel("Stage")
+        # ax0.set_ylabel("Stage")
         ax0.xaxis.set_visible(False)
         ax0.spines["right"].set_visible(False)
         ax0.spines["top"].set_visible(False)
@@ -431,6 +466,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
 
     @staticmethod
     def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
+        """Adapted from :py:func:`yasa:yasa.plot_spectrogram`."""
         from matplotlib.colors import Normalize
         from lspopt import spectrogram_lspopt
         import numpy as np
@@ -464,7 +500,7 @@ class SpectralPipe(BaseHypnoPipe, BaseSpectrum):
 class SpindlesPipe(BaseEventPipe):
     """Spindles detection."""
 
-    @Log.update
+    @logger_wraps()
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
@@ -480,9 +516,7 @@ class SpindlesPipe(BaseEventPipe):
         verbose: bool = False,
         save: bool = False,
     ):
-        """Wrapper around YASA's `spindles_detect <https://raphaelvallat.com/
-        yasa/build/html/generated/yasa.spindles_detect.html>`_.
-        """
+        """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
         from yasa import spindles_detect
 
         self.results = spindles_detect(
@@ -509,7 +543,7 @@ class SpindlesPipe(BaseEventPipe):
 class SlowWavesPipe(BaseEventPipe):
     """Slow waves detection."""
 
-    @Log.update
+    @logger_wraps()
     def detect(
         self,
         picks: str | Iterable[str] = ("eeg"),
@@ -526,9 +560,7 @@ class SlowWavesPipe(BaseEventPipe):
         remove_outliers: bool = False,
         save: bool = False,
     ):
-        """Wrapper around YASA's `sw_detect <https://raphaelvallat.com/yasa/
-        build/html/generated/yasa.sw_detect.html>`_.
-        """
+        """A wrapper around :py:func:`yasa:yasa.sw_detect` with option to save."""
         from yasa import sw_detect
 
         self.results = sw_detect(
@@ -554,10 +586,10 @@ class SlowWavesPipe(BaseEventPipe):
 
 
 @define(kw_only=True)
-class REMsPipe(BaseEventPipe):
+class RapidEyeMovementsPipe(BaseEventPipe):
     """Rapid eye movements detection."""
 
-    @Log.update
+    @logger_wraps()
     def detect(
         self,
         loc_chname: str = "E46",
@@ -570,9 +602,7 @@ class REMsPipe(BaseEventPipe):
         remove_outliers: bool = False,
         save: bool = False,
     ):
-        """Wrapper around YASA's `rem_detect <https://raphaelvallat.com/yasa/
-        build/html/generated/yasa.rem_detect.html>`_.
-        """
+        """A wrapper around :py:func:`yasa:yasa.rem_detect` with option to save."""
         from yasa import rem_detect
 
         referenced = (
@@ -595,13 +625,6 @@ class REMsPipe(BaseEventPipe):
         if save:
             self._save_to_csv()
 
-    @Log.update
-    def plot_average(self, save=False, yasa_args=None):
-        yasa_args = yasa_args or dict()
-        self.results.plot_average(**yasa_args)
-        if save:
-            self._save_avg_fig()
-
     def plot_topomap(self):
         raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
 
@@ -610,11 +633,15 @@ class REMsPipe(BaseEventPipe):
 
 
 @define(kw_only=True)
-class CombinedPipe(BaseSpectrum):
+class GrandPipe(SpectrumPlots):
     """The pipeline element combining results from multiple subjects.
 
     Contains methods for computing and plotting combined PSD,
     spectrogram and topomaps, per sleep stage.
+    """
+
+    psds: dict = field(init=False, factory=dict)
+    """Instances of :class:`.SleepSpectrum` per sleep stage.
     """
 
     pipes: Iterable[BaseHypnoPipe] = field()

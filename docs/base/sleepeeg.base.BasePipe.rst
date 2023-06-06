@@ -20,7 +20,13 @@
          ~BasePipe.plot
       
       
+         ~BasePipe.plot_sensors
+      
+      
          ~BasePipe.save_raw
+      
+      
+         ~BasePipe.set_eeg_reference
       
    
    

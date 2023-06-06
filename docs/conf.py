@@ -8,11 +8,12 @@
 
 import os
 import sys
+import inspect
 
 sys.path.append(os.path.abspath(".."))
 
-project = "sleep-eeg-processing"
-copyright = "2023, Gennadiy Belonosov"
+project = "sleepeeg"
+copyright = "2023, Yuval Nir lab"
 author = "Gennadiy Belonosov"
 
 # -- General configuration ---------------------------------------------------
@@ -20,9 +21,10 @@ author = "Gennadiy Belonosov"
 
 extensions = [
     "sphinx.ext.autodoc",
+    "sphinx.ext.intersphinx",
     "sphinx.ext.napoleon",
     "sphinx_autodoc_typehints",
-    "sphinx.ext.viewcode",
+    "sphinx.ext.linkcode",
     "sphinx.ext.autosummary",
 ]
 
@@ -38,3 +40,47 @@ autodoc_member_order = "bysource"
 
 html_theme = "furo"
 html_static_path = ["_static"]
+
+intersphinx_mapping = {
+    "mne": ("https://mne.tools/stable/", None),
+    "yasa": ("https://raphaelvallat.com/yasa/build/html/", None),
+    "mpl": ("https://matplotlib.org/stable/", None),
+    "fooof": ("https://fooof-tools.github.io/fooof/", None),
+}
+
+intersphinx_disabled_reftypes = ["*"]
+
+
+def linkcode_resolve(domain, info):
+    """Determine the URL corresponding to a Python object.
+
+    Adapted from MNE (doc/source/conf.py).
+    """
+
+    if domain != "py":
+        return None
+
+    modname = info["module"]
+    fullname = info["fullname"]
+
+    submod = sys.modules.get(modname)
+    if submod is None:
+        return None
+
+    obj = submod
+    for part in fullname.split("."):
+        try:
+            obj = getattr(obj, part)
+        except Exception:
+            return None
+
+    try:
+        source, lineno = inspect.getsourcelines(obj)
+    except Exception:
+        lineno = None
+
+    if lineno:
+        linespec = "#L%d-L%d" % (lineno, lineno + len(source) - 1)
+    else:
+        linespec = ""
+    return f"https://github.com/NirLab-TAU/sleepeeg/blob/main/{info['module'].replace('.', '/')}.py{linespec}"

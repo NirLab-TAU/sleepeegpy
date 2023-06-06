@@ -29,6 +29,9 @@
          ~BaseEventPipe.plot_average
       
       
+         ~BaseEventPipe.plot_sensors
+      
+      
          ~BaseEventPipe.plot_topomap
       
       
@@ -42,6 +45,9 @@
       
       
          ~BaseEventPipe.save_raw
+      
+      
+         ~BaseEventPipe.set_eeg_reference
       
       
          ~BaseEventPipe.sleep_stats
