@@ -119,6 +119,8 @@ class BasePipe(ABC):
         kwargs.setdefault("theme", "dark")
         kwargs.setdefault("bad_color", "r")
         kwargs.setdefault("scalings", "auto")
+        kwargs.setdefault("block", True)
+
         self.mne_raw.plot(**kwargs)
 
         if save_annotations:

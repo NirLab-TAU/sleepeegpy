@@ -654,5 +654,78 @@ class GrandPipe(SpectrumPlots):
     def _get_mne_raw_from_pipe(self):
         return self.pipes[0].mne_raw
 
-    def compute_psds_per_stage(self):
-        ...
+    def compute_psds_per_stage(
+        self,
+        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
+        reference: Iterable[str] | str | None = None,
+        method: str = "welch",
+        fmin: float = 0,
+        fmax: float = 60,
+        picks: str | Iterable[str] = "eeg",
+        reject_by_annotation: bool = True,
+        save: bool = False,
+        overwrite: bool = False,
+        n_jobs: bool = -1,
+        verbose: bool = False,
+        **psd_kwargs,
+    ):
+        """For each sleep stage creates a :class:`.SleepSpectrum` object.
+
+        Args:
+            sleep_stages: Sleep stages mapping in hypnogram.
+                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
+            reference: Which eeg reference to compute PSD with.
+                If None, the reference isn't changed. Defaults to None.
+            method: Spectral estimation method.. Defaults to "welch".
+            fmin: Lower frequency bound. Defaults to 0.
+            fmax: Upper frequency bound. Defaults to 60.
+            picks: Channels to compute spectra for. Refer to :py:meth:`mne:mne.io.Raw.pick`.
+                Defaults to "eeg".
+            reject_by_annotation: Whether to not use the annotations for the spectra computation.
+                Defaults to True.
+            save: Whether to save the spectra in .h5 files. Defaults to False.
+            overwrite: Whether to overwrite the file. Defaults to False.
+            n_jobs: _description_. Defaults to -1.
+            verbose: _description_. Defaults to False.
+            **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
+                or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
+        """
+        from collections import defaultdict
+
+        psds = defaultdict([])
+        for pipe in self.pipes:
+            inst = pipe.mne_raw.copy().load_data()
+            if reference is not None:
+                inst.set_eeg_reference(ref_channels=reference)
+            for stage, stage_idx in sleep_stages.items():
+                psds[stage].append(
+                    SleepSpectrum(
+                        inst,
+                        hypno=pipe.hypno_up,
+                        stage_idx=stage_idx,
+                        method=method,
+                        fmin=fmin,
+                        fmax=fmax,
+                        tmin=None,
+                        tmax=None,
+                        picks=picks,
+                        proj=False,
+                        reject_by_annotation=reject_by_annotation,
+                        n_jobs=n_jobs,
+                        verbose=verbose,
+                        **psd_kwargs,
+                    )
+                )
+
+        for stage, psd in psds.items():
+            self.psds[stage] = np.mean(psd, axis=0)
+
+        if save:
+            import re
+
+            for stage, spectrum in self.psds.items():
+                stage = re.sub(r"[^\w\s-]", "_", stage)
+                spectrum.save(
+                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5",
+                    overwrite=overwrite,
+                )
