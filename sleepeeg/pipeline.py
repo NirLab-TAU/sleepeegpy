@@ -626,14 +626,18 @@ class RapidEyeMovementsPipe(BaseEventPipe):
             self._save_to_csv()
 
     def plot_topomap(self):
-        raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
+        raise AttributeError(
+            "'RapidEyeMovementsPipe' object has no attribute 'plot_topomap'"
+        )
 
     def plot_topomap_collage(self):
-        raise AttributeError("'REMsPipe' object has no attribute 'plot_topomap'")
+        raise AttributeError(
+            "'RapidEyeMovementsPipe' object has no attribute 'plot_topomap'"
+        )
 
 
 @define(kw_only=True)
-class GrandPipe(SpectrumPlots):
+class GrandPipe(SpectrumPlots, BaseEventPipe):
     """The pipeline element combining results from multiple subjects.
 
     Contains methods for computing and plotting combined PSD,
@@ -654,6 +658,7 @@ class GrandPipe(SpectrumPlots):
     def _get_mne_raw_from_pipe(self):
         return self.pipes[0].mne_raw
 
+    @logger_wraps()
     def compute_psds_per_stage(
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
@@ -661,6 +666,7 @@ class GrandPipe(SpectrumPlots):
         method: str = "welch",
         fmin: float = 0,
         fmax: float = 60,
+        average: str = "mean",
         picks: str | Iterable[str] = "eeg",
         reject_by_annotation: bool = True,
         save: bool = False,
@@ -692,7 +698,8 @@ class GrandPipe(SpectrumPlots):
         """
         from collections import defaultdict
 
-        psds = defaultdict([])
+        avg_func = np.median if average == "median" else np.mean
+        psds = defaultdict(list)
         for pipe in self.pipes:
             inst = pipe.mne_raw.copy().load_data()
             if reference is not None:
@@ -717,8 +724,8 @@ class GrandPipe(SpectrumPlots):
                     )
                 )
 
-        for stage, psd in psds.items():
-            self.psds[stage] = np.mean(psd, axis=0)
+        for stage, spectra in psds.items():
+            self.psds[stage] = avg_func(spectra, axis=0)
 
         if save:
             import re
@@ -729,3 +736,50 @@ class GrandPipe(SpectrumPlots):
                     self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5",
                     overwrite=overwrite,
                 )
+
+    # @logger_wraps()
+    # def spindles_detect(
+    #     self,
+    #     picks: str | Iterable[str] = ("eeg"),
+    #     reference: Iterable[str] | str = "average",
+    #     include: Iterable[int] = (1, 2, 3),
+    #     freq_sp: Iterable[float] = (12, 15),
+    #     freq_broad: Iterable[float] = (1, 30),
+    #     duration: Iterable[float] = (0.5, 2),
+    #     min_distance: int = 500,
+    #     thresh: dict = {"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
+    #     multi_only: bool = False,
+    #     remove_outliers: bool = False,
+    #     average: str = "mean",
+    #     verbose: bool = False,
+    #     save: bool = False,
+    # ):
+    #     """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
+    #     from yasa import spindles_detect
+    #     import pandas as pd
+
+    #     self.results = pd.DataFrame()
+    #     for pipe in self.pipes:
+    #         inst = pipe.mne_raw.copy().load_data()
+    #         if reference is not None:
+    #             inst.set_eeg_reference(ref_channels=reference)
+    #         detection_results = spindles_detect(
+    #             data=inst.pick(picks),
+    #             hypno=inst.hypno_up,
+    #             verbose=verbose,
+    #             include=include,
+    #             freq_sp=freq_sp,
+    #             freq_broad=freq_broad,
+    #             duration=duration,
+    #             min_distance=min_distance,
+    #             thresh=thresh,
+    #             multi_only=multi_only,
+    #             remove_outliers=remove_outliers,
+    #         )
+    #         self.results = pd.concat([self.results, detection_results.summary()])
+
+    #     if save:
+    #         self._save_to_csv()
+
+    # def detect(self):
+    #     raise AttributeError("'GrandPipe' object has no attribute 'detect'")

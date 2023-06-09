@@ -2,3 +2,4 @@ docs/_build
 .vscode/settings.json
 sleepeeg.egg-info
 dist
+notebooks_dev

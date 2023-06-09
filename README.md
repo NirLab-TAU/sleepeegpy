@@ -13,3 +13,6 @@
 ## Quickstart
 1. Open any of the downloaded notebooks using the created environment.
 2. Follow the notebook's instructions.
+
+## RAM requirements
+For overnight, high density (256 channels) EEG recordings downsampled to 250 Hz expect at least 64 GB RAM expenditure for cleaning and spectral analyses, and at least 128 GB for event detection (or 64 GB if you downsample the data to 100 Hz before running the detection algorithm).

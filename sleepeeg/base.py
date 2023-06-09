@@ -1,10 +1,8 @@
 import os
+import sys
 import errno
-import inspect
 
 from loguru import logger
-import yaml
-import json
 from abc import ABC, abstractmethod
 from collections.abc import Iterable
 from pathlib import Path
@@ -12,11 +10,12 @@ import functools
 
 from typing import TypeVar, Type
 from attrs import define, field
+from tqdm import tqdm
 
 import matplotlib.pyplot as plt
 import numpy as np
 import mne
-from tqdm import tqdm
+
 
 # For type annotation of pipe elements.
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
@@ -89,7 +88,55 @@ class BasePipe(ABC):
         if self.prec_pipe:
             return self.prec_pipe.mne_raw
         else:
-            return mne.io.read_raw(self.path_to_eeg)
+            try:
+                return mne.io.read_raw(self.path_to_eeg)
+            except RuntimeError as err:
+                if "EGI epoch first/last samps" in str(err):
+                    import re
+                    from ast import literal_eval
+                    from itertools import chain
+                    import shutil
+
+                    logger.warning(
+                        "Fixing epochs.xml from the .mff, original file is saved as epochs_old.xml"
+                    )
+                    values = chain.from_iterable(
+                        zip(
+                            range(-1000, -6000, -1000),
+                            range(1000, 6000, 1000),
+                        )
+                    )
+                    shutil.copyfile(
+                        self.path_to_eeg / "epochs.xml",
+                        self.path_to_eeg / "epochs_old.xml",
+                    )
+                    for value in values:
+                        logger.info(
+                            "Trying to {} the last 'endTime' tag",
+                            f"subtract {abs(value)} from"
+                            if value < 0
+                            else f"add {abs(value)} to",
+                        )
+                        with open(self.path_to_eeg / "epochs.xml", "r+") as epochs_f:
+                            orig_xml = epochs_f.read()
+                            matches = re.findall(r"<endTime>(\d+)<\/endTime>", orig_xml)
+                            new_xml = orig_xml.replace(
+                                matches[-1], str(literal_eval(matches[-1]) + value)
+                            )
+                            epochs_f.seek(0)
+                            epochs_f.write(new_xml)
+                            epochs_f.truncate()
+                        try:
+                            return mne.io.read_raw(self.path_to_eeg)
+                        except:
+                            with open(self.path_to_eeg / "epochs.xml", "w") as epochs_f:
+                                epochs_f.write(orig_xml)
+
+                else:
+                    raise
+            except Exception as err:
+                print(f"Unexpected {err=}, {type(err)=}")
+                raise
 
     @property
     def sf(self):
@@ -129,21 +176,23 @@ class BasePipe(ABC):
                 overwrite=overwrite,
             )
         if save_bad_channels:
+            from natsort import natsorted
+
             if overwrite:
                 with open(
                     self.output_dir / self.__class__.__name__ / "bad_channels.txt", "w"
                 ) as f:
-                    for bad in self.mne_raw.info["bads"]:
+                    for bad in natsorted(self.mne_raw.info["bads"]):
                         f.write(f"{bad}\n")
             else:
                 with open(
                     self.output_dir / self.__class__.__name__ / "bad_channels.txt", "a+"
                 ) as f:
+                    bads = natsorted(set(f.read().split() + self.mne_raw.info["bads"]))
                     f.seek(0)
-                    bads = f.read().split()
-                    for bad in self.mne_raw.info["bads"]:
-                        if bad not in bads:
-                            f.write(f"{bad}\n")
+                    for bad in bads:
+                        f.write(f"{bad}\n")
+                    f.truncate()
 
     def plot_sensors(
         self, legend: Iterable[str] = None, legend_args: dict = None, **kwargs
@@ -256,11 +305,7 @@ class BaseHypnoPipe(BasePipe, ABC):
             return self.prec_pipe.hypno
         if self.path_to_hypno == Path("/"):
             return np.empty(0)
-        try:
-            return np.loadtxt(self.path_to_hypno)
-        except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
+        return np.loadtxt(self.path_to_hypno)
 
     hypno_up: np.array = field()
     """ Hypnogram upsampled to the sampling frequency of the raw data.
@@ -275,11 +320,39 @@ class BaseHypnoPipe(BasePipe, ABC):
             self.__upsample_hypno()
 
     def __upsample_hypno(self):
-        from yasa import hypno_upsample_to_data
+        """Adapted from YASA."""
+        repeats = self.sf / self.hypno_freq
+        if self.hypno_freq > self.sf:
+            raise ValueError(
+                "Sampling frequency of hypnogram must be smaller than that of eeg signal."
+            )
+        if not repeats.is_integer():
+            raise ValueError("sf_hypno / sf_data must be a whole number.")
+        hypno_up = np.repeat(np.asarray(self.hypno), repeats)
 
-        self.hypno_up = hypno_upsample_to_data(
-            self.hypno, self.hypno_freq, self.mne_raw, verbose=False
-        )
+        # Fit to data
+        npts_hyp = hypno_up.size
+        npts_data = max(self.mne_raw.times.shape)  # Support for 2D data
+        npts_diff = abs(npts_data - npts_hyp)
+        handler_id = logger.add(sys.stderr, format="{message}")
+
+        if npts_hyp < npts_data:
+            # Hypnogram is shorter than data
+            logger.warning(
+                "Hypnogram is SHORTER than data by {} seconds. "
+                "Padding hypnogram with last value to match data.size.",
+                round(npts_diff / self.sf, 2),
+            )
+            hypno_up = np.pad(hypno_up, (0, npts_diff), mode="edge")
+        elif npts_hyp > npts_data:
+            logger.warning(
+                "Hypnogram is LONGER than data by {} seconds. "
+                "Cropping hypnogram to match data.size.",
+                round(npts_diff / self.sf, 2),
+            )
+            hypno_up = hypno_up[0:npts_data]
+        self.hypno_up = hypno_up
+        logger.remove(handler_id)
 
     @logger_wraps()
     def predict_hypno(
@@ -654,10 +727,11 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             **tfr_kwargs: Arguments passed to :py:func:`mne:mne.time_frequency.tfr_array_morlet`
                 or :py:func:`mne:mne.time_frequency.tfr_array_multitaper`.
         """
-        assert self.results, "Run detect method first"
-        assert (
-            method == "morlet" or method == "multitaper"
-        ), "method should be 'morlet' or 'multitaper'"
+        if not self.results:
+            raise AttributeError("Run the detect method first")
+        if not (method == "morlet" or method == "multitaper"):
+            raise ValueError("the 'method' argument should be 'morlet' or 'multitaper'")
+
         from natsort import natsorted
 
         sleep_stages = {
@@ -1208,6 +1282,35 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         del self._shape
         # save memory
         del self.inst
+
+    def __add__(self, other):
+        if isinstance(other, self.__class__):
+            from copy import deepcopy
+            from ast import literal_eval
+
+            spectrum_cp = deepcopy(self)
+            spectrum_cp._data = np.add(self._data, other._data)
+            descr = literal_eval(self.info.description)
+            spectrum_cp.info.description = str(
+                descr + literal_eval(other.info.description)
+            )
+            return spectrum_cp
+        else:
+            return NotImplemented
+
+    def __truediv__(self, other):
+        if isinstance(other, (int, float)):
+            from copy import deepcopy
+            from ast import literal_eval
+
+            spectrum_cp = deepcopy(self)
+            spectrum_cp._data = self._data / other
+            spectrum_cp.info.description = str(
+                round(literal_eval(self.info.description) / other, 2)
+            )
+            return spectrum_cp
+        else:
+            return NotImplemented
 
     def _compute_spectra(
         self, method, data, hypno, stage_idx, fmin, fmax, n_jobs, verbose
