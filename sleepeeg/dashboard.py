@@ -84,7 +84,7 @@ def create_dashboard(
     spectrum_after.suptitle("Spectra after removing bad channels & epochs")
 
     pipe = CleaningPipe(path_to_eeg=path_to_mff, output_dir=output_dir)
-    pipe.mne_raw.load_data()
+    # pipe.mne_raw.load_data()
     pipe.resample(sfreq=resampling_freq, n_jobs=-1)
     pipe.filter(
         l_freq=bandpass_filter_freqs[0], h_freq=bandpass_filter_freqs[1], n_jobs=-1
@@ -140,6 +140,8 @@ def create_dashboard(
     bads = pipe.mne_raw.info["bads"]
     pipe.interpolate_bads(reset_bads=True)
     pipe.read_annotations(path=path_to_annotations)
+
+    is_ica = False
     if path_to_ica_fif:
         from sleepeeg.pipeline import ICAPipe
 

@@ -6,8 +6,10 @@ from loguru import logger
 from typing import TypeVar
 from pathlib import Path
 from collections.abc import Iterable
+from collections import defaultdict
 
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import mne
 
@@ -16,6 +18,7 @@ from .base import (
     BasePipe,
     BaseHypnoPipe,
     BaseEventPipe,
+    BaseTopomap,
     SpectrumPlots,
     SleepSpectrum,
     logger_wraps,
@@ -637,12 +640,22 @@ class RapidEyeMovementsPipe(BaseEventPipe):
 
 
 @define(kw_only=True)
-class GrandPipe(SpectrumPlots, BaseEventPipe):
+class GrandPipe(SpectrumPlots, BaseTopomap):
     """The pipeline element combining results from multiple subjects.
 
     Contains methods for computing and plotting combined PSD,
     spectrogram and topomaps, per sleep stage.
     """
+
+    output_dir: Path = field(converter=Path)
+    """Path to the directory where the output will be saved."""
+
+    @output_dir.validator
+    def _validate_output_dir(self, attr, value):
+        self.output_dir.mkdir(exist_ok=True)
+        (self.output_dir / self.__class__.__name__).mkdir(exist_ok=True)
+        logger.remove()
+        logger.add(self.output_dir / "pipeline.log")
 
     psds: dict = field(init=False, factory=dict)
     """Instances of :class:`.SleepSpectrum` per sleep stage.
@@ -653,6 +666,8 @@ class GrandPipe(SpectrumPlots, BaseEventPipe):
     """
 
     mne_raw: mne.io.Raw = field(init=False)
+
+    detection_results = field(init=False, factory=lambda: defaultdict(pd.DataFrame))
 
     @mne_raw.default
     def _get_mne_raw_from_pipe(self):
@@ -696,7 +711,6 @@ class GrandPipe(SpectrumPlots, BaseEventPipe):
             **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
                 or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
         """
-        from collections import defaultdict
 
         avg_func = np.median if average == "median" else np.mean
         psds = defaultdict(list)
@@ -737,49 +751,137 @@ class GrandPipe(SpectrumPlots, BaseEventPipe):
                     overwrite=overwrite,
                 )
 
-    # @logger_wraps()
-    # def spindles_detect(
-    #     self,
-    #     picks: str | Iterable[str] = ("eeg"),
-    #     reference: Iterable[str] | str = "average",
-    #     include: Iterable[int] = (1, 2, 3),
-    #     freq_sp: Iterable[float] = (12, 15),
-    #     freq_broad: Iterable[float] = (1, 30),
-    #     duration: Iterable[float] = (0.5, 2),
-    #     min_distance: int = 500,
-    #     thresh: dict = {"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
-    #     multi_only: bool = False,
-    #     remove_outliers: bool = False,
-    #     average: str = "mean",
-    #     verbose: bool = False,
-    #     save: bool = False,
-    # ):
-    #     """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
-    #     from yasa import spindles_detect
-    #     import pandas as pd
+    @logger_wraps()
+    def spindles_detect(
+        self,
+        picks: str | Iterable[str] = ("eeg"),
+        reference: Iterable[str] | str = "average",
+        include: Iterable[int] = (1, 2, 3),
+        freq_sp: Iterable[float] = (12, 15),
+        freq_broad: Iterable[float] = (1, 30),
+        duration: Iterable[float] = (0.5, 2),
+        min_distance: int = 500,
+        thresh: dict = {"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
+        multi_only: bool = False,
+        remove_outliers: bool = False,
+        average: str = "mean",
+        verbose: bool = False,
+        save: bool = False,
+        get_sync_events_args=None,
+    ):
+        """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
+        from yasa import spindles_detect
 
-    #     self.results = pd.DataFrame()
-    #     for pipe in self.pipes:
-    #         inst = pipe.mne_raw.copy().load_data()
-    #         if reference is not None:
-    #             inst.set_eeg_reference(ref_channels=reference)
-    #         detection_results = spindles_detect(
-    #             data=inst.pick(picks),
-    #             hypno=inst.hypno_up,
-    #             verbose=verbose,
-    #             include=include,
-    #             freq_sp=freq_sp,
-    #             freq_broad=freq_broad,
-    #             duration=duration,
-    #             min_distance=min_distance,
-    #             thresh=thresh,
-    #             multi_only=multi_only,
-    #             remove_outliers=remove_outliers,
-    #         )
-    #         self.results = pd.concat([self.results, detection_results.summary()])
+        get_sync_events_args = get_sync_events_args or dict()
+        for pipe_index, pipe in enumerate(self.pipes):
+            inst = pipe.mne_raw.copy().load_data()
+            if reference is not None:
+                inst.set_eeg_reference(ref_channels=reference)
+            detection_results = spindles_detect(
+                data=inst.pick(picks),
+                hypno=pipe.hypno_up,
+                verbose=verbose,
+                include=include,
+                freq_sp=freq_sp,
+                freq_broad=freq_broad,
+                duration=duration,
+                min_distance=min_distance,
+                thresh=thresh,
+                multi_only=multi_only,
+                remove_outliers=remove_outliers,
+            )
+            self.detection_results["summary"] = pd.concat(
+                [self.detection_results["summary"], detection_results.summary()]
+            )
+            events_signal = detection_results.get_sync_events()
+            events_signal["pipe_index"] = pipe_index
+            self.detection_results["events"] = pd.concat(
+                [self.detection_results["events"], events_signal]
+            )
+        if save:
+            self._save_to_csv()
 
-    #     if save:
-    #         self._save_to_csv()
+    @logger_wraps()
+    def plot_topomap(
+        self,
+        prop: str,
+        stage: str = "N2",
+        aggfunc: str = "mean",
+        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
+        axis: plt.axis = None,
+        save: bool = False,
+        topomap_args: dict = None,
+        cbar_args: dict = None,
+        subplots_args: dict = None,
+    ):
+        """Plots topomap for a sleep stage and some property of detected events.
 
-    # def detect(self):
-    #     raise AttributeError("'GrandPipe' object has no attribute 'detect'")
+        Args:
+            prop: Any event property returned by self.results.summary().
+            stage: One of the sleep_stages keys. Defaults to "N2".
+            aggfunc: Averaging function, "mean" or "median". Defaults to "mean".
+            sleep_stages: Mapping between sleep stages names and their integer representations.
+                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
+            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
+                Defaults to None.
+            save: Whether to save the figure. Defaults to False.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
+            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
+        """
+        from natsort import natsort_keygen
+        from more_itertools import collapse
+        from seaborn import color_palette
+
+        topomap_args = topomap_args or dict()
+        cbar_args = cbar_args or dict()
+        subplots_args = subplots_args or dict()
+        topomap_args.setdefault("cmap", color_palette("rocket_r", as_cmap=True))
+        cbar_args.setdefault("label", prop)
+
+        grouped_summary = self.detection_results["summary"].groupby(
+            ["Channel", "Stage"]
+        )
+        grouped_summary = (
+            grouped_summary.mean() if aggfunc == "mean" else grouped_summary.median()
+        )
+        grouped_summary = grouped_summary.sort_values(
+            "Channel", key=natsort_keygen()
+        ).reset_index()
+
+        assert np.isin(
+            sleep_stages[stage], grouped_summary["Stage"].unique()
+        ).all(), "No such stage in the detected events, was it included in the detect method?"
+
+        is_new_axis = False
+        if not axis:
+            fig, axis = plt.subplots(**subplots_args)
+            is_new_axis = True
+
+        per_stage = grouped_summary.loc[
+            grouped_summary["Stage"].isin(collapse([sleep_stages[stage]]))
+        ].groupby("Channel")
+        per_stage = per_stage.mean() if aggfunc == "mean" else per_stage.median()
+        per_stage = per_stage.sort_values("Channel", key=natsort_keygen()).reset_index()
+
+        info = self.mne_raw.copy().pick(list(per_stage["Channel"].unique())).info
+
+        topomap_args.setdefault("vlim", (per_stage[prop].min(), per_stage[prop].max()))
+        self._plot_topomap(
+            data=per_stage[prop],
+            axis=axis,
+            info=info,
+            topomap_args=topomap_args,
+            cbar_args=cbar_args,
+        )
+        if is_new_axis:
+            fig.suptitle(f"{stage} {self.__class__.__name__[:-4]} ({prop})")
+        if save and is_new_axis:
+            fig.savefig(
+                self.output_dir
+                / self.__class__.__name__
+                / f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png"
+            )
+
+    def detect(self):
+        raise AttributeError("'GrandPipe' object has no attribute 'detect'")
