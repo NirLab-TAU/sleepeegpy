@@ -1,9 +1,35 @@
 import os
+import time
+from collections.abc import Iterable, Sequence
+
 import numpy as np
-from collections.abc import Iterable
+import matplotlib.pyplot as plt
+from mne import pick_types
+from mne.io.pick import _picks_to_idx
+
+from .pipeline import CleaningPipe, SpectralPipe
 
 
-def get_min_max_psds(psds, picks):
+def _init_s_pipe(prec_pipe, path_to_hypnogram, hypno_freq):
+    if path_to_hypnogram is None:
+        s_pipe = SpectralPipe(
+            prec_pipe=prec_pipe,
+        )
+        s_pipe.hypno = np.zeros(s_pipe.mne_raw.n_times)
+        s_pipe.hypno_freq = s_pipe.sf
+        s_pipe._BaseHypnoPipe__upsample_hypno()
+        sleep_stages = {"All": 0}
+    else:
+        s_pipe = SpectralPipe(
+            prec_pipe=prec_pipe,
+            path_to_hypno=path_to_hypnogram,
+            hypno_freq=hypno_freq,
+        )
+        sleep_stages = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}
+    return s_pipe, sleep_stages
+
+
+def _get_min_max_psds(psds, picks):
     max_psd = None
     min_psd = None
     for spectrum in psds.values():
@@ -18,86 +44,42 @@ def get_min_max_psds(psds, picks):
     return min_psd, max_psd
 
 
-def create_dashboard(
-    subject_code: str | os.PathLike,
-    path_to_mff: str | os.PathLike,
-    resampling_freq: float,
-    path_to_hypnogram: str | os.PathLike,
-    hypno_freq: float,
-    path_to_bad_channels: str | os.PathLike,
-    path_to_annotations: str | os.PathLike,
-    bandpass_filter_freqs: Iterable[float | None],
-    reference: str,
-    output_dir: str | os.PathLike,
-    sleep_stages: dict = {"Wake": 0, "N1": 1, "N2/3": (2, 3), "REM": 4},
-    path_to_ica_fif: str | os.PathLike = None,
-    save_fif: bool = False,
-):
-    """Applies cleaning, runs psd analyses and plots them on the dashboard.
+def _filter(pipe, sfreq, fmin, fmax):
+    if sfreq is None or sfreq >= pipe.sf:
+        sfreq = pipe.sf
+    else:
+        pipe.resample(sfreq=sfreq, n_jobs=-1)
 
-    Args:
-        subject_code: Subject code
-        path_to_mff: Path to the raw mff file
-        resampling_freq: New frequency in Hz
-        path_to_hypnogram: Path to the hypnogram yasa-style hypnogram
-        hypno_freq: Sampling rate of the hypnogram in Hz.
-        path_to_bad_channels: Path to bad_channels.txt saved by plot() method.
-        path_to_annotations: Path to annotations saved by plot() method.
-        bandpass_filter_freqs: Lower and upper bounds of the filter.
-        reference: Reference to apply. Can be "mastoids", "average" or "VREF".
-        output_dir: Directory to save the dashboard image in.
-        sleep_stages: Mapping between stage names and indices in hypnogram.
-            Defaults to {"Wake": 0, "N1": 1, "N2/3": (2, 3), "REM": 4}.
-        path_to_ica_fif: Path to ica components file. Defaults to None.
-        save_fif: Whether to save cleaned fif. Defaults to False.
-    """
-    from sleepeeg.pipeline import CleaningPipe, SpectralPipe
-    import matplotlib.pyplot as plt
-    import time
-    from mne.io.pick import _picks_to_idx
-    from mne import pick_types
-
-    if reference == "mastoids":
-        ref_channels = ["E94", "E190"]
-    elif reference == "average":
-        ref_channels = "average"
-    elif reference == "VREF":
-        ref_channels = ["VREF"]
-
-    fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
-    gs = fig.add_gridspec(5, 4)
-    info_subfig = fig.add_subfigure(gs[0:2, 0:2])
-    topo_subfig = fig.add_subfigure(gs[0:2, 2:4])
-    info_axes = info_subfig.subplots(1, 2)
-    topo_axes = topo_subfig.subplots(2, 2)
-    spectrum_before = fig.add_subfigure(gs[2:5, 0:2])
-    gs_s_bef = spectrum_before.add_gridspec(3, 1)
-    spectrum_after = fig.add_subfigure(gs[2:5, 2:4])
-    gs_s_aft = spectrum_after.add_gridspec(3, 1)
-    hypno_before = spectrum_before.add_subplot(gs_s_bef[0:1])
-    hypno_after = spectrum_after.add_subplot(gs_s_aft[0:1])
-    psd_before = spectrum_before.add_subplot(gs_s_bef[1:3])
-    psd_after = spectrum_after.add_subplot(gs_s_aft[1:3])
-
-    fig.suptitle(f"Dashboard <{subject_code}>")
-    spectrum_before.suptitle("Spectra after filtering")
-    spectrum_after.suptitle("Spectra after removing bad channels & epochs")
-
-    pipe = CleaningPipe(path_to_eeg=path_to_mff, output_dir=output_dir)
-    # pipe.mne_raw.load_data()
-    pipe.resample(sfreq=resampling_freq, n_jobs=-1)
-    pipe.filter(
-        l_freq=bandpass_filter_freqs[0], h_freq=bandpass_filter_freqs[1], n_jobs=-1
-    )
     notch_freqs = np.arange(50, int(pipe.sf / 2), 50)
-    pipe.notch(freqs=notch_freqs, n_jobs=-1)
-    pipe.set_eeg_reference(ref_channels=ref_channels)
-    s_pipe = SpectralPipe(
-        prec_pipe=pipe,
-        path_to_hypno=path_to_hypnogram,
-        hypno_freq=hypno_freq,
-    )
+    hp = pipe.mne_raw.info["highpass"]
+    lp = pipe.mne_raw.info["lowpass"]
+    if fmin is None or fmin <= hp:
+        fmin = hp
+    else:
+        pipe.filter(l_freq=fmin, h_freq=None, n_jobs=-1)
+    if fmax is None or fmax >= lp:
+        fmax = lp
+    else:
+        pipe.filter(l_freq=None, h_freq=fmax, n_jobs=-1)
 
+    if fmax > 50:
+        pipe.notch(freqs=notch_freqs, n_jobs=-1)
+    else:
+        notch_freqs = None
+
+    return sfreq, fmin, fmax, notch_freqs
+
+
+def _hypno_psd(
+    s_pipe,
+    sleep_stages,
+    ref_channels,
+    hypno_psd_pick,
+    ax_hypno,
+    ax_psd,
+    min_psd,
+    max_psd,
+):
     s_pipe.compute_psds_per_stage(
         sleep_stages=sleep_stages,
         reference=ref_channels,
@@ -115,25 +97,205 @@ def create_dashboard(
         window="hamming",
     )
 
+    if min_psd is None and max_psd is None:
+        min_psd, max_psd = _get_min_max_psds(s_pipe.psds, hypno_psd_pick)
+
     win_sec = s_pipe.mne_raw.n_times / s_pipe.sf / 900
     s_pipe.plot_hypnospectrogram(
-        picks=["E101"],
+        picks=hypno_psd_pick,
         win_sec=win_sec,
         freq_range=(0, 25),
         cmap="Spectral_r",
         overlap=True,
-        axis=hypno_before,
+        axis=ax_hypno,
     )
-    min_psd, max_psd = get_min_max_psds(s_pipe.psds, ["E101"])
     r = max_psd - min_psd
     s_pipe.plot_psds(
-        picks=["E101"],
+        picks=hypno_psd_pick,
         psd_range=(min_psd - 0.1 * r, max_psd + 0.1 * r),
         freq_range=(0, 25),
         dB=True,
         xscale="linear",
-        axis=psd_before,
+        axis=ax_psd,
         legend_args=dict(loc="upper right", fontsize="medium"),
+    )
+    return min_psd, max_psd
+
+
+def _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topo_lims):
+    if len(sleep_stages) == 1:
+        stages = ["All"] * 4
+        topo_axes[0, 0].set_title(f"Alpha (8-12 Hz)")
+        topo_axes[0, 1].set_title(f"SMR (12-15 Hz)")
+        topo_axes[1, 0].set_title(f"Delta (0.5-4 Hz)")
+        topo_axes[1, 1].set_title(f"Theta (4-8 Hz)")
+    else:
+        stages = ["Wake", "N2", "N3", "REM"]
+        topo_axes[0, 0].set_title(f"{stages[0]}, Alpha (8-12 Hz)")
+        topo_axes[0, 1].set_title(f"{stages[1]}, SMR (12-15 Hz)")
+        topo_axes[1, 0].set_title(f"{stages[2]}, Delta (0.5-4 Hz)")
+        topo_axes[1, 1].set_title(f"{stages[3]}, Theta (4-8 Hz)")
+
+    if ref_channels != "average":
+        s_pipe.compute_psds_per_stage(
+            sleep_stages=sleep_stages,
+            reference="average",
+            method="welch",
+            fmin=0,
+            fmax=25,
+            save=False,
+            picks="eeg",
+            reject_by_annotation=True,
+            n_jobs=-1,
+            verbose=False,
+            n_fft=2048,
+            n_per_seg=2048,
+            n_overlap=1024,
+            window="hamming",
+        )
+
+    s_pipe.plot_topomap(
+        stage=stages[0],
+        band={"Alpha": (8, 12)},
+        dB=False,
+        axis=topo_axes[0, 0],
+        topomap_args=dict(cmap="plasma", vlim=topo_lims[0]),
+        cbar_args=None,
+    )
+
+    s_pipe.plot_topomap(
+        stage=stages[1],
+        band={"SMR": (12, 15)},
+        dB=False,
+        axis=topo_axes[0, 1],
+        topomap_args=dict(cmap="plasma", vlim=topo_lims[1]),
+        cbar_args=None,
+    )
+
+    s_pipe.plot_topomap(
+        stage=stages[2],
+        band={"Delta": (0.5, 4)},
+        dB=False,
+        axis=topo_axes[1, 0],
+        topomap_args=dict(cmap="plasma", vlim=topo_lims[2]),
+        cbar_args=None,
+    )
+
+    s_pipe.plot_topomap(
+        stage=stages[3],
+        band={"Theta": (4, 8)},
+        dB=False,
+        axis=topo_axes[1, 1],
+        topomap_args=dict(cmap="plasma", vlim=topo_lims[3]),
+        cbar_args=None,
+    )
+
+
+def create_dashboard(
+    subject_code: str | os.PathLike,
+    path_to_eeg: str | os.PathLike,
+    path_to_hypnogram: str | os.PathLike | None,
+    hypno_freq: float | None,
+    path_to_bad_channels: str | os.PathLike,
+    path_to_annotations: str | os.PathLike,
+    output_dir: str | os.PathLike,
+    reference: str,
+    resampling_freq: float | None = None,
+    bandpass_filter_freqs: Iterable[float | None] = None,
+    hypno_psd_pick: Iterable[str] | str = ["E101"],
+    path_to_ica_fif: str | os.PathLike = None,
+    save_fif: bool = False,
+    topomap_cbar_limits: Sequence[tuple[float, float]] | None = None,
+):
+    """Applies cleaning, runs psd analyses and plots them on the dashboard.
+
+    Args:
+        subject_code: Subject code
+        path_to_eeg: Path to the raw mff file
+        resampling_freq: New frequency in Hz
+        path_to_hypnogram: Path to the hypnogram yasa-style hypnogram
+        hypno_freq: Sampling rate of the hypnogram in Hz.
+        path_to_bad_channels: Path to bad_channels.txt saved by plot() method.
+        path_to_annotations: Path to annotations saved by plot() method.
+        bandpass_filter_freqs: Lower and upper bounds of the filter.
+        reference: Reference to apply. Can be "mastoids", "average" or "VREF".
+        output_dir: Directory to save the dashboard image in.
+        sleep_stages: Mapping between stage names and indices in hypnogram.
+            Defaults to {"Wake": 0, "N1": 1, "N2/3": (2, 3), "REM": 4}.
+        path_to_ica_fif: Path to ica components file. Defaults to None.
+        save_fif: Whether to save cleaned fif. Defaults to False.
+    """
+
+    if bandpass_filter_freqs is None:
+        bandpass_filter_freqs = [None, None]
+    if topomap_cbar_limits is None:
+        topomap_cbar_limits = [(None, None)] * 4
+        is_adaptive_topo = True
+    else:
+        is_adaptive_topo = False
+
+    if isinstance(reference, str):
+        if reference.lower() == "mastoids":
+            reference = "Mastoids"
+            ref_channels = ["E94", "E190"]
+        elif reference.lower() == "average":
+            reference = "Average"
+            ref_channels = "average"
+        elif reference.lower() == "vref":
+            reference = "VREF"
+            ref_channels = ["VREF"]
+        else:
+            raise ValueError(
+                f"reference should be either 'average', 'VREF' or 'mastoids'"
+            )
+    else:
+        raise TypeError(f"reference type should be str, but got {type(reference)}")
+
+    fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
+    gs = fig.add_gridspec(5, 4)
+    info_subfig = fig.add_subfigure(gs[0:2, 0:2])
+    topo_subfig = fig.add_subfigure(gs[0:2, 2:4])
+    info_axes = info_subfig.subplots(1, 2)
+    topo_axes = topo_subfig.subplots(2, 2)
+    spectrum_before = fig.add_subfigure(gs[2:5, 0:2])
+    gs_s_bef = spectrum_before.add_gridspec(3, 1)
+    spectrum_after = fig.add_subfigure(gs[2:5, 2:4])
+    gs_s_aft = spectrum_after.add_gridspec(3, 1)
+    hypno_before = spectrum_before.add_subplot(gs_s_bef[0:1])
+    hypno_after = spectrum_after.add_subplot(gs_s_aft[0:1])
+    psd_before = spectrum_before.add_subplot(gs_s_bef[1:3])
+    psd_after = spectrum_after.add_subplot(gs_s_aft[1:3])
+
+    fig.suptitle(f"Dashboard <{subject_code}>")
+    pick = (
+        hypno_psd_pick
+        if isinstance(hypno_psd_pick, str)
+        else ", ".join(str(x) for x in hypno_psd_pick)
+    )
+    spectrum_before.suptitle(f"Spectra after filtering ({pick})")
+    spectrum_after.suptitle(f"Spectra after removing bad channels & epochs ({pick})")
+
+    pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
+
+    sfreq, fmin, fmax, notch_freqs = _filter(
+        pipe,
+        resampling_freq,
+        bandpass_filter_freqs[0],
+        bandpass_filter_freqs[1],
+    )
+
+    pipe.set_eeg_reference(ref_channels=ref_channels)
+
+    s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
+    min_psd, max_psd = _hypno_psd(
+        s_pipe,
+        sleep_stages,
+        ref_channels,
+        hypno_psd_pick,
+        hypno_before,
+        psd_before,
+        min_psd=None,
+        max_psd=None,
     )
 
     pipe.read_bad_channels(path=path_to_bad_channels)
@@ -150,7 +312,7 @@ def create_dashboard(
         pipe.apply()
 
     if save_fif:
-        pipe.save_raw(fname="dashboard_cleaned_raw.fif")
+        pipe.save_raw(fname="dashboard_cleaned_raw.fif", overwrite=True)
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     pipe.plot_sensors(
@@ -179,13 +341,14 @@ def create_dashboard(
     textstr = "\n\n".join(
         (
             f"Recording duration: {recording_time}",
-            f"Sampling frequency: {resampling_freq} Hz",
+            f"Sampling frequency: {sfreq} Hz",
             f"Bad epochs: {bad_epochs_percent}%",
             f"Interpolated channels: {interpolated_channels_percent}%",
             f"EEG reference: {reference}",
-            f"Band-pass filter: [{bandpass_filter_freqs[0]}, {bandpass_filter_freqs[1]}] Hz",
-            f"Notch filter: {set(notch_freqs)} Hz",
+            f"Band-pass filter: [{round(fmin, 2)}, {round(fmax, 2)}] Hz",
+            f"Notch filter: {set(notch_freqs) if notch_freqs else notch_freqs} Hz",
             f"ICA performed: {'Yes' if is_ica else 'No'}",
+            f"Adaptive topomaps: {'Yes' if is_adaptive_topo else 'No'}",
         )
     )
     info_axes[1].set_axis_off()
@@ -199,100 +362,19 @@ def create_dashboard(
         horizontalalignment="left",
     )
 
-    s_pipe = SpectralPipe(
-        prec_pipe=pipe,
-        path_to_hypno=path_to_hypnogram,
-        hypno_freq=hypno_freq,
+    s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
+
+    _hypno_psd(
+        s_pipe,
+        sleep_stages,
+        ref_channels,
+        hypno_psd_pick,
+        hypno_after,
+        psd_after,
+        min_psd,
+        max_psd,
     )
 
-    s_pipe.compute_psds_per_stage(
-        sleep_stages=sleep_stages,
-        reference=ref_channels,
-        method="welch",
-        fmin=0,
-        fmax=25,
-        save=False,
-        picks="eeg",
-        reject_by_annotation=True,
-        n_jobs=-1,
-        verbose=False,
-        n_fft=2048,
-        n_per_seg=768,
-        n_overlap=512,
-        window="hamming",
-    )
-
-    s_pipe.plot_hypnospectrogram(
-        picks=["E101"],
-        win_sec=win_sec,
-        freq_range=(0, 25),
-        cmap="Spectral_r",
-        overlap=True,
-        axis=hypno_after,
-    )
-
-    s_pipe.plot_psds(
-        picks=["E101"],
-        psd_range=(min_psd - 0.1 * r, max_psd + 0.1 * r),
-        freq_range=(0, 25),
-        dB=True,
-        xscale="linear",
-        axis=psd_after,
-        legend_args=dict(loc="upper right", fontsize="medium"),
-    )
-    if ref_channels != "average":
-        s_pipe.compute_psds_per_stage(
-            sleep_stages=sleep_stages,
-            reference="average",
-            method="welch",
-            fmin=0,
-            fmax=25,
-            save=False,
-            picks="eeg",
-            reject_by_annotation=True,
-            n_jobs=-1,
-            verbose=False,
-            n_fft=2048,
-            n_per_seg=2048,
-            n_overlap=1024,
-            window="hamming",
-        )
-    topo_axes[0, 0].set_title("Wake, Alpha (8-12 Hz)")
-    s_pipe.plot_topomap(
-        stage="Wake",
-        band={"Alpha": (8, 12)},
-        dB=False,
-        axis=topo_axes[0, 0],
-        topomap_args=dict(cmap="plasma"),
-        cbar_args=None,
-    )
-
-    topo_axes[0, 1].set_title("N2, SMR (12-15 Hz)")
-    s_pipe.plot_topomap(
-        stage="N2",
-        band={"SMR": (12, 15)},
-        dB=False,
-        axis=topo_axes[0, 1],
-        topomap_args=dict(cmap="plasma"),
-        cbar_args=None,
-    )
-    topo_axes[1, 0].set_title("N3, Delta (0.5-4 Hz)")
-    s_pipe.plot_topomap(
-        stage="N3",
-        band={"Delta": (0.5, 4)},
-        dB=False,
-        axis=topo_axes[1, 0],
-        topomap_args=dict(cmap="plasma"),
-        cbar_args=None,
-    )
-    topo_axes[1, 1].set_title("REM, Theta (4-8 Hz)")
-    s_pipe.plot_topomap(
-        stage="REM",
-        band={"Theta": (4, 8)},
-        dB=False,
-        axis=topo_axes[1, 1],
-        topomap_args=dict(cmap="plasma"),
-        cbar_args=None,
-    )
+    _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topomap_cbar_limits)
 
     fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")

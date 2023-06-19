@@ -87,56 +87,55 @@ class BasePipe(ABC):
     def _read_mne_raw(self):
         if self.prec_pipe:
             return self.prec_pipe.mne_raw
-        else:
-            try:
-                return mne.io.read_raw(self.path_to_eeg)
-            except RuntimeError as err:
-                if "EGI epoch first/last samps" in str(err):
-                    import re
-                    from ast import literal_eval
-                    from itertools import chain
-                    import shutil
+        try:
+            return mne.io.read_raw(self.path_to_eeg)
+        except RuntimeError as err:
+            if "EGI epoch first/last samps" in str(err):
+                import re
+                from ast import literal_eval
+                from itertools import chain
+                import shutil
 
-                    logger.warning(
-                        "Fixing epochs.xml from the .mff, original file is saved as epochs_old.xml"
+                logger.warning(
+                    "Fixing epochs.xml from the .mff, original file is saved as epochs_old.xml"
+                )
+                values = chain.from_iterable(
+                    zip(
+                        range(-1000, -6000, -1000),
+                        range(1000, 6000, 1000),
                     )
-                    values = chain.from_iterable(
-                        zip(
-                            range(-1000, -6000, -1000),
-                            range(1000, 6000, 1000),
+                )
+                shutil.copyfile(
+                    self.path_to_eeg / "epochs.xml",
+                    self.path_to_eeg / "epochs_old.xml",
+                )
+                for value in values:
+                    operation = (
+                        f"subtract {abs(value)} from"
+                        if value < 0
+                        else f"add {abs(value)} to"
+                    )
+                    logger.info(f"Trying to {operation} the last 'endTime' tag")
+                    with open(self.path_to_eeg / "epochs.xml", "r+") as epochs_f:
+                        orig_xml = epochs_f.read()
+                        matches = re.findall(r"<endTime>(\d+)<\/endTime>", orig_xml)
+                        new_xml = orig_xml.replace(
+                            matches[-1], str(literal_eval(matches[-1]) + value)
                         )
-                    )
-                    shutil.copyfile(
-                        self.path_to_eeg / "epochs.xml",
-                        self.path_to_eeg / "epochs_old.xml",
-                    )
-                    for value in values:
-                        logger.info(
-                            "Trying to {} the last 'endTime' tag",
-                            f"subtract {abs(value)} from"
-                            if value < 0
-                            else f"add {abs(value)} to",
-                        )
-                        with open(self.path_to_eeg / "epochs.xml", "r+") as epochs_f:
-                            orig_xml = epochs_f.read()
-                            matches = re.findall(r"<endTime>(\d+)<\/endTime>", orig_xml)
-                            new_xml = orig_xml.replace(
-                                matches[-1], str(literal_eval(matches[-1]) + value)
-                            )
-                            epochs_f.seek(0)
-                            epochs_f.write(new_xml)
-                            epochs_f.truncate()
-                        try:
-                            return mne.io.read_raw(self.path_to_eeg)
-                        except:
-                            with open(self.path_to_eeg / "epochs.xml", "w") as epochs_f:
-                                epochs_f.write(orig_xml)
+                        epochs_f.seek(0)
+                        epochs_f.write(new_xml)
+                        epochs_f.truncate()
+                    try:
+                        return mne.io.read_raw(self.path_to_eeg)
+                    except:
+                        with open(self.path_to_eeg / "epochs.xml", "w") as epochs_f:
+                            epochs_f.write(orig_xml)
 
-                else:
-                    raise
-            except Exception as err:
-                print(f"Unexpected {err=}, {type(err)=}")
+            else:
                 raise
+        except Exception as err:
+            print(f"Unexpected {err=}, {type(err)=}")
+            raise
 
     @property
     def sf(self):

@@ -79,10 +79,13 @@ class CleaningPipe(BasePipe):
         Args:
             **notch_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.notch_filter`.
         """
-        if freqs == "50s":
-            freqs = np.arange(50, int(self.sf / 2), 50)
-        elif freqs == "60s":
-            freqs = np.arange(50, int(self.sf / 2), 50)
+        if isinstance(freqs, str):
+            if freqs == "50s":
+                freqs = np.arange(50, int(self.sf / 2), 50)
+            elif freqs == "60s":
+                freqs = np.arange(50, int(self.sf / 2), 50)
+            else:
+                raise ValueError(f"Unsupported frequency: {freqs}")
         self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
 
     def read_bad_channels(self, path: str | None = None):
