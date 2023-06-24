@@ -56,6 +56,7 @@
    .. autosummary::
    
       ~ICAPipe.mne_ica
+      ~ICAPipe.bad_data_percent
       ~ICAPipe.sf
       ~ICAPipe.prec_pipe
       ~ICAPipe.path_to_eeg

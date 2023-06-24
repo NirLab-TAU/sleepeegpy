@@ -1,28 +1,20 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
 
-from attrs import define, field
-from loguru import logger
-from typing import TypeVar
-from pathlib import Path
-from collections.abc import Iterable
 from collections import defaultdict
+from collections.abc import Iterable
+from pathlib import Path
+from typing import TypeVar
 
-import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
 import mne
+import numpy as np
+import pandas as pd
+from attrs import define, field
+from loguru import logger
 
-
-from .base import (
-    BasePipe,
-    BaseHypnoPipe,
-    BaseEventPipe,
-    BaseTopomap,
-    SpectrumPlots,
-    SleepSpectrum,
-    logger_wraps,
-)
+from .base import BaseEventPipe, BaseHypnoPipe, BasePipe, SleepSpectrum, SpectrumPlots
+from .utils import logger_wraps
 
 # For type annotation of pipe elements.
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
@@ -33,16 +25,17 @@ class CleaningPipe(BasePipe):
     """The cleaning pipeline element.
 
     Contains resampling function, band and notch filters,
-    browser for manual selection of bad channels
+    mne browser for manual selection of bad channels
     and bad data spans.
     """
 
     @logger_wraps()
     def resample(self, sfreq: float = 250, save: bool = False, **resample_kwargs):
         """A wrapper for :py:meth:`mne:mne.io.Raw.resample`
-        with an additional option to save the resampled data.
+        with an additional option to save the resampled data to file.
 
         Args:
+            sfreq: Desired new frequency. Defaults to 250.
             save: Whether to save a resampled data to a fif file. Defaults to False.
             **resample_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.resample`.
         """
@@ -68,6 +61,8 @@ class CleaningPipe(BasePipe):
         """A wrapper for :py:meth:`mne:mne.io.Raw.filter`.
 
         Args:
+            l_freq: Lower pass-band edge in Hz. Defaults to 0.3.
+            h_freq: Upper pass-band edge in Hz. Defaults to None.
             **filter_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.filter`.
         """
         self.mne_raw.load_data().filter(l_freq=l_freq, h_freq=h_freq, **filter_kwargs)
@@ -77,6 +72,9 @@ class CleaningPipe(BasePipe):
         """A wrapper for :py:meth:`mne:mne.io.Raw.notch_filter`.
 
         Args:
+            freqs: Frequencies to notch filter in Hz. Can be either array of floats,
+                or '50s' or '60s' to filter harmonics of 50 and 60 Hz, respectively.
+                Defaults to '50s'.
             **notch_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.notch_filter`.
         """
         if isinstance(freqs, str):
@@ -124,8 +122,17 @@ class CleaningPipe(BasePipe):
         Args:
             **interp_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.interpolate_bads`.
         """
+        from ast import literal_eval
+
+        from natsort import natsorted
+
         bads = self.mne_raw.info["bads"]
-        self.mne_raw.interpolate_bads(**interp_kwargs)
+        self.mne_raw.load_data().interpolate_bads(**interp_kwargs)
+        try:
+            old_interp = literal_eval(self.mne_raw.info["description"])
+        except:
+            old_interp = []
+        self.mne_raw.info["description"] = str(natsorted(set(old_interp + bads)))
         logger.info(f"Interpolated channels: {bads}")
 
 
@@ -172,7 +179,7 @@ class ICAPipe(BasePipe):
                 `picard <https://pierreablin.github.io/picard/generated/picard.picard.html#picard.picard>`_ and
                 `infomax <https://mne.tools/stable/generated/mne.preprocessing.infomax.html#mne.preprocessing.infomax>`_.
                 Defaults to None.
-            path_to_ica: Path to the saved -ica.fif file you want to continue work with.
+            path_to_ica: Path to the saved -ica.fif file you want to continue work with. Defaults to None.
             **ica_kwargs: Arguments passed to :py:class:`mne:mne.preprocessing.ICA`.
         """
         if path_to_ica is not None:
@@ -196,11 +203,11 @@ class ICAPipe(BasePipe):
 
     @logger_wraps()
     def fit(self, filter_kwargs: dict = None, **fit_kwargs):
-        """Highpass-filters (1 Hz) a copy of the mne_raw object
-        and then runs :py:meth:`mne:mne.preprocessing.ICA.fit`.
+        """High-pass filters (1 Hz) a copy of the mne_raw object
+        and then runs :py:meth:`mne:mne.preprocessing.ICA.fit` on it.
 
         Args:
-            filter_args: Arguments passed to :py:meth:`mne:mne.io.Raw.filter`.
+            filter_args: Arguments passed to :py:meth:`mne:mne.io.Raw.filter`. Defaults to None.
             **fit_kwargs: Arguments passed to :py:meth:`mne:mne.preprocessing.ICA.fit`.
         """
         filter_kwargs = filter_kwargs or dict()
@@ -254,10 +261,6 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     spectrogram and topomaps per sleep stage.
     """
 
-    psds: dict = field(init=False, factory=dict)
-    """Instances of :class:`.SleepSpectrum` per sleep stage.
-    """
-
     @logger_wraps()
     def compute_psds_per_stage(
         self,
@@ -281,7 +284,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
             reference: Which eeg reference to compute PSD with.
                 If None, the reference isn't changed. Defaults to None.
-            method: Spectral estimation method.. Defaults to "welch".
+            method: Spectral estimation method. Defaults to "welch".
             fmin: Lower frequency bound. Defaults to 0.
             fmax: Upper frequency bound. Defaults to 60.
             picks: Channels to compute spectra for. Refer to :py:meth:`mne:mne.io.Raw.pick`.
@@ -290,8 +293,10 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 Defaults to True.
             save: Whether to save the spectra in .h5 files. Defaults to False.
             overwrite: Whether to overwrite the file. Defaults to False.
-            n_jobs: _description_. Defaults to -1.
-            verbose: _description_. Defaults to False.
+            n_jobs: The number of jobs to run in parallel. If -1,
+                it is set to the number of CPU cores. Defaults to -1.
+            verbose: Control verbosity of the logging output.
+                If None, use the default verbosity level. Defaults to False.
             **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
                 or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
         """
@@ -316,14 +321,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 **psd_kwargs,
             )
         if save:
-            import re
-
-            for stage, spectrum in self.psds.items():
-                stage = re.sub(r"[^\w\s-]", "_", stage)
-                spectrum.save(
-                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5",
-                    overwrite=overwrite,
-                )
+            self._save_psds(overwrite)
 
     @logger_wraps()
     def read_spectra(self, dirpath: str | None = None):
@@ -334,9 +332,10 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
         Args:
             dirpath: Path to the directory containing hdf5 files. Defaults to None.
         """
-        from mne.time_frequency import read_spectrum
-        from pathlib import Path
         import re
+        from pathlib import Path
+
+        from mne.time_frequency import read_spectrum
 
         r = f"(.+)(?:-psd.h5)"
         self.tfrs = dict()
@@ -352,7 +351,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     def plot_hypnospectrogram(
         self,
         picks: str | Iterable[str] = ("E101",),
-        win_sec: float = 30,
+        win_sec: float = 10,
         trimperc: float = 2.5,
         freq_range: tuple = (0, 40),
         cmap: str = "Spectral_r",
@@ -362,15 +361,19 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     ):
         """Plots hypnogram and spectrogram.
 
-        Adapted from yasa.
+        Adapted from YASA.
 
         Args:
             picks: Channels to compute the spectrogram on. Defaults to ("E101",).
-            win_sec: The length of the sliding window, in seconds, used for multitaper PSD calculation. Defaults to 30.
-            trimperc: The amount of data to trim on both ends of the distribution when normalizing the colormap. Defaults to 2.5.
+            win_sec: The length of the sliding window, in seconds, used for multitaper PSD calculation.
+                Defaults to 30.
+            trimperc: The amount of data to trim on both ends of the distribution
+                when normalizing the colormap. Defaults to 2.5.
             freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
-            cmap: Matplotlib colormap. :std:doc:`mpl:tutorials/colors/colormaps`. Defaults to "Spectral_r".
-            overlap: Whether to plot hypnogram over the spectrogram or on top of it. Defaults to False.
+            cmap: Matplotlib colormap. :std:doc:`mpl:tutorials/colors/colormaps`.
+                Defaults to "Spectral_r".
+            overlap: Whether to plot hypnogram over the spectrogram or on top of it.
+                Defaults to False.
             save: Whether to save the figure. Defaults to False.
             axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
                 Defaults to None.
@@ -378,7 +381,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
         # Import data from the raw mne file.
         data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation="NaN")[0]
         # Create a plot figure
-        if overlap or not self.hypno_up.any():
+        if overlap or self.hypno_up is None:
             if axis is None:
                 fig, axis = plt.subplots(nrows=1, figsize=(12, 4))
 
@@ -392,7 +395,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 cmap,
                 axis,
             )
-            if self.hypno_up.any():
+            if self.hypno_up is not None:
                 ax_hypno = axis.twinx()
                 self.__plot_hypnogram(self.sf, self.hypno_up, ax_hypno)
             # Add colorbar
@@ -409,7 +412,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 ax0 = axis[0]
                 ax1 = axis[1]
 
-            if self.hypno_up.any():
+            if self.hypno_up is not None:
                 # Hypnogram (top axis)
                 self.__plot_hypnogram(self.sf, self.hypno_up, ax0)
             # Spectrogram (bottom axis)
@@ -473,9 +476,9 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     @staticmethod
     def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
         """Adapted from :py:func:`yasa:yasa.plot_spectrogram`."""
-        from matplotlib.colors import Normalize
-        from lspopt import spectrogram_lspopt
         import numpy as np
+        from lspopt import spectrogram_lspopt
+        from matplotlib.colors import Normalize
 
         # Calculate multi-taper spectrogram
         nperseg = int(win_sec * sf)
@@ -643,11 +646,15 @@ class RapidEyeMovementsPipe(BaseEventPipe):
 
 
 @define(kw_only=True)
-class GrandPipe(SpectrumPlots, BaseTopomap):
+class GrandSpectralPipe(SpectrumPlots):
     """The pipeline element combining results from multiple subjects.
 
     Contains methods for computing and plotting combined PSD,
     spectrogram and topomaps, per sleep stage.
+    """
+
+    pipes: Iterable[SpectralPipe] = field()
+    """Stores SpectralPipes for multiple subjects.
     """
 
     output_dir: Path = field(converter=Path)
@@ -660,17 +667,8 @@ class GrandPipe(SpectrumPlots, BaseTopomap):
         logger.remove()
         logger.add(self.output_dir / "pipeline.log")
 
-    psds: dict = field(init=False, factory=dict)
-    """Instances of :class:`.SleepSpectrum` per sleep stage.
-    """
-
-    pipes: Iterable[BaseHypnoPipe] = field()
-    """Stores pipeline elements for multiple subjects.
-    """
-
     mne_raw: mne.io.Raw = field(init=False)
-
-    detection_results = field(init=False, factory=lambda: defaultdict(pd.DataFrame))
+    """Representative raw object to infer montage"""
 
     @mne_raw.default
     def _get_mne_raw_from_pipe(self):
@@ -716,175 +714,25 @@ class GrandPipe(SpectrumPlots, BaseTopomap):
         """
 
         avg_func = np.median if average == "median" else np.mean
-        psds = defaultdict(list)
         for pipe in self.pipes:
-            inst = pipe.mne_raw.copy().load_data()
-            if reference is not None:
-                inst.set_eeg_reference(ref_channels=reference)
-            for stage, stage_idx in sleep_stages.items():
-                psds[stage].append(
-                    SleepSpectrum(
-                        inst,
-                        hypno=pipe.hypno_up,
-                        stage_idx=stage_idx,
-                        method=method,
-                        fmin=fmin,
-                        fmax=fmax,
-                        tmin=None,
-                        tmax=None,
-                        picks=picks,
-                        proj=False,
-                        reject_by_annotation=reject_by_annotation,
-                        n_jobs=n_jobs,
-                        verbose=verbose,
-                        **psd_kwargs,
-                    )
-                )
+            pipe.compute_psds_per_stage(
+                sleep_stages=sleep_stages,
+                reference=reference,
+                method=method,
+                fmin=fmin,
+                fmax=fmax,
+                picks=picks,
+                reject_by_annotation=reject_by_annotation,
+                save=False,
+                overwrite=overwrite,
+                n_jobs=n_jobs,
+                verbose=verbose,
+                **psd_kwargs,
+            )
 
-        for stage, spectra in psds.items():
+        for stage in sleep_stages:
+            spectra = [pipe.psds[stage] for pipe in self.pipes]
             self.psds[stage] = avg_func(spectra, axis=0)
 
         if save:
-            import re
-
-            for stage, spectrum in self.psds.items():
-                stage = re.sub(r"[^\w\s-]", "_", stage)
-                spectrum.save(
-                    self.output_dir / self.__class__.__name__ / f"{stage}-psd.h5",
-                    overwrite=overwrite,
-                )
-
-    @logger_wraps()
-    def spindles_detect(
-        self,
-        picks: str | Iterable[str] = ("eeg"),
-        reference: Iterable[str] | str = "average",
-        include: Iterable[int] = (1, 2, 3),
-        freq_sp: Iterable[float] = (12, 15),
-        freq_broad: Iterable[float] = (1, 30),
-        duration: Iterable[float] = (0.5, 2),
-        min_distance: int = 500,
-        thresh: dict = {"corr": 0.65, "rel_pow": 0.2, "rms": 1.5},
-        multi_only: bool = False,
-        remove_outliers: bool = False,
-        average: str = "mean",
-        verbose: bool = False,
-        save: bool = False,
-        get_sync_events_args=None,
-    ):
-        """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
-        from yasa import spindles_detect
-
-        get_sync_events_args = get_sync_events_args or dict()
-        for pipe_index, pipe in enumerate(self.pipes):
-            inst = pipe.mne_raw.copy().load_data()
-            if reference is not None:
-                inst.set_eeg_reference(ref_channels=reference)
-            detection_results = spindles_detect(
-                data=inst.pick(picks),
-                hypno=pipe.hypno_up,
-                verbose=verbose,
-                include=include,
-                freq_sp=freq_sp,
-                freq_broad=freq_broad,
-                duration=duration,
-                min_distance=min_distance,
-                thresh=thresh,
-                multi_only=multi_only,
-                remove_outliers=remove_outliers,
-            )
-            self.detection_results["summary"] = pd.concat(
-                [self.detection_results["summary"], detection_results.summary()]
-            )
-            events_signal = detection_results.get_sync_events()
-            events_signal["pipe_index"] = pipe_index
-            self.detection_results["events"] = pd.concat(
-                [self.detection_results["events"], events_signal]
-            )
-        if save:
-            self._save_to_csv()
-
-    @logger_wraps()
-    def plot_topomap(
-        self,
-        prop: str,
-        stage: str = "N2",
-        aggfunc: str = "mean",
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
-        axis: plt.axis = None,
-        save: bool = False,
-        topomap_args: dict = None,
-        cbar_args: dict = None,
-        subplots_args: dict = None,
-    ):
-        """Plots topomap for a sleep stage and some property of detected events.
-
-        Args:
-            prop: Any event property returned by self.results.summary().
-            stage: One of the sleep_stages keys. Defaults to "N2".
-            aggfunc: Averaging function, "mean" or "median". Defaults to "mean".
-            sleep_stages: Mapping between sleep stages names and their integer representations.
-                Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
-            axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
-                Defaults to None.
-            save: Whether to save the figure. Defaults to False.
-            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
-            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
-            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
-        """
-        from natsort import natsort_keygen
-        from more_itertools import collapse
-        from seaborn import color_palette
-
-        topomap_args = topomap_args or dict()
-        cbar_args = cbar_args or dict()
-        subplots_args = subplots_args or dict()
-        topomap_args.setdefault("cmap", color_palette("rocket_r", as_cmap=True))
-        cbar_args.setdefault("label", prop)
-
-        grouped_summary = self.detection_results["summary"].groupby(
-            ["Channel", "Stage"]
-        )
-        grouped_summary = (
-            grouped_summary.mean() if aggfunc == "mean" else grouped_summary.median()
-        )
-        grouped_summary = grouped_summary.sort_values(
-            "Channel", key=natsort_keygen()
-        ).reset_index()
-
-        assert np.isin(
-            sleep_stages[stage], grouped_summary["Stage"].unique()
-        ).all(), "No such stage in the detected events, was it included in the detect method?"
-
-        is_new_axis = False
-        if not axis:
-            fig, axis = plt.subplots(**subplots_args)
-            is_new_axis = True
-
-        per_stage = grouped_summary.loc[
-            grouped_summary["Stage"].isin(collapse([sleep_stages[stage]]))
-        ].groupby("Channel")
-        per_stage = per_stage.mean() if aggfunc == "mean" else per_stage.median()
-        per_stage = per_stage.sort_values("Channel", key=natsort_keygen()).reset_index()
-
-        info = self.mne_raw.copy().pick(list(per_stage["Channel"].unique())).info
-
-        topomap_args.setdefault("vlim", (per_stage[prop].min(), per_stage[prop].max()))
-        self._plot_topomap(
-            data=per_stage[prop],
-            axis=axis,
-            info=info,
-            topomap_args=topomap_args,
-            cbar_args=cbar_args,
-        )
-        if is_new_axis:
-            fig.suptitle(f"{stage} {self.__class__.__name__[:-4]} ({prop})")
-        if save and is_new_axis:
-            fig.savefig(
-                self.output_dir
-                / self.__class__.__name__
-                / f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png"
-            )
-
-    def detect(self):
-        raise AttributeError("'GrandPipe' object has no attribute 'detect'")
+            self._save_psds(overwrite)

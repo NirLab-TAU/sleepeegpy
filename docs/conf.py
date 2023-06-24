@@ -45,7 +45,6 @@ intersphinx_mapping = {
     "mne": ("https://mne.tools/stable/", None),
     "yasa": ("https://raphaelvallat.com/yasa/build/html/", None),
     "mpl": ("https://matplotlib.org/stable/", None),
-    "fooof": ("https://fooof-tools.github.io/fooof/", None),
 }
 
 intersphinx_disabled_reftypes = ["*"]

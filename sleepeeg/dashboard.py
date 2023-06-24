@@ -17,7 +17,7 @@ def _init_s_pipe(prec_pipe, path_to_hypnogram, hypno_freq):
         )
         s_pipe.hypno = np.zeros(s_pipe.mne_raw.n_times)
         s_pipe.hypno_freq = s_pipe.sf
-        s_pipe._BaseHypnoPipe__upsample_hypno()
+        s_pipe._upsample_hypno()
         sleep_stages = {"All": 0}
     else:
         s_pipe = SpectralPipe(
@@ -65,7 +65,7 @@ def _filter(pipe, sfreq, fmin, fmax):
     if fmax > 50:
         pipe.notch(freqs=notch_freqs, n_jobs=-1)
     else:
-        notch_freqs = None
+        notch_freqs = [None]
 
     return sfreq, fmin, fmax, notch_freqs
 
@@ -346,7 +346,7 @@ def create_dashboard(
             f"Interpolated channels: {interpolated_channels_percent}%",
             f"EEG reference: {reference}",
             f"Band-pass filter: [{round(fmin, 2)}, {round(fmax, 2)}] Hz",
-            f"Notch filter: {set(notch_freqs) if notch_freqs else notch_freqs} Hz",
+            f"Notch filter: {set(notch_freqs)} Hz",
             f"ICA performed: {'Yes' if is_ica else 'No'}",
             f"Adaptive topomaps: {'Yes' if is_adaptive_topo else 'No'}",
         )

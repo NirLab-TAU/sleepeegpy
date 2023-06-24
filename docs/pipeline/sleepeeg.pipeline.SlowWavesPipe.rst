@@ -61,6 +61,7 @@
 
    .. autosummary::
    
+      ~SlowWavesPipe.bad_data_percent
       ~SlowWavesPipe.sf
       ~SlowWavesPipe.tfrs
       ~SlowWavesPipe.results

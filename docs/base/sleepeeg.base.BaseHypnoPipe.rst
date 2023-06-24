@@ -43,6 +43,7 @@
 
    .. autosummary::
    
+      ~BaseHypnoPipe.bad_data_percent
       ~BaseHypnoPipe.sf
       ~BaseHypnoPipe.path_to_hypno
       ~BaseHypnoPipe.hypno_freq

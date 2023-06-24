@@ -55,6 +55,7 @@
 
    .. autosummary::
    
+      ~CleaningPipe.bad_data_percent
       ~CleaningPipe.sf
       ~CleaningPipe.prec_pipe
       ~CleaningPipe.path_to_eeg

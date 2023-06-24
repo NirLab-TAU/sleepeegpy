@@ -30,4 +30,10 @@
 
    
    
+   .. epigraph:: **Attributes:**
+
+   .. autosummary::
+   
+      ~SpectrumPlots.psds
+   
    

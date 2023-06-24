@@ -37,6 +37,7 @@
 
    .. autosummary::
    
+      ~BasePipe.bad_data_percent
       ~BasePipe.sf
       ~BasePipe.prec_pipe
       ~BasePipe.path_to_eeg
