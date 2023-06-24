@@ -171,6 +171,7 @@
 <li class="toctree-l3"><a class="reference internal" href="sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeeg.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
 </ul>
 </li>
 </ul>
@@ -213,11 +214,11 @@
 <h1>CleaningPipe<a class="headerlink" href="#cleaningpipe" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeeg.pipeline.</span></span><span class="sig-name descname"><span class="pre">CleaningPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L28-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeeg.pipeline.</span></span><span class="sig-name descname"><span class="pre">CleaningPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L23-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../base/sleepeeg.base.BasePipe.html#sleepeeg.base.BasePipe" title="sleepeeg.base.BasePipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BasePipe</span></code></a></p>
 <p>The cleaning pipeline element.</p>
 <p>Contains resampling function, band and notch filters,
-browser for manual selection of bad channels
+mne browser for manual selection of bad channels
 and bad data spans.</p>
 <blockquote class="epigraph">
 <div><p><strong>Methods:</strong></p>
@@ -247,7 +248,7 @@ and bad data spans.</p>
 <td><p>Imports bad channels from file to mne raw object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.resample" title="sleepeeg.pipeline.CleaningPipe.resample"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resample</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.resample()</span></code></a> with an additional option to save the resampled data.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.resample()</span></code></a> with an additional option to save the resampled data to file.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.save_raw" title="sleepeeg.pipeline.CleaningPipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
 <td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></td>
@@ -264,19 +265,22 @@ and bad data spans.</p>
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.sf" title="sleepeeg.pipeline.CleaningPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.bad_data_percent" title="sleepeeg.pipeline.CleaningPipe.bad_data_percent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bad_data_percent</span></code></a></p></td>
+<td><p>Calculates percent of data segments annotated as BAD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.sf" title="sleepeeg.pipeline.CleaningPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
 <td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.prec_pipe" title="sleepeeg.pipeline.CleaningPipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.prec_pipe" title="sleepeeg.pipeline.CleaningPipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
 <td><p>Preceding pipe that hands over mne_raw attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.path_to_eeg" title="sleepeeg.pipeline.CleaningPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.path_to_eeg" title="sleepeeg.pipeline.CleaningPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
 <td><p>Can be any file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.output_dir" title="sleepeeg.pipeline.CleaningPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.output_dir" title="sleepeeg.pipeline.CleaningPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
 <td><p>Path to the directory where the output will be saved.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.mne_raw" title="sleepeeg.pipeline.CleaningPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.mne_raw" title="sleepeeg.pipeline.CleaningPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
 <td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -284,12 +288,13 @@ and bad data spans.</p>
 </div>
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.resample">
-<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">resample_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L37-L59"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.resample" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">resample</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sfreq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">250</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">resample_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L32-L55"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.resample" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.resample()</span></code></a>
-with an additional option to save the resampled data.</p>
+with an additional option to save the resampled data to file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
+<li><p><strong>sfreq</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>) – Desired new frequency. Defaults to 250.</p></li>
 <li><p><strong>save</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code>) – Whether to save a resampled data to a fif file. Defaults to False.</p></li>
 <li><p><strong>**resample_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.resample" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.resample()</span></code></a>.</p></li>
 </ul>
@@ -299,29 +304,38 @@ with an additional option to save the resampled data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.filter">
-<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filter_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L61-L70"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.filter" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">filter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">l_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">filter_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L57-L68"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.filter" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.filter()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**filter_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.filter()</span></code></a>.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>l_freq</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Lower pass-band edge in Hz. Defaults to 0.3.</p></li>
+<li><p><strong>h_freq</strong> (<code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Upper pass-band edge in Hz. Defaults to None.</p></li>
+<li><p><strong>**filter_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.filter()</span></code></a>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.notch">
-<span class="sig-name descname"><span class="pre">notch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50s'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">notch_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L72-L83"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.notch" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">notch</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'50s'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">notch_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L70-L87"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.notch" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.notch_filter()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**notch_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.notch_filter()</span></code></a>.</p>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]) – Frequencies to notch filter in Hz. Can be either array of floats,
+or ’50s’ or ’60s’ to filter harmonics of 50 and 60 Hz, respectively.
+Defaults to ’50s’.</p></li>
+<li><p><strong>**notch_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.notch_filter" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.notch_filter()</span></code></a>.</p></li>
+</ul>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.read_bad_channels">
-<span class="sig-name descname"><span class="pre">read_bad_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L85-L97"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.read_bad_channels" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">read_bad_channels</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L89-L101"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.read_bad_channels" title="Permalink to this definition">#</a></dt>
 <dd><p>Imports bad channels from file to mne raw object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -332,7 +346,7 @@ with an additional option to save the resampled data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.read_annotations">
-<span class="sig-name descname"><span class="pre">read_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L99-L112"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.read_annotations" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">read_annotations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L103-L116"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.read_annotations" title="Permalink to this definition">#</a></dt>
 <dd><p>Imports annotations from file to mne raw object</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -343,7 +357,7 @@ with an additional option to save the resampled data.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.interpolate_bads">
-<span class="sig-name descname"><span class="pre">interpolate_bads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">interp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L114-L123"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.interpolate_bads" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">interpolate_bads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">interp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L118-L136"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.interpolate_bads" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -352,9 +366,23 @@ with an additional option to save the resampled data.</p>
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.bad_data_percent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad_data_percent</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.bad_data_percent" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates percent of data segments annotated as BAD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>percent of bad data spans in raw data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L103-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.plot" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L126-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.plot" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -371,7 +399,7 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.plot_sensors">
-<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L146-L186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.plot_sensors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L176-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.plot_sensors" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -387,7 +415,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L188-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.save_raw" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.save_raw" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -401,7 +429,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.CleaningPipe.set_eeg_reference">
-<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L199-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.set_eeg_reference" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L228-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.CleaningPipe.set_eeg_reference" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -519,6 +547,7 @@ Defaults to None.</p></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.read_bad_channels"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.read_bad_channels()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.read_annotations"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.read_annotations()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.interpolate_bads"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.interpolate_bads()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.bad_data_percent"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.bad_data_percent</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.plot"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.plot()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.plot_sensors"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.plot_sensors()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.pipeline.CleaningPipe.save_raw"><code class="docutils literal notranslate"><span class="pre">CleaningPipe.save_raw()</span></code></a></li>

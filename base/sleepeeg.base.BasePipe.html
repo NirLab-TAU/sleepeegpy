@@ -171,6 +171,7 @@
 <li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
 </ul>
 </li>
 </ul>
@@ -213,9 +214,9 @@
 <h1>BasePipe<a class="headerlink" href="#basepipe" title="Permalink to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sleepeeg.base.BasePipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeeg.base.</span></span><span class="sig-name descname"><span class="pre">BasePipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L45-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe" title="Permalink to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeeg.base.</span></span><span class="sig-name descname"><span class="pre">BasePipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L22-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe" title="Permalink to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
-<p>A template class for the pipeline segments.</p>
+<p>A base class for all per-subject pipeline segments.</p>
 <blockquote class="epigraph">
 <div><p><strong>Methods:</strong></p>
 </div></blockquote>
@@ -243,19 +244,22 @@
 <div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.sf" title="sleepeeg.base.BasePipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.bad_data_percent" title="sleepeeg.base.BasePipe.bad_data_percent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bad_data_percent</span></code></a></p></td>
+<td><p>Calculates percent of data segments annotated as BAD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.sf" title="sleepeeg.base.BasePipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
 <td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.4)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.prec_pipe" title="sleepeeg.base.BasePipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.prec_pipe" title="sleepeeg.base.BasePipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
 <td><p>Preceding pipe that hands over mne_raw attribute.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.path_to_eeg" title="sleepeeg.base.BasePipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.path_to_eeg" title="sleepeeg.base.BasePipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
 <td><p>Can be any file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.output_dir" title="sleepeeg.base.BasePipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.output_dir" title="sleepeeg.base.BasePipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
 <td><p>Path to the directory where the output will be saved.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.mne_raw" title="sleepeeg.base.BasePipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeeg.base.BasePipe.mne_raw" title="sleepeeg.base.BasePipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
 <td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a>.</p></td>
 </tr>
 </tbody>
@@ -299,9 +303,23 @@
 </dl>
 </dd></dl>
 
+<dl class="py property">
+<dt class="sig sig-object py" id="sleepeeg.base.BasePipe.bad_data_percent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad_data_percent</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.bad_data_percent" title="Permalink to this definition">#</a></dt>
+<dd><p>Calculates percent of data segments annotated as BAD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>percent of bad data spans in raw data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.base.BasePipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L103-L144"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.plot" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L126-L174"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.plot" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -318,7 +336,7 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.base.BasePipe.plot_sensors">
-<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L146-L186"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.plot_sensors" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L176-L215"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.plot_sensors" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -334,7 +352,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.base.BasePipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L188-L197"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.save_raw" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L217-L226"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.save_raw" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -348,7 +366,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.base.BasePipe.set_eeg_reference">
-<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L199-L212"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.set_eeg_reference" title="Permalink to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/base.py#L228-L241"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.base.BasePipe.set_eeg_reference" title="Permalink to this definition">#</a></dt>
 <dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.4)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -427,6 +445,7 @@ Defaults to None.</p></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.output_dir"><code class="docutils literal notranslate"><span class="pre">BasePipe.output_dir</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">BasePipe.mne_raw</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.sf"><code class="docutils literal notranslate"><span class="pre">BasePipe.sf</span></code></a></li>
+<li><a class="reference internal" href="#sleepeeg.base.BasePipe.bad_data_percent"><code class="docutils literal notranslate"><span class="pre">BasePipe.bad_data_percent</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.plot"><code class="docutils literal notranslate"><span class="pre">BasePipe.plot()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.plot_sensors"><code class="docutils literal notranslate"><span class="pre">BasePipe.plot_sensors()</span></code></a></li>
 <li><a class="reference internal" href="#sleepeeg.base.BasePipe.save_raw"><code class="docutils literal notranslate"><span class="pre">BasePipe.save_raw()</span></code></a></li>

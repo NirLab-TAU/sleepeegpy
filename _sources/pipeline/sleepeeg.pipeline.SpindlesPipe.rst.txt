@@ -61,6 +61,7 @@
 
    .. autosummary::
    
+      ~SpindlesPipe.bad_data_percent
       ~SpindlesPipe.sf
       ~SpindlesPipe.tfrs
       ~SpindlesPipe.results

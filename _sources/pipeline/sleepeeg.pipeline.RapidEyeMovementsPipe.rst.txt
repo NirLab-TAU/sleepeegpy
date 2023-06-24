@@ -61,6 +61,7 @@
 
    .. autosummary::
    
+      ~RapidEyeMovementsPipe.bad_data_percent
       ~RapidEyeMovementsPipe.sf
       ~RapidEyeMovementsPipe.tfrs
       ~RapidEyeMovementsPipe.results

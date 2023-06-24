@@ -61,6 +61,7 @@
 
    .. autosummary::
    
+      ~BaseEventPipe.bad_data_percent
       ~BaseEventPipe.sf
       ~BaseEventPipe.tfrs
       ~BaseEventPipe.results

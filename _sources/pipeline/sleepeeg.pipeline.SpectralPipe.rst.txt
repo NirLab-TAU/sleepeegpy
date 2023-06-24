@@ -61,7 +61,7 @@
 
    .. autosummary::
    
-      ~SpectralPipe.psds
+      ~SpectralPipe.bad_data_percent
       ~SpectralPipe.sf
       ~SpectralPipe.path_to_hypno
       ~SpectralPipe.hypno_freq
@@ -71,5 +71,6 @@
       ~SpectralPipe.path_to_eeg
       ~SpectralPipe.output_dir
       ~SpectralPipe.mne_raw
+      ~SpectralPipe.psds
    
    

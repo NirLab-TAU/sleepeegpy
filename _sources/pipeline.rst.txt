@@ -12,3 +12,4 @@ pipeline module
    SpindlesPipe
    SlowWavesPipe
    RapidEyeMovementsPipe
+   GrandSpectralPipe
