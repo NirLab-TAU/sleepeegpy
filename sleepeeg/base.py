@@ -1001,6 +1001,7 @@ class SpectrumPlots(BaseTopomap, ABC):
         self._plot_topomap(
             data=psds,
             axis=axis,
+            info=self.psds[stage].info,
             topomap_args=topomap_args,
             cbar_args=cbar_args,
         )
@@ -1123,6 +1124,7 @@ class SpectrumPlots(BaseTopomap, ABC):
                 self._plot_topomap(
                     data=psds_per_stage_per_band[row_index, col_index],
                     axis=axes[col_index],
+                    info=self.psds[stage].info,
                     topomap_args=topomap_args,
                     cbar_args=cbar_args,
                 )
