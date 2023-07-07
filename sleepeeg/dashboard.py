@@ -73,22 +73,22 @@ def _filter(pipe, sfreq, fmin, fmax):
 def _hypno_psd(
     s_pipe,
     sleep_stages,
-    ref_channels,
     hypno_psd_pick,
     ax_hypno,
     ax_psd,
     min_psd,
     max_psd,
+    rba,
 ):
     s_pipe.compute_psds_per_stage(
         sleep_stages=sleep_stages,
-        reference=ref_channels,
+        reference=None,
         method="welch",
         fmin=0,
         fmax=25,
         save=False,
         picks="eeg",
-        reject_by_annotation=True,
+        reject_by_annotation=rba,
         n_jobs=-1,
         verbose=False,
         n_fft=2048,
@@ -108,6 +108,7 @@ def _hypno_psd(
         cmap="Spectral_r",
         overlap=True,
         axis=ax_hypno,
+        reject_by_annotation="NaN" if rba else None,
     )
     r = max_psd - min_psd
     s_pipe.plot_psds(
@@ -119,6 +120,7 @@ def _hypno_psd(
         axis=ax_psd,
         legend_args=dict(loc="upper right", fontsize="medium"),
     )
+    ax_psd.axvspan(0, s_pipe.mne_raw.info["highpass"], alpha=0.3, color="gray")
     return min_psd, max_psd
 
 
@@ -196,8 +198,8 @@ def create_dashboard(
     path_to_eeg: str | os.PathLike,
     path_to_hypnogram: str | os.PathLike | None,
     hypno_freq: float | None,
-    path_to_bad_channels: str | os.PathLike,
-    path_to_annotations: str | os.PathLike,
+    path_to_bad_channels: str | os.PathLike | None,
+    path_to_annotations: str | os.PathLike | None,
     output_dir: str | os.PathLike,
     reference: str,
     resampling_freq: float | None = None,
@@ -272,8 +274,8 @@ def create_dashboard(
         if isinstance(hypno_psd_pick, str)
         else ", ".join(str(x) for x in hypno_psd_pick)
     )
-    spectrum_before.suptitle(f"Spectra after filtering ({pick})")
-    spectrum_after.suptitle(f"Spectra after removing bad channels & epochs ({pick})")
+    spectrum_before.suptitle(f"Spectra after interpolating bad channels ({pick})")
+    spectrum_after.suptitle(f"Spectra after rejecting bad data spans ({pick})")
 
     pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
 
@@ -286,22 +288,29 @@ def create_dashboard(
 
     pipe.set_eeg_reference(ref_channels=ref_channels)
 
+    if path_to_bad_channels is not None:
+        pipe.read_bad_channels(path=path_to_bad_channels)
+        bads = pipe.mne_raw.info["bads"]
+        pipe.interpolate_bads(reset_bads=True)
+    else:
+        from ast import literal_eval
+
+        bads = literal_eval(pipe.mne_raw.info["description"])
+
     s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
     min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
-        ref_channels,
         hypno_psd_pick,
         hypno_before,
         psd_before,
         min_psd=None,
         max_psd=None,
+        rba=False,
     )
 
-    pipe.read_bad_channels(path=path_to_bad_channels)
-    bads = pipe.mne_raw.info["bads"]
-    pipe.interpolate_bads(reset_bads=True)
-    pipe.read_annotations(path=path_to_annotations)
+    if path_to_annotations is not None:
+        pipe.read_annotations(path=path_to_annotations)
 
     is_ica = False
     if path_to_ica_fif:
@@ -327,13 +336,7 @@ def create_dashboard(
     recording_time = time.strftime(
         "%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf)
     )
-    df = pipe.mne_raw.annotations.to_data_frame()
-    bad_epochs_percent = round(
-        100
-        * (df[df.description.str.contains("bad", case=False)].duration.sum() * pipe.sf)
-        / pipe.mne_raw.n_times,
-        2,
-    )
+
     interpolated_channels_percent = round(
         100 * len(interpolated) / len(pick_types(pipe.mne_raw.info, eeg=True)), 2
     )
@@ -342,7 +345,7 @@ def create_dashboard(
         (
             f"Recording duration: {recording_time}",
             f"Sampling frequency: {sfreq} Hz",
-            f"Bad epochs: {bad_epochs_percent}%",
+            f"Bad data spans: {pipe.bad_data_percent}%",
             f"Interpolated channels: {interpolated_channels_percent}%",
             f"EEG reference: {reference}",
             f"Band-pass filter: [{round(fmin, 2)}, {round(fmax, 2)}] Hz",
@@ -367,12 +370,12 @@ def create_dashboard(
     _hypno_psd(
         s_pipe,
         sleep_stages,
-        ref_channels,
         hypno_psd_pick,
         hypno_after,
         psd_after,
         min_psd,
         max_psd,
+        rba=True,
     )
 
     _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topomap_cbar_limits)

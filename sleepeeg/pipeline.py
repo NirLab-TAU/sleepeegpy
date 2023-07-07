@@ -356,6 +356,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
         freq_range: tuple = (0, 40),
         cmap: str = "Spectral_r",
         overlap: bool = False,
+        reject_by_annotation: None | str = "NaN",
         save: bool = False,
         axis: plt.Axes = None,
     ):
@@ -374,12 +375,16 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 Defaults to "Spectral_r".
             overlap: Whether to plot hypnogram over the spectrogram or on top of it.
                 Defaults to False.
+            reject_by_annotation: Whether to reject the annotations for the spectrogram computation.
+                Can be 'NaN', 'omit' or None. Defaults to 'NaN'.
             save: Whether to save the figure. Defaults to False.
             axis: Instance of :py:class:`mpl:matplotlib.axes.Axes`.
                 Defaults to None.
         """
         # Import data from the raw mne file.
-        data = self.mne_raw.get_data(picks, units="uV", reject_by_annotation="NaN")[0]
+        data = self.mne_raw.get_data(
+            picks, units="uV", reject_by_annotation=reject_by_annotation
+        )[0]
         # Create a plot figure
         if overlap or self.hypno_up is None:
             if axis is None:
@@ -401,7 +406,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             # Add colorbar
             cbar = plt.colorbar(im, ax=axis, shrink=0.95, fraction=0.1, aspect=25)
             cbar.ax.set_ylabel(r"$\mu V^{2}/Hz$ (dB)", rotation=90)
-            return None if axis is not None else fig
+
         else:
             if axis is None:
                 fig, (ax0, ax1) = plt.subplots(
