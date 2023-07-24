@@ -141,37 +141,56 @@ class BasePipe(ABC):
         """
         kwargs.setdefault("theme", "dark")
         kwargs.setdefault("bad_color", "r")
-        kwargs.setdefault("scalings", "auto")
         kwargs["block"] = True
 
         self.mne_raw.plot(**kwargs)
 
         if save_annotations:
-            self.mne_raw.annotations.save(
-                self.output_dir / self.__class__.__name__ / "annotations.txt",
-                overwrite=overwrite,
-            )
+            self.save_annotations(overwrite=overwrite)
 
         if save_bad_channels:
-            new_bads = self.mne_raw.info["bads"]
+            self.save_bad_channels(overwrite=overwrite)
 
-            if new_bads:
-                from natsort import natsorted
+    def save_bad_channels(self, overwrite=False):
+        """Adds bad channels from info["bads"] to the "bad_channels.txt" file.
 
-                fpath = self.output_dir / self.__class__.__name__ / "bad_channels.txt"
-                old_bads = []
-                if fpath.exists():
-                    with open(fpath, "r") as f:
-                        old_bads = f.read().split()
+        Args:
+            overwrite: Whether to overwrite the file if exists.
+                If False will add unique new channels to the file.
+                Defaults to False.
+        """
+        new_bads = self.mne_raw.info["bads"]
 
-                with open(fpath, "w") as f:
-                    bads = (
-                        natsorted(new_bads)
-                        if overwrite
-                        else natsorted(set(old_bads + new_bads))
-                    )
-                    for bad in bads:
-                        f.write(f"{bad}\n")
+        if new_bads:
+            from natsort import natsorted
+
+            fpath = self.output_dir / self.__class__.__name__ / "bad_channels.txt"
+            old_bads = []
+            if fpath.exists():
+                with open(fpath, "r") as f:
+                    old_bads = f.read().split()
+
+            with open(fpath, "w") as f:
+                bads = (
+                    natsorted(new_bads)
+                    if overwrite
+                    else natsorted(set(old_bads + new_bads))
+                )
+                for bad in bads:
+                    f.write(f"{bad}\n")
+
+    def save_annotations(self, overwrite=False):
+        """Writes annotations to "annotations.txt" file.
+
+        Args:
+            overwrite: Whether to overwrite the file if exists.
+                If False and the file exists will throw an exception.
+                Defaults to False.
+        """
+        self.mne_raw.annotations.save(
+            self.output_dir / self.__class__.__name__ / "annotations.txt",
+            overwrite=overwrite,
+        )
 
     def plot_sensors(
         self, legend: Iterable[str] = None, legend_args: dict = None, **kwargs
@@ -1143,7 +1162,7 @@ class SpectrumPlots(BaseTopomap, ABC):
             )
 
     @logger_wraps()
-    def _save_psds(self, overwrite):
+    def save_psds(self, overwrite):
         import re
 
         for stage, spectrum in self.psds.items():

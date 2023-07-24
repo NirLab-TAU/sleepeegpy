@@ -286,8 +286,6 @@ def create_dashboard(
         bandpass_filter_freqs[1],
     )
 
-    pipe.set_eeg_reference(ref_channels=ref_channels)
-
     if path_to_bad_channels is not None:
         pipe.read_bad_channels(path=path_to_bad_channels)
         bads = pipe.mne_raw.info["bads"]
@@ -297,6 +295,7 @@ def create_dashboard(
 
         bads = literal_eval(pipe.mne_raw.info["description"])
 
+    pipe.set_eeg_reference(ref_channels=ref_channels)
     s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
     min_psd, max_psd = _hypno_psd(
         s_pipe,

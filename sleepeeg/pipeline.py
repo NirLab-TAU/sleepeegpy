@@ -222,15 +222,15 @@ class ICAPipe(BasePipe):
 
     def plot_sources(self, **kwargs):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_sources`."""
-        self.mne_ica.plot_sources(inst=self.mne_raw, **kwargs)
+        return self.mne_ica.plot_sources(inst=self.mne_raw, **kwargs)
 
     def plot_components(self, **kwargs):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_components`."""
-        self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
+        return self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
 
     def plot_properties(self, picks=None, **kwargs):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_properties`."""
-        self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
+        return self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
 
     @logger_wraps()
     def apply(self, exclude=None, **kwargs):
@@ -321,7 +321,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 **psd_kwargs,
             )
         if save:
-            self._save_psds(overwrite)
+            self.save_psds(overwrite)
 
     @logger_wraps()
     def read_spectra(self, dirpath: str | None = None):
@@ -740,4 +740,4 @@ class GrandSpectralPipe(SpectrumPlots):
             self.psds[stage] = avg_func(spectra, axis=0)
 
         if save:
-            self._save_psds(overwrite)
+            self.save_psds(overwrite)
