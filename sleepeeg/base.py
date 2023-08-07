@@ -24,17 +24,17 @@ class BasePipe(ABC):
     """A base class for all per-subject pipeline segments."""
 
     prec_pipe: Type[BasePipeType] = field(default=None)
-    """Preceding pipe that hands over mne_raw attribute."""
+    """Preceding pipe that hands over mne_raw object and output_dir."""
 
     path_to_eeg: Path = field(converter=Path)
-    """Can be any file type supported by :py:func:`mne:mne.io.read_raw`.
+    """Can be any eeg file type supported by :py:func:`mne:mne.io.read_raw`.
     """
 
     @path_to_eeg.default
     def _set_path_to_eeg(self):
         if self.prec_pipe:
             return self.prec_pipe.path_to_eeg
-        raise TypeError('Provide either "pipe" or "path_to_eeg" arguments')
+        raise TypeError("Provide either 'pipe' or 'path_to_eeg' arguments")
 
     @path_to_eeg.validator
     def _validate_path_to_eeg(self, attr, value):
@@ -54,8 +54,10 @@ class BasePipe(ABC):
     def _validate_output_dir(self, attr, value):
         self.output_dir.mkdir(exist_ok=True)
         (self.output_dir / self.__class__.__name__).mkdir(exist_ok=True)
+        # Duplicate logging into file.
         logger.remove()
-        logger.add(self.output_dir / "pipeline.log")
+        logger.add(sys.stderr, level="INFO")
+        logger.add(self.output_dir / "pipeline.log", level="TRACE")
 
     mne_raw: mne.io.Raw = field(init=False)
     """An instanse of :py:class:`mne:mne.io.Raw`.
@@ -66,12 +68,6 @@ class BasePipe(ABC):
         if self.prec_pipe:
             return self.prec_pipe.mne_raw
         return mne.io.read_raw(self.path_to_eeg)
-
-    def _savefig(self, fname, fig=None, **kwargs):
-        if fig is None:
-            plt.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
-        else:
-            fig.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
 
     @property
     def sf(self):
@@ -100,6 +96,12 @@ class BasePipe(ABC):
             2,
         )
 
+    def _savefig(self, fname, fig=None, **kwargs):
+        if fig is None:
+            plt.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
+        else:
+            fig.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
+
     def plot(
         self,
         save_annotations: bool = False,
@@ -118,7 +120,8 @@ class BasePipe(ABC):
         """
         kwargs.setdefault("theme", "dark")
         kwargs.setdefault("bad_color", "r")
-        kwargs["block"] = True
+        if save_annotations or save_bad_channels:
+            kwargs["block"] = True
 
         self.mne_raw.plot(**kwargs)
 
@@ -239,20 +242,18 @@ class BasePipe(ABC):
 
 @define(kw_only=True, slots=False)
 class BaseHypnoPipe(BasePipe, ABC):
-    """A base class for the sleep stage analysis pipeline segments."""
+    """A base class for the sleep-stage-analysis pipeline segments."""
 
-    path_to_hypno: Path = field(converter=Path)
+    path_to_hypno: Path = field(
+        converter=lambda x: Path(x) if x else None, default=None
+    )
     """Path to hypnogram. Must be text file with every 
     row being int representing sleep stage for the epoch.
     """
 
-    @path_to_hypno.default
-    def _set_path_to_hypno(self):
-        return "/"
-
     @path_to_hypno.validator
     def _validate_path_to_hypno(self, attr, value):
-        if not value.exists():
+        if value is not None and not value.exists():
             raise FileNotFoundError(errno.ENOENT, os.strerror(errno.ENOENT), value)
 
     hypno_freq: float = field(converter=float)
@@ -275,9 +276,9 @@ class BaseHypnoPipe(BasePipe, ABC):
 
     @hypno.default
     def _import_hypno(self):
-        if self.prec_pipe and isinstance(self.prec_pipe, BaseHypnoPipe):
+        if isinstance(self.prec_pipe, BaseHypnoPipe):
             return self.prec_pipe.hypno
-        if self.path_to_hypno == Path("/"):
+        if self.path_to_hypno is None:
             return None
         return np.loadtxt(self.path_to_hypno)
 
@@ -294,7 +295,9 @@ class BaseHypnoPipe(BasePipe, ABC):
             self._upsample_hypno()
 
     def _upsample_hypno(self):
-        """Adapted from YASA."""
+        """Adapted from YASA.
+        Upsamples the hypnogram to the data's sampling frequency.
+        Crops or pads the hypnogram if needed."""
         repeats = self.sf / self.hypno_freq
         if self.hypno_freq > self.sf:
             raise ValueError(
@@ -308,7 +311,6 @@ class BaseHypnoPipe(BasePipe, ABC):
         npts_hyp = hypno_up.size
         npts_data = max(self.mne_raw.times.shape)  # Support for 2D data
         npts_diff = abs(npts_data - npts_hyp)
-        handler_id = logger.add(sys.stderr, format="{message}")
 
         if npts_hyp < npts_data:
             # Hypnogram is shorter than data
@@ -326,7 +328,6 @@ class BaseHypnoPipe(BasePipe, ABC):
             )
             hypno_up = hypno_up[0:npts_data]
         self.hypno_up = hypno_up
-        logger.remove(handler_id)
 
     @logger_wraps()
     def predict_hypno(
@@ -355,6 +356,8 @@ class BaseHypnoPipe(BasePipe, ABC):
             emg_name=emg_name,
         )
         hypno = sls.predict()
+
+        # Set hypno attributes according to the predicted hypnogram.
         self.hypno = hypno_str_to_int(hypno)
         self.hypno_freq = 1 / 30
         self._upsample_hypno()
@@ -395,32 +398,7 @@ class BaseHypnoPipe(BasePipe, ABC):
 
 
 @define(kw_only=True, slots=False)
-class BaseTopomap(ABC):
-    def _plot_topomap(self, data, axis, info=None, topomap_args=None, cbar_args=None):
-        from mne.viz import plot_topomap
-
-        topomap_args = topomap_args or dict()
-        topomap_args.setdefault("size", 5)
-        topomap_args.setdefault("show", False)
-        im, cn = plot_topomap(
-            data,
-            info if info else self.mne_raw.info,
-            axes=axis,
-            **topomap_args,
-        )
-
-        cbar_args = cbar_args or dict()
-        cbar_args.setdefault("shrink", 0.6)
-        cbar_args.setdefault("orientation", "vertical")
-        plt.colorbar(
-            im,
-            ax=axis,
-            **cbar_args,
-        )
-
-
-@define(kw_only=True, slots=False)
-class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
+class BaseEventPipe(BaseHypnoPipe, ABC):
     """A base class for event detection."""
 
     results = field(init=False)
@@ -489,6 +467,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         from more_itertools import collapse
         from natsort import natsort_keygen
         from seaborn import color_palette
+        from .utils import plot_topomap
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
@@ -496,6 +475,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         topomap_args.setdefault("cmap", color_palette("rocket_r", as_cmap=True))
         cbar_args.setdefault("label", prop)
 
+        # Get detection results df and sort it naturally by channel name.
         grouped_summary = (
             self.results.summary(grp_chan=True, grp_stage=True, aggfunc=aggfunc)
             .sort_values("Channel", key=natsort_keygen())
@@ -505,34 +485,34 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             sleep_stages[stage], grouped_summary["Stage"].unique()
         ).all(), "No such stage in the detected events, was it included in the detect method?"
 
-        is_new_axis = False
         if not axis:
             fig, axis = plt.subplots(**subplots_args)
-            is_new_axis = True
 
+        # Group by channel, average (median) per stage and sort channels again.
         per_stage = grouped_summary.loc[
             grouped_summary["Stage"].isin(collapse([sleep_stages[stage]]))
         ].groupby("Channel")
         per_stage = per_stage.mean() if aggfunc == "mean" else per_stage.median()
         per_stage = per_stage.sort_values("Channel", key=natsort_keygen()).reset_index()
 
+        # Create info with montage containing only channels where events were detected.
         info = self.mne_raw.copy().pick(list(per_stage["Channel"].unique())).info
 
         topomap_args.setdefault("vlim", (per_stage[prop].min(), per_stage[prop].max()))
-        self._plot_topomap(
+        plot_topomap(
             data=per_stage[prop],
             axis=axis,
             info=info,
             topomap_args=topomap_args,
             cbar_args=cbar_args,
         )
-        if is_new_axis:
+        if fig in locals():
             fig.suptitle(f"{stage} {self.__class__.__name__[:-4]} ({prop})")
-        if save and is_new_axis:
-            self._savefig(
-                f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png",
-                fig,
-            )
+            if save:
+                self._savefig(
+                    f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png",
+                    fig,
+                )
 
     @logger_wraps()
     def plot_topomap_collage(
@@ -563,13 +543,17 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             high_percentile: Set max color value by percentile of the property data.
                 Defaults to 95.
             save: Whether to save the figure. Defaults to False.
-            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
-            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
-            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.Defaults to None.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.
+                Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.
+                Defaults to None.
+            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.
+                Defaults to None.
 
         """
         from more_itertools import collapse
         from natsort import natsort_keygen
+        from .utils import plot_topomap
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
@@ -578,6 +562,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         topomap_args.setdefault("vlim", [None, None])
 
         if stages_to_plot == "all":
+            # Get all stages the events were detected for.
             stages_to_plot = {
                 k: v
                 for k, v in sleep_stages.items()
@@ -592,6 +577,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
 
         subfigs = fig.subfigures(n_rows, 1)
 
+        # Get detection results df and sort it naturally by channel name.
         grouped_summary = (
             self.results.summary(grp_chan=True, grp_stage=True, aggfunc=aggfunc)
             .sort_values("Channel", key=natsort_keygen())
@@ -611,6 +597,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         for col_index, prop in enumerate(props):
             for_perc = []
             for row_index, stage in enumerate(stages_to_plot):
+                # Group by channel, average (median) per stage and sort channels again.
                 per_stage = grouped_summary.loc[
                     grouped_summary["Stage"].isin(collapse([sleep_stages[stage]]))
                 ].groupby("Channel")
@@ -621,6 +608,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                     "Channel", key=natsort_keygen()
                 ).reset_index()
 
+                # Create info with montage containing only channels where events were detected.
                 info[row_index, col_index] = (
                     self.mne_raw.copy().pick(list(per_stage["Channel"].unique())).info
                 )
@@ -642,7 +630,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
                     topomap_args["vlim"][0] = perc_low[prop]
                 if high_percentile:
                     topomap_args["vlim"][1] = perc_high[prop]
-                self._plot_topomap(
+                plot_topomap(
                     data=data_per_stage_per_prop[row_index, col_index],
                     axis=axes[col_index],
                     info=info[row_index, col_index],
@@ -809,7 +797,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
 
 
 @define(kw_only=True, slots=False)
-class SpectrumPlots(BaseTopomap, ABC):
+class SpectrumPlots(ABC):
     """Plotting spectral data."""
 
     psds: dict = field(init=False, factory=dict)
@@ -946,6 +934,8 @@ class SpectrumPlots(BaseTopomap, ABC):
             cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
             subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
         """
+        from .utils import plot_topomap
+
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
         subplots_args = subplots_args or dict()
@@ -980,7 +970,7 @@ class SpectrumPlots(BaseTopomap, ABC):
             axis=1,
         ).sum(axis=1)
 
-        self._plot_topomap(
+        plot_topomap(
             data=psds,
             axis=axis,
             info=self.psds[stage].info,
@@ -1036,6 +1026,8 @@ class SpectrumPlots(BaseTopomap, ABC):
             cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
             figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.Defaults to None.
         """
+        from .utils import plot_topomap
+
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
         figure_args = figure_args or dict()
@@ -1099,7 +1091,7 @@ class SpectrumPlots(BaseTopomap, ABC):
                 if high_percentile:
                     topomap_args["vlim"][1] = perc_high[band_key]
 
-                self._plot_topomap(
+                plot_topomap(
                     data=psds_per_stage_per_band[row_index, col_index],
                     axis=axes[col_index],
                     info=self.psds[stage].info,
