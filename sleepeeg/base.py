@@ -1159,6 +1159,8 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         if isinstance(inst, dict):
             self.__setstate__(inst)
             return
+        # Get uniform segment length, otherwise avging won't be possible.
+        multitaper_segment_len = method_kw.pop("multitaper_segment_len", 2000)
         # do the basic setup
         super().__init__(
             inst,
@@ -1179,7 +1181,15 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         )
         # compute the spectra
         self._compute_spectra(
-            method, data, hypno, stage_idx, fmin, fmax, n_jobs, verbose
+            method,
+            data,
+            hypno,
+            stage_idx,
+            fmin,
+            fmax,
+            n_jobs,
+            verbose,
+            multitaper_segment_len=multitaper_segment_len,
         )
         # check for correct shape and bad values
         self._check_values()
@@ -1222,7 +1232,16 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
             return NotImplemented
 
     def _compute_spectra(
-        self, method, data, hypno, stage_idx, fmin, fmax, n_jobs, verbose
+        self,
+        method,
+        data,
+        hypno,
+        stage_idx,
+        fmin,
+        fmax,
+        n_jobs,
+        verbose,
+        multitaper_segment_len,
     ):
         """
         Weighted average for Welch's PSD.
@@ -1251,9 +1270,8 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         if method == "multitaper":
             from more_itertools import flatten
 
-            uniform_region_samples = 2000
             ranges = [
-                list(range(region.start, region.stop, uniform_region_samples))
+                list(range(region.start, region.stop, multitaper_segment_len))
                 for region in regions
             ]
             slice_ranges = flatten([list(zip(r[:-1], r[1:])) for r in ranges])
