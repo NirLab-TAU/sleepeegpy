@@ -224,13 +224,20 @@ class ICAPipe(BasePipe):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_sources`."""
         return self.mne_ica.plot_sources(inst=self.mne_raw, **kwargs)
 
-    def plot_components(self, **kwargs):
+    def plot_components(self, save=False, **kwargs):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_components`."""
-        return self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
+        fig = self.mne_ica.plot_components(inst=self.mne_raw, **kwargs)
+        if save:
+            self._savefig("ica_components.png", fig)
+        return fig
 
-    def plot_properties(self, picks=None, **kwargs):
+    def plot_properties(self, picks=None, save=False, **kwargs):
         """A wrapper for :py:meth:`mne:mne.preprocessing.ICA.plot_properties`."""
-        return self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
+        figs = self.mne_ica.plot_properties(self.mne_raw, picks=picks, **kwargs)
+        if save:
+            for i, fig in enumerate(figs):
+                self._savefig(f"proprety_{i}.png", fig)
+        return figs
 
     @logger_wraps()
     def apply(self, exclude=None, **kwargs):
@@ -434,8 +441,9 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
 
         # Save the figure if 'save' set to True
         if save and fig:
-            fig.savefig(
-                self.output_dir / self.__class__.__name__ / f"spectrogram.png",
+            self._savefig(
+                f"spectrogram.png",
+                fig,
                 bbox_inches="tight",
             )
 

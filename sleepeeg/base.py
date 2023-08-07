@@ -96,6 +96,12 @@ class BasePipe(ABC):
             print(f"Unexpected {err=}, {type(err)=}")
             raise
 
+    def _savefig(self, fname, fig=None, **kwargs):
+        if fig is None:
+            plt.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
+        else:
+            fig.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
+
     @property
     def sf(self):
         """A wrapper for :py:class:`raw.info["sfreq"] <mne:mne.Info>`.
@@ -388,11 +394,7 @@ class BaseHypnoPipe(BasePipe, ABC):
                 self.hypno,
                 fmt="%d",
             )
-            plt.savefig(
-                self.output_dir
-                / self.__class__.__name__
-                / "predicted_hypno_probabilities.png"
-            )
+            self._savefig("predicted_hypno_probabilities.png")
 
     def sleep_stats(self, save: bool = False):
         """A wrapper for :py:func:`yasa:yasa.sleep_statistics`.
@@ -473,13 +475,6 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
             index=False,
         )
 
-    def _save_avg_fig(self):
-        plt.savefig(
-            self.output_dir
-            / self.__class__.__name__
-            / f"{self.__class__.__name__[:-4].lower()}_avg.png"
-        )
-
     @logger_wraps()
     def plot_average(self, save: bool = False, **kwargs):
         """Plot average of the detected event.
@@ -490,7 +485,7 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         """
         self.results.plot_average(**kwargs)
         if save:
-            self._save_avg_fig()
+            self._savefig(f"{self.__class__.__name__[:-4].lower()}_avg.png")
 
     @logger_wraps()
     def plot_topomap(
@@ -563,10 +558,9 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
         if is_new_axis:
             fig.suptitle(f"{stage} {self.__class__.__name__[:-4]} ({prop})")
         if save and is_new_axis:
-            fig.savefig(
-                self.output_dir
-                / self.__class__.__name__
-                / f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png"
+            self._savefig(
+                f"topomap_{self.__class__.__name__[:-4].lower()}_{prop.lower()}.png",
+                fig,
             )
 
     @logger_wraps()
@@ -697,10 +691,8 @@ class BaseEventPipe(BaseHypnoPipe, BaseTopomap, ABC):
 
         fig.suptitle(f"{self.__class__.__name__[:-4]}", fontsize="xx-large")
         if save:
-            fig.savefig(
-                self.output_dir
-                / self.__class__.__name__
-                / f"topomap_{self.__class__.__name__[:-4].lower()}_collage.png"
+            self._savefig(
+                f"topomap_{self.__class__.__name__[:-4].lower()}_collage.png", fig
             )
 
     @logger_wraps()
@@ -954,7 +946,7 @@ class SpectrumPlots(BaseTopomap, ABC):
 
         # Save the figure if 'save' set to True and no axis has been passed.
         if save and is_new_axis:
-            fig.savefig(self.output_dir / self.__class__.__name__ / f"psd.png")
+            self._savefig(f"psd.png", fig)
 
     @logger_wraps()
     def plot_topomap(
@@ -1028,11 +1020,7 @@ class SpectrumPlots(BaseTopomap, ABC):
         if is_new_axis:
             fig.suptitle(f"{stage} ({b[0]}-{b[1]} Hz)")
         if save and is_new_axis:
-            fig.savefig(
-                self.output_dir
-                / self.__class__.__name__
-                / f"topomap_psd_{list(band)[0]}.png"
-            )
+            self._savefig(f"topomap_psd_{list(band)[0]}.png", fig)
 
     @logger_wraps()
     def plot_topomap_collage(
@@ -1157,9 +1145,7 @@ class SpectrumPlots(BaseTopomap, ABC):
             )
 
         if save:
-            fig.savefig(
-                self.output_dir / self.__class__.__name__ / f"topomap_psd_collage.png"
-            )
+            self._savefig(f"topomap_psd_collage.png", fig)
 
     @logger_wraps()
     def save_psds(self, overwrite):
