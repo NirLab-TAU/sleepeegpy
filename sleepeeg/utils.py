@@ -2,7 +2,7 @@ import functools
 from loguru import logger
 
 
-def fix_mff_epochs_xml(path_to_mff: str):
+def fix_mff_epochs_xml(path_to_mff: str, interval=(-5000, 5000), step=1000):
     """Tries to edit value of the last endTime
     tag from -5000 to 5000 with 1000 step.
 
@@ -21,12 +21,7 @@ def fix_mff_epochs_xml(path_to_mff: str):
     from mne import read_raw
 
     path_to_mff = Path(path_to_mff)
-    values = chain.from_iterable(
-        zip(
-            range(-1000, -6000, -1000),
-            range(1000, 6000, 1000),
-        )
-    )
+    values = range(interval[0], interval[1] + step, step)
     shutil.copyfile(
         path_to_mff / "epochs.xml",
         path_to_mff / "epochs_old.xml",

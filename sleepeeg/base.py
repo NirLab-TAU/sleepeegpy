@@ -65,36 +65,7 @@ class BasePipe(ABC):
     def _read_mne_raw(self):
         if self.prec_pipe:
             return self.prec_pipe.mne_raw
-
-        try:
-            return mne.io.read_raw(self.path_to_eeg)
-        except RuntimeError as err:
-            if "EGI epoch first/last samps" in str(err):
-                from .utils import fix_mff_epochs_xml
-
-                logger.warning(
-                    "Trying to fix epochs.xml from the .mff, "
-                    "original file will be saved as epochs_old.xml"
-                )
-
-                value = fix_mff_epochs_xml(self.path_to_eeg)
-
-                if value:
-                    logger.info(
-                        f"epochs.xml were fixed successfully (endTime {value}), "
-                        "proceeding with loading the .mff file."
-                    )
-                else:
-                    logger.error(
-                        "No success in fixing epochs.xml, try to debug it manually"
-                    )
-                    raise err
-
-            else:
-                raise
-        except Exception as err:
-            print(f"Unexpected {err=}, {type(err)=}")
-            raise
+        return mne.io.read_raw(self.path_to_eeg)
 
     def _savefig(self, fname, fig=None, **kwargs):
         if fig is None:
