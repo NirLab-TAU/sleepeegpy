@@ -56,7 +56,8 @@ class BasePipe(ABC):
         (self.output_dir / self.__class__.__name__).mkdir(exist_ok=True)
         # Duplicate logging into file.
         logger.remove()
-        logger.add(sys.stderr, level="INFO")
+        fmt = "{message}"
+        logger.add(sys.stderr, level="INFO", format=fmt)
         logger.add(self.output_dir / "pipeline.log", level="TRACE")
 
     mne_raw: mne.io.Raw = field(init=False)
@@ -233,11 +234,11 @@ class BasePipe(ABC):
             projection: :py:meth:`projection <mne:mne.io.Raw.set_eeg_reference>`. Defaults to False.
             **kwargs: Additional arguments passed to :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
         """
-        if not projection:
-            logger.info(f"{ref_channels} reference has been applied")
         self.mne_raw.load_data().set_eeg_reference(
             ref_channels=ref_channels, projection=projection, **kwargs
         )
+        if not projection:
+            logger.info(f"{ref_channels} reference has been applied")
 
 
 @define(kw_only=True, slots=False)
@@ -481,9 +482,12 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             .sort_values("Channel", key=natsort_keygen())
             .reset_index()
         )
-        assert np.isin(
-            sleep_stages[stage], grouped_summary["Stage"].unique()
-        ).all(), "No such stage in the detected events, was it included in the detect method?"
+
+        if not np.isin(sleep_stages[stage], grouped_summary["Stage"].unique()).all():
+            raise KeyError(
+                f"The {stage} stage is absent in the detected events, "
+                "was it included in the detect method?"
+            )
 
         if not axis:
             fig, axis = plt.subplots(**subplots_args)
@@ -506,7 +510,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             topomap_args=topomap_args,
             cbar_args=cbar_args,
         )
-        if fig in locals():
+        if "fig" in locals():
             fig.suptitle(f"{stage} {self.__class__.__name__[:-4]} ({prop})")
             if save:
                 self._savefig(
@@ -638,6 +642,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
                     cbar_args=cbar_args,
                 )
                 axes[col_index].set_title(f"{prop}")
+
             n_spindles = int(
                 self.results.summary(grp_chan=False, grp_stage=True).loc[
                     sleep_stages[stage]
@@ -699,6 +704,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         tfr_kwargs["output"] = "avg_power"
 
         freqs = np.linspace(freqs[0], freqs[1], n_freqs)
+        # Get df with eeg signal per detected event.
         df_raw = self.results.get_sync_events(
             time_before=time_before, time_after=time_after
         )[["Event", "Amplitude", "Channel", "Stage"]]
@@ -707,12 +713,13 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
 
         for stage in df_raw["Stage"].unique():
             df = df_raw[df_raw["Stage"] == stage]
-            # Group amplitudes by channel and events
             df = df.groupby(["Channel", "Event"], group_keys=True).apply(
                 lambda x: x["Amplitude"]
             )
 
-            # Create dict for every channel and values with array of shape (n_events, 1, n_event_times)
+            # As number of events ("epochs") per channel is heterogeneous,
+            # for every channel create dict mapping channel and
+            # data array of shape (n_events, 1, n_event_times)
             for_tfrs = {
                 channel: np.expand_dims(
                     np.array(
@@ -725,35 +732,37 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
                 for channel, events_df in df.groupby(level=0)
             }
 
-            # Calculate tfrs
+            # Calculate tfrs per channel
             if method == "morlet":
                 tfrs = {
                     channel: mne.time_frequency.tfr_array_morlet(
-                        v,
+                        data,
                         self.sf,
                         freqs,
                         **tfr_kwargs,
                     )
-                    for channel, v in tqdm(for_tfrs.items())
+                    for channel, data in tqdm(for_tfrs.items())
                 }
             elif method == "multitaper":
                 tfrs = {
                     channel: mne.time_frequency.tfr_array_multitaper(
-                        v,
+                        data,
                         self.sf,
                         freqs,
                         **tfr_kwargs,
                     )
-                    for channel, v in tqdm(for_tfrs.items())
+                    for channel, data in tqdm(for_tfrs.items())
                 }
-            # Sort and combine
+            # Sort by channel and combine
             data = np.squeeze(
                 np.array([tfr for channel, tfr in natsorted(tfrs.items())])
             )
 
-            # Matrix should be 3D, so if there was only one channel - need to expand.
+            # Matrix should be 3D, so if there was
+            # only one channel with events - need to expand.
             if data.ndim == 2:
                 data = np.expand_dims(data, axis=0)
+            # Construct AverageTFR object from computed tfrs.
             self.tfrs[sleep_stages[stage]] = mne.time_frequency.AverageTFR(
                 info=self.mne_raw.copy().pick(list(tfrs.keys())).info,
                 data=data,
@@ -839,16 +848,15 @@ class SpectrumPlots(ABC):
 
         legend_args = legend_args or dict()
 
-        is_new_axis = False
-
         if not axis:
             fig, axis = plt.subplots(**subplots_kw)
-            is_new_axis = True
 
         for stage, spectrum in self.psds.items():
+            # In case picks contain multiple channels - their powers will be avged.
             psds = np.mean(
                 spectrum._data[_picks_to_idx(spectrum.info, picks=picks), :], axis=0
             )
+            # Convert from Volts^2/Hz to microVolts^2/Hz or dB.
             psds = 10 * np.log10(10**12 * psds) if dB else 10**12 * psds
             axis.plot(
                 spectrum._freqs,
@@ -874,7 +882,6 @@ class SpectrumPlots(ABC):
 
             from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 
-            # color = "cyan"
             axins = inset_axes(axis, width="30%", height="30%", loc="lower left")
             psd_channels = _picks_to_idx(self.mne_raw.info, picks)
 
@@ -904,7 +911,7 @@ class SpectrumPlots(ABC):
             )
 
         # Save the figure if 'save' set to True and no axis has been passed.
-        if save and is_new_axis:
+        if "fig" in locals() and save:
             self._savefig(f"psd.png", fig)
 
     @logger_wraps()
@@ -944,21 +951,21 @@ class SpectrumPlots(ABC):
             "label",
             r"$\mu V^{2}/Hz$ (dB)" if dB else r"$\mu V^{2}/Hz$",
         )
-        assert stage in self.psds, f"{stage} is not in self.psds"
-
-        is_new_axis = False
+        if stage not in self.psds:
+            raise KeyError(f"The {stage} stage is not in self.psds")
 
         if axis is None:
             fig, axis = plt.subplots(**subplots_args)
-            is_new_axis = True
 
         [(_, b)] = band.items()
 
+        # Convert from Volts^2/Hz to microVolts^2/Hz or dB.
         psds = (
             10 * np.log10(10**12 * self.psds[stage]._data)
             if dB
             else 10**12 * self.psds[stage]._data
         )
+        # Extract PSD values from specific stage for frequencies of interest.
         psds = np.take(
             psds,
             np.where(
@@ -968,7 +975,9 @@ class SpectrumPlots(ABC):
                 )
             )[0],
             axis=1,
-        ).sum(axis=1)
+        ).sum(
+            axis=1
+        )  # Sum vs Mean vs Median?
 
         plot_topomap(
             data=psds,
@@ -978,10 +987,11 @@ class SpectrumPlots(ABC):
             cbar_args=cbar_args,
         )
 
-        if is_new_axis:
+        if "fig" in locals():
             fig.suptitle(f"{stage} ({b[0]}-{b[1]} Hz)")
-        if save and is_new_axis:
-            self._savefig(f"topomap_psd_{list(band)[0]}.png", fig)
+
+            if save:
+                self._savefig(f"topomap_psd_{list(band)[0]}.png", fig)
 
     @logger_wraps()
     def plot_topomap_collage(
@@ -1065,6 +1075,7 @@ class SpectrumPlots(ABC):
                     if dB
                     else 10**12 * self.psds[stage]._data
                 )
+                # Extract PSD values from specific stage for frequencies of interest.
                 psds = np.take(
                     psds,
                     np.where(
@@ -1075,6 +1086,7 @@ class SpectrumPlots(ABC):
                     )[0],
                     axis=1,
                 ).sum(axis=1)
+
                 for_perc.append(psds)
                 psds_per_stage_per_band[row_index, col_index] = psds
             if low_percentile:
@@ -1112,6 +1124,11 @@ class SpectrumPlots(ABC):
 
     @logger_wraps()
     def save_psds(self, overwrite):
+        """Saves SleepSpectrum objects to h5 files.
+
+        Args:
+            overwrite: Whether to overwrite existing spectrum files.
+        """
         import re
 
         for stage, spectrum in self.psds.items():
@@ -1126,7 +1143,7 @@ class SpectrumPlots(ABC):
 class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
     """Spectral representation of sleep stage data.
 
-    Adapted from `MNE <https://mne.tools/stable/index.html>`_.
+    Adapted from :py:class:`mne:mne.time_frequency.Spectrum`.
     """
 
     def __init__(
@@ -1246,19 +1263,19 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
         psds_list = []
         weights = []
         n_samples = 0
-        try:
-            regions = collapse(
-                ndimage.find_objects(
-                    ndimage.label(
-                        np.logical_or.reduce([hypno == i for i in stage_idx])
-                    )[0]
-                )
-            )
-        except TypeError:
-            regions = collapse(
-                ndimage.find_objects(ndimage.label(hypno == stage_idx)[0])
-            )
 
+        # Two cases: when one stage is provided as integer vs
+        # when multiple stages as list, e.g., 'NREM': (1,2,3).
+        try:
+            stage_mask = np.logical_or.reduce([hypno == i for i in stage_idx])
+        except TypeError:
+            stage_mask = hypno == stage_idx
+
+        # Get regions with the sleep stage of interest.
+        regions = collapse(ndimage.find_objects(ndimage.label(stage_mask)[0]))
+
+        # If multitaper, split signal into uniform segments.
+        # If segment is smaller than 'multitaper_segment_len' it will be discarded.
         if method == "multitaper":
             from more_itertools import flatten
 
@@ -1270,11 +1287,12 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
             regions = [slice(z[0], z[1]) for z in slice_ranges]
 
         for region in regions:
+            # For weighting.
             n_samples_per_region = np.count_nonzero(~np.isnan(data[:, region]), axis=1)[
                 0
             ]
 
-            # make the spectra
+            # Compute the spectra
             psds, freqs = self._psd_func(
                 data[:, region],
                 self.sfreq,
@@ -1287,15 +1305,18 @@ class SleepSpectrum(mne.time_frequency.spectrum.BaseSpectrum):
             weights.append(n_samples_per_region)
             n_samples += n_samples_per_region
 
-        # avg_psds = np.average(np.array(psds_list), weights=weights, axis=0)
+        # If there are nans in PSD, mask'em.
         masked_data = np.ma.masked_array(
             np.array(psds_list), np.isnan(np.array(psds_list))
         )
+        # Weighted average
         average = np.ma.average(masked_data, weights=weights, axis=0)
         avg_psds = average.filled(np.nan)
 
         self._data = avg_psds
         self._freqs = freqs
+
+        # Save percentage of the sleep stage.
         self.info["description"] = str(round(n_samples / n_samples_total * 100, 2))
         # this is *expected* shape, it gets asserted later in _check_values()
         # (and then deleted afterwards)

@@ -1,7 +1,6 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
 
-from collections import defaultdict
 from collections.abc import Iterable
 from pathlib import Path
 from typing import TypeVar
@@ -9,7 +8,6 @@ from typing import TypeVar
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
-import pandas as pd
 from attrs import define, field
 from loguru import logger
 
@@ -98,7 +96,12 @@ class CleaningPipe(BasePipe):
             else self.output_dir / self.__class__.__name__ / "bad_channels.txt"
         )
         with open(p, "r") as f:
-            self.mne_raw.info["bads"] = list(filter(None, f.read().split("\n")))
+            lines = list(filter(None, f.read().split("\n")))
+            if not set(lines).issubset(self.mne_raw.info.ch_names):
+                raise ValueError(
+                    "The file contains lines with nonexistent channel names."
+                )
+            self.mne_raw.info["bads"] = lines
 
     def read_annotations(self, path: str | None = None):
         """Imports annotations from file to mne raw object
@@ -123,7 +126,6 @@ class CleaningPipe(BasePipe):
             **interp_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.interpolate_bads`.
         """
         from ast import literal_eval
-
         from natsort import natsorted
 
         bads = self.mne_raw.info["bads"]
@@ -255,9 +257,9 @@ class ICAPipe(BasePipe):
             fname: filename for the ica file being saved. Defaults to "data-ica.fif".
             overwrite: Whether to overwrite the file. Defaults to False.
         """
-        fif_folder = self.output_dir / self.__class__.__name__
-        fif_folder.mkdir(exist_ok=True)
-        self.mne_ica.save(fif_folder / fname, overwrite=overwrite)
+        self.mne_ica.save(
+            self.output_dir / self.__class__.__name__ / fname, overwrite=overwrite
+        )
 
 
 @define(kw_only=True)
@@ -305,7 +307,8 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             verbose: Control verbosity of the logging output.
                 If None, use the default verbosity level. Defaults to False.
             **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
-                or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
+                or :py:func:`mne:mne.time_frequency.psd_array_multitaper` and 'multitaper_segments_len'
+                for length of the uniform segments.
         """
         inst = self.mne_raw.copy().load_data()
         if reference is not None:
@@ -340,17 +343,14 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             dirpath: Path to the directory containing hdf5 files. Defaults to None.
         """
         import re
-        from pathlib import Path
-
         from mne.time_frequency import read_spectrum
 
         r = f"(.+)(?:-psd.h5)"
-        self.tfrs = dict()
         dirpath = (
             Path(dirpath) if dirpath else self.output_dir / self.__class__.__name__
         )
         for p in dirpath.glob("*psd.h5"):
-            m = re.search(r, str(p))
+            m = re.search(r, str(p.name))
             if m:
                 self.psds[m.groups()[0]] = read_spectrum(p)
 
@@ -397,7 +397,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             if axis is None:
                 fig, axis = plt.subplots(nrows=1, figsize=(12, 4))
 
-            im = self.__plot_spectrogram(
+            im = self._plot_spectrogram(
                 data,
                 self.sf,
                 win_sec,
@@ -409,7 +409,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             )
             if self.hypno_up is not None:
                 ax_hypno = axis.twinx()
-                self.__plot_hypnogram(self.sf, self.hypno_up, ax_hypno)
+                self._plot_hypnogram(self.sf, self.hypno_up, ax_hypno)
             # Add colorbar
             cbar = plt.colorbar(im, ax=axis, shrink=0.95, fraction=0.1, aspect=25)
             cbar.ax.set_ylabel(r"$\mu V^{2}/Hz$ (dB)", rotation=90)
@@ -426,9 +426,9 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
 
             if self.hypno_up is not None:
                 # Hypnogram (top axis)
-                self.__plot_hypnogram(self.sf, self.hypno_up, ax0)
+                self._plot_hypnogram(self.sf, self.hypno_up, ax0)
             # Spectrogram (bottom axis)
-            self.__plot_spectrogram(
+            self._plot_spectrogram(
                 data,
                 self.sf,
                 win_sec,
@@ -448,7 +448,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             )
 
     @staticmethod
-    def __plot_hypnogram(sf, hypno, ax0):
+    def _plot_hypnogram(sf, hypno, ax0):
         """Adapted from :py:func:`yasa:yasa.plot_hypnogram`."""
         from pandas import Series
 
@@ -487,7 +487,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
         return ax0
 
     @staticmethod
-    def __plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
+    def _plot_spectrogram(data, sf, win_sec, fmin, fmax, trimperc, cmap, ax):
         """Adapted from :py:func:`yasa:yasa.plot_spectrogram`."""
         import numpy as np
         from lspopt import spectrogram_lspopt
@@ -678,7 +678,8 @@ class GrandSpectralPipe(SpectrumPlots):
         self.output_dir.mkdir(exist_ok=True)
         (self.output_dir / self.__class__.__name__).mkdir(exist_ok=True)
         logger.remove()
-        logger.add(self.output_dir / "pipeline.log")
+        logger.add(sys.stderr, level="INFO")
+        logger.add(self.output_dir / "pipeline.log", level="TRACE")
 
     mne_raw: mne.io.Raw = field(init=False)
     """Representative raw object to infer montage"""

@@ -124,7 +124,7 @@ def _hypno_psd(
     return min_psd, max_psd
 
 
-def _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topo_lims):
+def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
     if len(sleep_stages) == 1:
         stages = ["All"] * 4
         topo_axes[0, 0].set_title(f"Alpha (8-12 Hz)")
@@ -138,7 +138,7 @@ def _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topo_lims):
         topo_axes[1, 0].set_title(f"{stages[2]}, Delta (0.5-4 Hz)")
         topo_axes[1, 1].set_title(f"{stages[3]}, Theta (4-8 Hz)")
 
-    if ref_channels != "average":
+    if reference != "average":
         s_pipe.compute_psds_per_stage(
             sleep_stages=sleep_stages,
             reference="average",
@@ -201,7 +201,7 @@ def create_dashboard(
     path_to_bad_channels: str | os.PathLike | None,
     path_to_annotations: str | os.PathLike | None,
     output_dir: str | os.PathLike,
-    reference: str,
+    reference: Iterable[str] | str | None = None,
     resampling_freq: float | None = None,
     bandpass_filter_freqs: Iterable[float | None] = None,
     hypno_psd_pick: Iterable[str] | str = ["E101"],
@@ -210,22 +210,31 @@ def create_dashboard(
     topomap_cbar_limits: Sequence[tuple[float, float]] | None = None,
 ):
     """Applies cleaning, runs psd analyses and plots them on the dashboard.
+    Can accept raw, resampled, filtered or cleaned (annotated) recording,
+    but not after ica component exclusion.
+    If annotated recording with already interpolated channels is provided -
+    the interpolated channels will be extracted from mne_raw.info['description'].
 
     Args:
-        subject_code: Subject code
-        path_to_eeg: Path to the raw mff file
-        resampling_freq: New frequency in Hz
-        path_to_hypnogram: Path to the hypnogram yasa-style hypnogram
+        subject_code: Subject code.
+        path_to_eeg: Path to the raw mff file.
+        path_to_hypnogram: Path to the hypnogram yasa-style hypnogram.
         hypno_freq: Sampling rate of the hypnogram in Hz.
         path_to_bad_channels: Path to bad_channels.txt saved by plot() method.
         path_to_annotations: Path to annotations saved by plot() method.
-        bandpass_filter_freqs: Lower and upper bounds of the filter.
-        reference: Reference to apply. Can be "mastoids", "average" or "VREF".
         output_dir: Directory to save the dashboard image in.
-        sleep_stages: Mapping between stage names and indices in hypnogram.
-            Defaults to {"Wake": 0, "N1": 1, "N2/3": (2, 3), "REM": 4}.
+        reference: Reference to apply as accepts
+            :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
+            Defaults to None.
+        resampling_freq: New frequency in Hz. Defaults to None.
+        bandpass_filter_freqs: Lower and upper bounds of the filter.
+            Defaults to None.
+        hypno_psd_pick: Channel to compute spectrogram and PSD plots for.
+            Defaults to ['E101'].
         path_to_ica_fif: Path to ica components file. Defaults to None.
         save_fif: Whether to save cleaned fif. Defaults to False.
+        topomap_cbar_limits: Power limits for topography plots.
+            If None - will be adaptive. Defaults to None.
     """
 
     if bandpass_filter_freqs is None:
@@ -235,23 +244,6 @@ def create_dashboard(
         is_adaptive_topo = True
     else:
         is_adaptive_topo = False
-
-    if isinstance(reference, str):
-        if reference.lower() == "mastoids":
-            reference = "Mastoids"
-            ref_channels = ["E94", "E190"]
-        elif reference.lower() == "average":
-            reference = "Average"
-            ref_channels = "average"
-        elif reference.lower() == "vref":
-            reference = "VREF"
-            ref_channels = ["VREF"]
-        else:
-            raise ValueError(
-                f"reference should be either 'average', 'VREF' or 'mastoids'"
-            )
-    else:
-        raise TypeError(f"reference type should be str, but got {type(reference)}")
 
     fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
     gs = fig.add_gridspec(5, 4)
@@ -295,7 +287,7 @@ def create_dashboard(
 
         bads = literal_eval(pipe.mne_raw.info["description"])
 
-    pipe.set_eeg_reference(ref_channels=ref_channels)
+    pipe.set_eeg_reference(ref_channels=reference)
     s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
     min_psd, max_psd = _hypno_psd(
         s_pipe,
@@ -377,6 +369,6 @@ def create_dashboard(
         rba=True,
     )
 
-    _topo(s_pipe, ref_channels, sleep_stages, topo_axes, topomap_cbar_limits)
+    _topo(s_pipe, reference, sleep_stages, topo_axes, topomap_cbar_limits)
 
     fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")
