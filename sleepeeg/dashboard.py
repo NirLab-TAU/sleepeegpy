@@ -4,6 +4,7 @@ from collections.abc import Iterable, Sequence
 
 import numpy as np
 import matplotlib.pyplot as plt
+from matplotlib.colors import LinearSegmentedColormap
 from mne import pick_types
 from mne.io.pick import _picks_to_idx
 
@@ -315,13 +316,15 @@ def create_dashboard(
         pipe.save_raw(fname="dashboard_cleaned_raw.fif", overwrite=True)
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
+    cmap = LinearSegmentedColormap.from_list("", ["red", "red"])
     pipe.plot_sensors(
-        legend=["", "", "", "", "", "", "Interpolated", ""],
+        legend=["Interpolated"],
         axes=info_axes[0],
         legend_args=dict(loc="lower left", bbox_to_anchor=(-0.1, 0), fontsize="small"),
-        ch_groups=[[], [], [], [], [], [], interpolated, []],
+        ch_groups=[interpolated],
         pointsize=20,
         linewidth=1.5,
+        cmap=cmap,
     )
 
     recording_time = time.strftime(

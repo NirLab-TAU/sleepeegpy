@@ -191,13 +191,16 @@ class BasePipe(ABC):
         ch_groups = kwargs.pop("ch_groups", None)
         axes = kwargs.pop("axes", None)
         kwargs.setdefault("show", False)
-
+        cmap = kwargs.pop("cmap", None)
         fig = mne.viz.plot_sensors(
-            self.mne_raw.info, ch_groups=ch_groups, axes=axes, **kwargs
+            self.mne_raw.info, ch_groups=ch_groups, axes=axes, cmap=cmap, **kwargs
         )
         if axes is None:
             axes = fig.axes[0]
         if legend:
+            from mne.viz.utils import _get_cmap
+
+            colormap = _get_cmap(cmap)
             if not len(legend) == len(ch_groups):
                 raise ValueError(
                     "Length of the legend and of the ch_groups should be equal"
@@ -205,7 +208,7 @@ class BasePipe(ABC):
 
             patches = []
             colors = np.linspace(0, 1, len(ch_groups))
-            color_vals = [plt.cm.jet(colors[i]) for i in range(len(ch_groups))]
+            color_vals = [colormap(colors[i]) for i in range(len(ch_groups))]
             for i, color in enumerate(color_vals):
                 if legend[i]:
                     patches.append(mpatches.Patch(color=color, label=legend[i]))
@@ -879,10 +882,9 @@ class SpectrumPlots(ABC):
 
         if plot_sensors:
             from ast import literal_eval
+            from matplotlib.colors import LinearSegmentedColormap
 
-            from mpl_toolkits.axes_grid1.inset_locator import inset_axes
-
-            axins = inset_axes(axis, width="30%", height="30%", loc="lower left")
+            axins = axis.inset_axes([0.0, 0.0, 0.3, 0.3])
             psd_channels = _picks_to_idx(self.mne_raw.info, picks)
 
             try:
@@ -894,11 +896,25 @@ class SpectrumPlots(ABC):
                 _picks_to_idx(self.mne_raw.info, interpolated) if interpolated else None
             )
 
+            if interpolated is not None:
+                both = list(set(psd_channels) & set(interpolated))
+                psd_channels = [x for x in psd_channels if x not in both]
+                interpolated = [x for x in interpolated if x not in both]
+            else:
+                both = None
+            both = both if both else None
             ch_groups = {
                 k: v
-                for k, v in {"PSD": psd_channels, "Interpolated": interpolated}.items()
+                for k, v in {
+                    "Interpolated": interpolated,
+                    "PSD & Interp": both,
+                    "PSD": psd_channels,
+                }.items()
                 if v is not None
             }
+            cmap = LinearSegmentedColormap.from_list(
+                "", ["red", "magenta", "blue"], N=len(ch_groups)
+            )
             self.plot_sensors(
                 legend=list(ch_groups.keys()),
                 axes=axins,
@@ -908,6 +924,7 @@ class SpectrumPlots(ABC):
                 ch_groups=list(ch_groups.values()),
                 pointsize=7,
                 linewidth=0.7,
+                cmap=cmap,
             )
 
         # Save the figure if 'save' set to True and no axis has been passed.
