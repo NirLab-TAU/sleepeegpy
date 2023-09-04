@@ -207,7 +207,6 @@ def create_dashboard(
     bandpass_filter_freqs: Iterable[float | None] = None,
     hypno_psd_pick: Iterable[str] | str = ["E101"],
     path_to_ica_fif: str | os.PathLike = None,
-    save_fif: bool = False,
     topomap_cbar_limits: Sequence[tuple[float, float]] | None = None,
 ):
     """Applies cleaning, runs psd analyses and plots them on the dashboard.
@@ -233,7 +232,6 @@ def create_dashboard(
         hypno_psd_pick: Channel to compute spectrogram and PSD plots for.
             Defaults to ['E101'].
         path_to_ica_fif: Path to ica components file. Defaults to None.
-        save_fif: Whether to save cleaned fif. Defaults to False.
         topomap_cbar_limits: Power limits for topography plots.
             If None - will be adaptive. Defaults to None.
     """
@@ -311,9 +309,6 @@ def create_dashboard(
         is_ica = True
         pipe = ICAPipe(prec_pipe=pipe, path_to_ica=path_to_ica_fif)
         pipe.apply()
-
-    if save_fif:
-        pipe.save_raw(fname="dashboard_cleaned_raw.fif", overwrite=True)
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     cmap = LinearSegmentedColormap.from_list("", ["red", "red"])

@@ -28,7 +28,7 @@ class CleaningPipe(BasePipe):
     """
 
     @logger_wraps()
-    def resample(self, sfreq: float = 250, save: bool = False, **resample_kwargs):
+    def resample(self, sfreq: float = 250, **resample_kwargs):
         """A wrapper for :py:meth:`mne:mne.io.Raw.resample`
         with an additional option to save the resampled data to file.
 
@@ -38,19 +38,6 @@ class CleaningPipe(BasePipe):
             **resample_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.resample`.
         """
         self.mne_raw.resample(sfreq=sfreq, **resample_kwargs)
-        if save:
-            self.save_raw(
-                "_".join(
-                    filter(
-                        None,
-                        [
-                            "resampled",
-                            str(sfreq) + "hz",
-                            "raw.fif",
-                        ],
-                    )
-                )
-            )
 
     @logger_wraps()
     def filter(
