@@ -992,7 +992,7 @@ class SpectrumPlots(ABC):
                 )
             )[0],
             axis=1,
-        ).sum(
+        ).mean(
             axis=1
         )  # Sum vs Mean vs Median?
 
@@ -1102,7 +1102,7 @@ class SpectrumPlots(ABC):
                         )
                     )[0],
                     axis=1,
-                ).sum(axis=1)
+                ).mean(axis=1)
 
                 for_perc.append(psds)
                 psds_per_stage_per_band[row_index, col_index] = psds
