@@ -97,6 +97,25 @@ class BasePipe(ABC):
             2,
         )
 
+    @logger_wraps()
+    def interpolate_bads(self, **interp_kwargs):
+        """A wrapper for :py:meth:`mne:mne.io.Raw.interpolate_bads`
+
+        Args:
+            **interp_kwargs: Arguments passed to :py:meth:`mne:mne.io.Raw.interpolate_bads`.
+        """
+        from ast import literal_eval
+        from natsort import natsorted
+
+        bads = self.mne_raw.info["bads"]
+        self.mne_raw.load_data().interpolate_bads(**interp_kwargs)
+        try:
+            old_interp = literal_eval(self.mne_raw.info["description"])
+        except:
+            old_interp = []
+        self.mne_raw.info["description"] = str(natsorted(set(old_interp + bads)))
+        logger.info(f"Interpolated channels: {bads}")
+
     def _savefig(self, fname, fig=None, **kwargs):
         if fig is None:
             plt.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
@@ -131,47 +150,6 @@ class BasePipe(ABC):
 
         if save_bad_channels:
             self.save_bad_channels(overwrite=overwrite)
-
-    def save_bad_channels(self, overwrite=False):
-        """Adds bad channels from info["bads"] to the "bad_channels.txt" file.
-
-        Args:
-            overwrite: Whether to overwrite the file if exists.
-                If False will add unique new channels to the file.
-                Defaults to False.
-        """
-        new_bads = self.mne_raw.info["bads"]
-
-        if new_bads:
-            from natsort import natsorted
-
-            fpath = self.output_dir / self.__class__.__name__ / "bad_channels.txt"
-            old_bads = []
-            if fpath.exists():
-                with open(fpath, "r") as f:
-                    old_bads = f.read().split()
-
-            with open(fpath, "w") as f:
-                bads = (
-                    natsorted(new_bads)
-                    if overwrite
-                    else natsorted(set(old_bads + new_bads))
-                )
-                for bad in bads:
-                    f.write(f"{bad}\n")
-
-    def save_annotations(self, overwrite=False):
-        """Writes annotations to "annotations.txt" file.
-
-        Args:
-            overwrite: Whether to overwrite the file if exists.
-                If False and the file exists will throw an exception.
-                Defaults to False.
-        """
-        self.mne_raw.annotations.save(
-            self.output_dir / self.__class__.__name__ / "annotations.txt",
-            overwrite=overwrite,
-        )
 
     def plot_sensors(
         self, legend: Iterable[str] = None, legend_args: dict = None, **kwargs
