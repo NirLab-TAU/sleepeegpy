@@ -649,6 +649,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         time_after: float,
         method: str = "morlet",
         save: bool = False,
+        overwrite: bool = False,
         **tfr_kwargs,
     ):
         """Transforms the events signal to time-frequency representation.
@@ -660,6 +661,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             time_after: Seconds after the event peak to get from the real data
             method: TFR transform method. Defaults to "morlet".
             save: Whether to save the TFRs to file. Defaults to False.
+            overwrite: Whether to overwrite existing TFR files.
             **tfr_kwargs: Arguments passed to :py:func:`mne:mne.time_frequency.tfr_array_morlet`
                 or :py:func:`mne:mne.time_frequency.tfr_array_multitaper`.
         """
@@ -761,7 +763,8 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
                 tfr.save(
                     self.output_dir
                     / self.__class__.__name__
-                    / f"{self.__class__.__name__[:-4].lower()}_{stage}-tfr.h5"
+                    / f"{self.__class__.__name__[:-4].lower()}_{stage}-tfr.h5",
+                    overwrite=overwrite,
                 )
 
     @logger_wraps()

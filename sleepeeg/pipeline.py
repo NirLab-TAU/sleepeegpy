@@ -4,10 +4,12 @@
 from collections.abc import Iterable
 from pathlib import Path
 from typing import TypeVar
+import sys
 
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
+
 from attrs import define, field
 from loguru import logger
 
@@ -279,6 +281,10 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     spectrogram and topomaps per sleep stage.
     """
 
+    fooofs: dict = field(init=False, factory=dict)
+    """Instances of :py:class:`fooof:fooof.FOOOF` per sleep stage.
+    """
+
     @logger_wraps()
     def compute_psds_per_stage(
         self,
@@ -341,6 +347,36 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             )
         if save:
             self.save_psds(overwrite)
+
+    @logger_wraps()
+    def parametrize(self, picks, freq_range=None, average_ch=False, **kwargs):
+        """Spectral parametrization by :std:doc:`fooof:index`.
+
+        Args:
+            picks: Channels to use in parametrization.
+            freq_range: Range of frequencies to parametrize.
+                If None, set to bandpass filter boundaries. Defaults to None.
+            average_ch: Whether to average psds over channels.
+                If False or and multiple channels are provided, the FOOOFGroup will be used.
+                Defaults to False.
+            **kwargs: Arguments passed to :py:class:`fooof:fooof.FOOOF`.
+        """
+        if freq_range is None:
+            freq_range = (self.mne_raw.info["highpass"], self.mne_raw.info["lowpass"])
+        for stage, spectrum in self.psds.items():
+            psd, freqs = spectrum.get_data(picks=picks, return_freqs=True)
+
+            if average_ch or np.squeeze(psd).ndim == 1:
+                from fooof import FOOOF
+
+                self.fooofs[stage] = FOOOF(**kwargs)
+                psd = psd.mean(axis=0)
+            else:
+                from fooof import FOOOFGroup
+
+                self.fooofs[stage] = FOOOFGroup(**kwargs)
+
+            self.fooofs[stage].fit(freqs, psd, freq_range)
 
     @logger_wraps()
     def read_spectra(self, dirpath: str | None = None):
@@ -589,6 +625,7 @@ class SlowWavesPipe(BaseEventPipe):
         coupling: bool = False,
         coupling_params: dict = {"freq_sp": (12, 16), "p": 0.05, "time": 1},
         remove_outliers: bool = False,
+        verbose: bool = False,
         save: bool = False,
     ):
         """A wrapper around :py:func:`yasa:yasa.sw_detect` with option to save."""
@@ -600,7 +637,7 @@ class SlowWavesPipe(BaseEventPipe):
             .set_eeg_reference(ref_channels=reference)
             .pick(picks),
             hypno=self.hypno_up,
-            verbose=False,
+            verbose=verbose,
             include=include,
             freq_sw=freq_sw,
             dur_neg=dur_neg,
@@ -671,8 +708,8 @@ class RapidEyeMovementsPipe(BaseEventPipe):
 class GrandSpectralPipe(SpectrumPlots):
     """The pipeline element combining results from multiple subjects.
 
-    Contains methods for computing and plotting combined PSD,
-    spectrogram and topomaps, per sleep stage.
+    Contains methods for computing and plotting combined PSD
+    and topomaps, per sleep stage.
     """
 
     pipes: Iterable[SpectralPipe] = field()
@@ -696,6 +733,16 @@ class GrandSpectralPipe(SpectrumPlots):
     @mne_raw.default
     def _get_mne_raw_from_pipe(self):
         return self.pipes[0].mne_raw
+
+    fooofs: dict = field(init=False, factory=dict)
+    """Instances of :py:class:`fooof:fooof.FOOOFGroup` per sleep stage.
+    """
+
+    def _savefig(self, fname, fig=None, **kwargs):
+        if fig is None:
+            plt.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
+        else:
+            fig.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
 
     @logger_wraps()
     def compute_psds_per_stage(
@@ -759,3 +806,36 @@ class GrandSpectralPipe(SpectrumPlots):
 
         if save:
             self.save_psds(overwrite)
+
+    @logger_wraps()
+    def parametrize(self, picks, freq_range, average_ch=False, **kwargs):
+        """Spectral parametrization by :std:doc:`fooof:index`.
+
+        Args:
+            picks: Channels to use in parametrization.
+            freq_range: Range of frequencies to parametrize.
+                If None, set to bandpass filter boundaries. Defaults to None.
+            average_ch: Whether to average psds over channels.
+                If False and more than one channel is provided,
+                will be averaged over subjects. Defaults to False.
+            **kwargs: Arguments passed to :py:class:`fooof:fooof.FOOOFGroup`.
+        """
+        from collections import defaultdict
+        from fooof import FOOOFGroup
+
+        psds = defaultdict(list)
+        for d in [pipe.psds for pipe in self.pipes]:
+            for key, value in d.items():
+                psds[key].append(value)
+
+        for stage, spectra_objs in psds.items():
+            freqs = spectra_objs[0]._freqs
+            spectra = np.array(
+                [spectrum.get_data(picks=picks) for spectrum in spectra_objs]
+            )
+            if spectra.shape[1] > 1:
+                spectra = spectra.mean(axis=1 if average_ch else 0)
+            else:
+                spectra = np.squeeze(spectra)
+            self.fooofs[stage] = FOOOFGroup(**kwargs)
+            self.fooofs[stage].fit(freqs, spectra, freq_range)

@@ -7,7 +7,7 @@ exclude = ["notebooks"]  # empty by default
 
 [project]
 name = "sleepeeg"
-version = "0.3.3"
+version = "0.4.0"
 authors = [
     {name = "Gennadiy Belonosov", email = "gennadiyb@mail.tau.ac.il"},
 ]
@@ -18,14 +18,16 @@ license = {text = "MIT"}
 keywords = ['sleep', 'eeg']
 dependencies = [
     "attrs",
-    "mne>=1.4.1",
+    "mne>=1.5.0",
     "mne-qt-browser",
     "pyqt5",
     "yasa==0.6.3",
+    "fooof>=1.1.0rc2",
     "lspopt",
     "ipympl",
     "numpy",
     "pandas",
+    "matplotlib>=3.8.0rc1",
     "scipy",
     "natsort",
     "more-itertools",
