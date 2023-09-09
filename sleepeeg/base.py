@@ -852,7 +852,7 @@ class SpectrumPlots(ABC):
         axis.set_ylim(psd_range)
         axis.set_xscale(xscale)
         units = r"$\mu V^{2}/Hz$ (dB)" if dB else r"$\mu V^{2}/Hz$"
-        axis.set_ylabel(f"Power ({units})")
+        axis.set_ylabel(units)
         xlabel = (
             "Frequency (Hz)"
             if xscale == "linear"

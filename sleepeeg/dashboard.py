@@ -369,4 +369,9 @@ def create_dashboard(
 
     _topo(s_pipe, reference, sleep_stages, topo_axes, topomap_cbar_limits)
 
+    hypno_before.yaxis.set_label_coords(-0.05, 0.5)
+    hypno_after.yaxis.set_label_coords(-0.05, 0.5)
+    psd_before.yaxis.set_label_coords(-0.05, 0.5)
+    psd_after.yaxis.set_label_coords(-0.05, 0.5)
+
     fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")

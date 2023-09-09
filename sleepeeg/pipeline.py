@@ -558,8 +558,8 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             t, f, Sxx, norm=norm, cmap=cmap, antialiased=True, shading="auto"
         )
         ax.set_xlim(0, t.max())
-        ax.set_ylabel("Frequency [Hz]")
-        ax.set_xlabel("Time [hrs]")
+        ax.set_ylabel("Frequency (Hz)")
+        ax.set_xlabel("Time (h)")
         return im
 
 
