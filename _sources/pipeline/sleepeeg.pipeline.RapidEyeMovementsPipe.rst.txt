@@ -23,6 +23,9 @@
          ~RapidEyeMovementsPipe.detect
       
       
+         ~RapidEyeMovementsPipe.interpolate_bads
+      
+      
          ~RapidEyeMovementsPipe.plot
       
       

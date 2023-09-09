@@ -23,6 +23,9 @@
          ~SlowWavesPipe.detect
       
       
+         ~SlowWavesPipe.interpolate_bads
+      
+      
          ~SlowWavesPipe.plot
       
       

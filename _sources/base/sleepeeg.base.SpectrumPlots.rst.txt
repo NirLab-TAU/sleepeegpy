@@ -25,6 +25,9 @@
       
          ~SpectrumPlots.plot_topomap_collage
       
+      
+         ~SpectrumPlots.save_psds
+      
    
    
 

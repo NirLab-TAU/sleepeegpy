@@ -23,6 +23,9 @@
          ~SpindlesPipe.detect
       
       
+         ~SpindlesPipe.interpolate_bads
+      
+      
          ~SpindlesPipe.plot
       
       

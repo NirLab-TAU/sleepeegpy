@@ -23,6 +23,9 @@
          ~ICAPipe.fit
       
       
+         ~ICAPipe.interpolate_bads
+      
+      
          ~ICAPipe.plot
       
       

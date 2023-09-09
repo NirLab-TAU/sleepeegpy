@@ -41,6 +41,12 @@
          ~CleaningPipe.resample
       
       
+         ~CleaningPipe.save_annotations
+      
+      
+         ~CleaningPipe.save_bad_channels
+      
+      
          ~CleaningPipe.save_raw
       
       

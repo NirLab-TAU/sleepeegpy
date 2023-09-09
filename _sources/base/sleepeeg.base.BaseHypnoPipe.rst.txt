@@ -17,6 +17,9 @@
    
       
       
+         ~BaseHypnoPipe.interpolate_bads
+      
+      
          ~BaseHypnoPipe.plot
       
       

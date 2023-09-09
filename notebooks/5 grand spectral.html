@@ -1,0 +1,659 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Spindles analysis" href="6%20spindles.html" /><link rel="prev" title="Spectral analyses" href="4%20spectral.html" />
+
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>Grand spectral analyses - sleepeeg documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeeg  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon no-toc" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeeg  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0%20complete%20pipeline.html">Complete pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1%20cleaning.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2%20ica.html">ICA preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3%20dashboard.html">Preprocessing dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4%20spectral.html">Spectral analyses</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Grand spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6%20spindles.html">Spindles analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7%20slow_waves.html">Slow waves analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8%20rems.html">Rapid eye movements analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SpectrumPlots.html">SpectrumPlots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SleepSpectrum.html">SleepSpectrum</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon no-toc" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="grand-spectral-analyses">
+<h1>Grand spectral analyses<a class="headerlink" href="#grand-spectral-analyses" title="Link to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sleepeeg.pipeline</span> <span class="kn">import</span> <span class="n">SpectralPipe</span><span class="p">,</span> <span class="n">GrandSpectralPipe</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">subjects</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;EL3001&#39;</span><span class="p">,</span> <span class="s1">&#39;EL3003&#39;</span><span class="p">,</span> <span class="s1">&#39;EL3005&#39;</span><span class="p">]</span>
+<span class="n">pipes</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">SpectralPipe</span><span class="p">(</span>
+        <span class="c1"># can be any type of eeg file that MNE&#39;s read_raw() function supports.</span>
+        <span class="n">path_to_eeg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C:/Users/Gennadiy/Documents/data/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">/after_ica_raw.fif&quot;</span><span class="p">,</span>
+        <span class="c1"># A directory you want the results to be saved in.</span>
+        <span class="n">output_dir</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C:/Users/Gennadiy/Documents/data/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="c1"># Point-per-row type of hypnogram</span>
+        <span class="n">path_to_hypno</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;C:/Users/Gennadiy/Documents/data/</span><span class="si">{</span><span class="n">subject</span><span class="si">}</span><span class="s2">/staging.txt&quot;</span><span class="p">,</span>  
+        <span class="n">hypno_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># Hypnogram&#39;s sampling frequency (visbrain&#39;s hypnograms default to 1)</span>
+    <span class="p">)</span> <span class="k">for</span> <span class="n">subject</span> <span class="ow">in</span> <span class="n">subjects</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\after_ica_raw.fif...
+    Range : 0 ... 1994499 =      0.000 ...  7977.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\after_ica_raw-1.fif...
+    Range : 1994500 ... 3988999 =   7978.000 ... 15955.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\after_ica_raw-2.fif...
+    Range : 3989000 ... 5983499 =  15956.000 ... 23933.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\after_ica_raw-3.fif...
+    Range : 5983500 ... 5985607 =  23934.000 ... 23942.428 secs
+Ready.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hypnogram is SHORTER than data by 0.43 seconds. Padding hypnogram with last value to match data.size.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\EL3003\after_ica_raw.fif...
+    Range : 0 ... 1994499 =      0.000 ...  7977.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3003\after_ica_raw-1.fif...
+    Range : 1994500 ... 3988999 =   7978.000 ... 15955.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3003\after_ica_raw-2.fif...
+    Range : 3989000 ... 5983499 =  15956.000 ... 23933.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3003\after_ica_raw-3.fif...
+    Range : 5983500 ... 6961683 =  23934.000 ... 27846.732 secs
+Ready.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hypnogram is SHORTER than data by 0.74 seconds. Padding hypnogram with last value to match data.size.
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\EL3005\after_ica_raw.fif...
+    Range : 0 ... 2039999 =      0.000 ...  8159.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3005\after_ica_raw-1.fif...
+    Range : 2040000 ... 4079999 =   8160.000 ... 16319.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3005\after_ica_raw-2.fif...
+    Range : 4080000 ... 5785273 =  16320.000 ... 23141.092 secs
+Ready.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hypnogram is SHORTER than data by 0.1 seconds. Padding hypnogram with last value to match data.size.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span> <span class="o">=</span> <span class="n">GrandSpectralPipe</span><span class="p">(</span>
+    <span class="n">pipes</span><span class="o">=</span><span class="n">pipes</span><span class="p">,</span> <span class="n">output_dir</span><span class="o">=</span><span class="s2">&quot;C:/Users/Gennadiy/Documents/data/grand&quot;</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">compute_psds_per_stage</span><span class="p">(</span>
+    <span class="c1"># A dict describing stages and their indices in the hypnogram file.</span>
+    <span class="n">sleep_stages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Wake&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;N2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;N3&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;REM&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+    <span class="c1"># Rereferencing to apply. Can be list of str channels or &quot;average&quot;.</span>
+    <span class="c1"># If None, will not change the reference.</span>
+    <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;welch&quot;</span><span class="p">,</span>  <span class="c1"># welch or multitaper</span>
+    <span class="n">fmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>  <span class="c1"># Lower frequency bound.</span>
+    <span class="n">fmax</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>  <span class="c1"># Upper frequency bound.</span>
+    <span class="n">picks</span><span class="o">=</span><span class="s2">&quot;eeg&quot;</span><span class="p">,</span>  <span class="c1"># Channels to compute the PSD for.</span>
+    <span class="n">reject_by_annotation</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to reject epochs annotated as BAD.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the average PSD hdf5 file for each sleep stage.</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to overwrite hdf5 files if there are any.</span>
+    <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span>  <span class="c1"># n_jobs, refer to the MNE documentation.</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># verbose, refer to the MNE documentation.</span>
+    <span class="c1"># Additional arguments passed to the PSD computing method, i.e., welch or multitaper:</span>
+    <span class="n">n_fft</span><span class="o">=</span><span class="mi">2048</span><span class="p">,</span>
+    <span class="n">n_per_seg</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span>
+    <span class="n">n_overlap</span><span class="o">=</span><span class="mi">512</span><span class="p">,</span>
+    <span class="n">window</span><span class="o">=</span><span class="s2">&quot;hamming&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading 0 ... 5985607  =      0.000 ... 23942.428 secs...
+EEG channel type selected for re-referencing
+Applying average reference.
+Applying a custom (&#39;EEG&#39;,) reference.
+Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) samples.
+Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) samples.
+Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) samples.
+Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) samples.
+Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) samples.
+Reading 0 ... 6961683  =      0.000 ... 27846.732 secs...
+EEG channel type selected for re-referencing
+Applying average reference.
+Applying a custom (&#39;EEG&#39;,) reference.
+Setting 483728 of 6961684 (6.95%) samples to NaN, retaining 6477956 (93.05%) samples.
+Setting 483728 of 6961684 (6.95%) samples to NaN, retaining 6477956 (93.05%) samples.
+Setting 483728 of 6961684 (6.95%) samples to NaN, retaining 6477956 (93.05%) samples.
+Setting 483728 of 6961684 (6.95%) samples to NaN, retaining 6477956 (93.05%) samples.
+Setting 483728 of 6961684 (6.95%) samples to NaN, retaining 6477956 (93.05%) samples.
+Reading 0 ... 5785273  =      0.000 ... 23141.092 secs...
+EEG channel type selected for re-referencing
+Applying average reference.
+Applying a custom (&#39;EEG&#39;,) reference.
+Setting 295083 of 5785274 (5.10%) samples to NaN, retaining 5490191 (94.90%) samples.
+Setting 295083 of 5785274 (5.10%) samples to NaN, retaining 5490191 (94.90%) samples.
+Setting 295083 of 5785274 (5.10%) samples to NaN, retaining 5490191 (94.90%) samples.
+Setting 295083 of 5785274 (5.10%) samples to NaN, retaining 5490191 (94.90%) samples.
+Setting 295083 of 5785274 (5.10%) samples to NaN, retaining 5490191 (94.90%) samples.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+Overwriting existing file.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">plot_psds</span><span class="p">(</span>
+    <span class="n">picks</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;E101&quot;</span><span class="p">],</span>
+    <span class="n">psd_range</span><span class="o">=</span><span class="p">(</span><span class="o">-</span><span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">),</span>  <span class="c1"># Y axis limits</span>
+    <span class="n">freq_range</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">40</span><span class="p">),</span>  <span class="c1"># X axis limits</span>
+    <span class="n">dB</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">xscale</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span>  <span class="c1"># Matplotlib xscale. Can be {&quot;linear&quot;, &quot;log&quot;, &quot;symlog&quot;, &quot;logit&quot;, ...} or ScaleBase</span>
+    <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the plot as a png file.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/b9dc62a34b7223eceba59049a0d99a4576c03d32280a6891d03d518763bf4bbe.png" src="../_images/b9dc62a34b7223eceba59049a0d99a4576c03d32280a6891d03d518763bf4bbe.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">grand_pipe</span><span class="o">.</span><span class="n">psds</span><span class="p">[</span><span class="s2">&quot;N2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">picks</span><span class="o">=</span><span class="s2">&quot;data&quot;</span><span class="p">,</span> <span class="n">exclude</span><span class="o">=</span><span class="s2">&quot;bads&quot;</span><span class="p">,</span> <span class="n">show</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/28d26dc1798a6d8ddeb21761f6c147bea9393347bb7fdd9c5258b786467e1b69.png" src="../_images/28d26dc1798a6d8ddeb21761f6c147bea9393347bb7fdd9c5258b786467e1b69.png" />
+</div>
+</div>
+<p>You can access  the grand average PSD through grand_pipe and the per-subject psds through corresponding pipe objects.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">psds</span><span class="p">[</span><span class="s2">&quot;REM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">(),</span> <span class="n">pipes</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">psds</span><span class="p">[</span><span class="s2">&quot;REM&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">get_data</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(array([[4.69857839e-12, 1.79456974e-11, 3.61157755e-11, ...,
+         1.00640457e-17, 9.81560547e-18, 1.00051710e-17],
+        [3.97472019e-12, 1.49298515e-11, 3.00325522e-11, ...,
+         9.92335126e-18, 9.53586582e-18, 9.84580969e-18],
+        [2.68081298e-12, 9.90621801e-12, 1.97312290e-11, ...,
+         8.89591636e-18, 8.46334406e-18, 8.83593949e-18],
+        ...,
+        [1.20806760e-12, 4.15354853e-12, 8.18965590e-12, ...,
+         4.69285805e-18, 4.38911185e-18, 4.67370012e-18],
+        [7.78584883e-13, 2.65237487e-12, 5.19058999e-12, ...,
+         3.77426282e-18, 3.49693586e-18, 3.75647953e-18],
+        [8.62884238e-13, 2.80684442e-12, 5.67022416e-12, ...,
+         9.36475558e-18, 9.32532987e-18, 9.28155120e-18]]),
+ array([[1.12159730e-11, 4.38017156e-11, 8.88548338e-11, ...,
+         1.96832398e-17, 1.95389615e-17, 1.95760779e-17],
+        [8.95263632e-12, 3.43570880e-11, 6.96787919e-11, ...,
+         1.71872863e-17, 1.68570002e-17, 1.70656727e-17],
+        [4.74297373e-12, 1.77798781e-11, 3.64199309e-11, ...,
+         1.25137941e-17, 1.22674078e-17, 1.24267604e-17],
+        ...,
+        [2.25152861e-12, 7.71929824e-12, 1.52139004e-11, ...,
+         6.79783646e-18, 6.05313229e-18, 6.77141442e-18],
+        [1.00362474e-12, 3.38765289e-12, 6.70567094e-12, ...,
+         4.29685872e-18, 3.60047124e-18, 4.27157499e-18],
+        [1.29844979e-12, 4.23318325e-12, 8.61794204e-12, ...,
+         1.20020892e-17, 1.14591497e-17, 1.18802093e-17]]))
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">plot_topomap</span><span class="p">(</span>
+    <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;N2&quot;</span><span class="p">,</span>  <span class="c1"># Stage to plot topomap for.</span>
+    <span class="n">band</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;SMR&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">12.5</span><span class="p">,</span> <span class="mi">15</span><span class="p">)},</span>  <span class="c1"># Band to plot topomap for.</span>
+    <span class="c1"># Should contain at least index of the provided &quot;stage&quot;.</span>
+    <span class="n">dB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Whether to transform PSD to dB/Hz</span>
+    <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Whether to plot on provided matplotlib axis.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the plot as a file.</span>
+    <span class="n">topomap_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">),</span>  <span class="c1"># Arguments passed to mne.viz.plot_topomap().</span>
+    <span class="n">cbar_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to plt.colorbar().</span>
+    <span class="n">subplots_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to the plt.subplots(). Have no effect if axis is provided.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/9a81b9ecb44f5b054305ba12af25954c34e169644fb6aa28cf4815a582415af1.png" src="../_images/9a81b9ecb44f5b054305ba12af25954c34e169644fb6aa28cf4815a582415af1.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">plot_topomap_collage</span><span class="p">(</span>
+    <span class="c1">#  Bands to plot topomaps for.</span>
+    <span class="n">bands</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;Delta&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mf">3.99</span><span class="p">),</span>
+        <span class="s2">&quot;Theta&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mf">7.99</span><span class="p">),</span>
+        <span class="s2">&quot;Alpha&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mf">12.49</span><span class="p">),</span>
+        <span class="s2">&quot;SMR&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">12.5</span><span class="p">,</span> <span class="mi">15</span><span class="p">),</span>
+        <span class="s2">&quot;Beta&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mf">12.5</span><span class="p">,</span> <span class="mf">29.99</span><span class="p">),</span>
+        <span class="s2">&quot;Gamma&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="p">},</span>
+    <span class="c1"># Tuple of strs or &quot;all&quot;, e.g., (&quot;N1&quot;, &quot;REM&quot;) or &quot;all&quot; (plots all &quot;sleep_stages&quot;).</span>
+    <span class="n">stages_to_plot</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="n">dB</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Whether to transform PSD to dB/Hz.</span>
+    <span class="n">low_percentile</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Set min color value by percentile of the band data.</span>
+    <span class="n">high_percentile</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span>  <span class="c1"># Set max color value by percentile of the band data.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the plot as a file.</span>
+    <span class="n">topomap_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">),</span>  <span class="c1"># Arguments passed to mne.viz.plot_topomap().</span>
+    <span class="n">cbar_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to plt.colorbar().</span>
+    <span class="n">figure_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to the plt.figure().</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/cae51066d667e2c0ef654f9b179ea1489552e7127beba69d48f6c84ec8973691.png" src="../_images/cae51066d667e2c0ef654f9b179ea1489552e7127beba69d48f6c84ec8973691.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+    <span class="n">picks</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;E101&#39;</span><span class="p">],</span>  <span class="c1"># Channels to use, if multiple channels are provided, their PSDs will be averaged.</span>
+    <span class="n">freq_range</span><span class="o">=</span><span class="p">[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">40</span><span class="p">],</span>  <span class="c1"># Range of frequencies to parametrize.</span>
+    <span class="c1"># Whether to average psds over channels.</span>
+    <span class="c1"># If False and more than one channel is provided,</span>
+    <span class="c1"># will be averaged over subjects.</span>
+    <span class="n">average_ch</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\Gennadiy\Documents\eeg-processing-pipeline\sleepeeg\pipeline.py:824: DeprecationWarning: 
+The `fooof` package is being deprecated and replaced by the `specparam` (spectral parameterization) package.
+This version of `fooof` (1.1) is fully functional, but will not be further updated.
+New projects are recommended to update to using `specparam` (see Changelog for details).
+  from fooof import FOOOFGroup
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Running FOOOFGroup across 3 power spectra.
+Running FOOOFGroup across 3 power spectra.
+Running FOOOFGroup across 3 power spectra.
+Running FOOOFGroup across 3 power spectra.
+Running FOOOFGroup across 3 power spectra.
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">fooofs</span><span class="p">[</span><span class="s1">&#39;N2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Running FOOOFGroup across 3 power spectra.
+==================================================================================================
+                                                                                                  
+                                       FOOOF - GROUP RESULTS                                      
+                                                                                                  
+                             Number of power spectra in the Group: 3                              
+                                                                                                  
+                        The model was run on the frequency range 0 - 40 Hz                        
+                                 Frequency Resolution is 0.12 Hz                                  
+                                                                                                  
+                              Power spectra were fit without a knee.                              
+                                                                                                  
+                                      Aperiodic Fit Values:                                       
+                        Exponents - Min:  2.041, Max:  2.170, Mean: 2.108                         
+                                                                                                  
+                         In total 12 peaks were extracted from the group                          
+                                                                                                  
+                                     Goodness of fit metrics:                                     
+                            R2s -  Min:  0.992, Max:  0.997, Mean: 0.995                          
+                         Errors -  Min:  0.038, Max:  0.062, Mean: 0.049                          
+                                                                                                  
+==================================================================================================
+</pre></div>
+</div>
+<img alt="../_images/ae86224a73e74973bbc608692d35e0b71436fe10a6af804d3b328654282a2f70.png" src="../_images/ae86224a73e74973bbc608692d35e0b71436fe10a6af804d3b328654282a2f70.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">fooofs</span><span class="p">[</span><span class="s1">&#39;N2&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">get_fooof</span><span class="p">(</span><span class="n">ind</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span><span class="o">.</span><span class="n">report</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>==================================================================================================
+                                                                                                  
+                                   FOOOF - POWER SPECTRUM MODEL                                   
+                                                                                                  
+                        The model was run on the frequency range 0 - 40 Hz                        
+                                 Frequency Resolution is 0.12 Hz                                  
+                                                                                                  
+                            Aperiodic Parameters (offset, exponent):                              
+                                         -10.1770, 2.1704                                         
+                                                                                                  
+                                       4 peaks were found:                                        
+                                CF:   7.44, PW:  1.057, BW:  3.33                                 
+                                CF:  10.48, PW:  0.618, BW:  1.44                                 
+                                CF:  13.23, PW:  0.935, BW:  2.30                                 
+                                CF:  15.61, PW:  0.322, BW:  8.49                                 
+                                                                                                  
+                                     Goodness of fit metrics:                                     
+                                    R^2 of model fit is 0.9960                                    
+                                    Error of the fit is 0.0476                                    
+                                                                                                  
+==================================================================================================
+</pre></div>
+</div>
+<img alt="../_images/2960af9972c43a6fb2b16f2be7081136dd3794e0be2a1e79da3ae245ef7324c4.png" src="../_images/2960af9972c43a6fb2b16f2be7081136dd3794e0be2a1e79da3ae245ef7324c4.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">fooof.analysis</span> <span class="kn">import</span> <span class="n">get_band_peak_fg</span>
+<span class="n">smr_peaks</span> <span class="o">=</span> <span class="n">get_band_peak_fg</span><span class="p">(</span><span class="n">grand_pipe</span><span class="o">.</span><span class="n">fooofs</span><span class="p">[</span><span class="s1">&#39;N2&#39;</span><span class="p">],</span> <span class="n">band</span><span class="o">=</span><span class="p">[</span><span class="mf">12.5</span><span class="p">,</span> <span class="mi">15</span><span class="p">])</span>
+<span class="n">smr_peaks</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[13.23458984,  0.93549044,  2.29860078],
+       [12.50550038,  0.95318353,  1.53120404],
+       [13.43685661,  1.36214628,  1.45631969]])
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="6%20spindles.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Spindles analysis</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="4%20spectral.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Spectral analyses</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer no-toc">
+      
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>

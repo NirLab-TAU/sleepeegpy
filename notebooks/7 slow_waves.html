@@ -1,0 +1,1062 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Rapid eye movements analysis" href="8%20rems.html" /><link rel="prev" title="Spindles analysis" href="6%20spindles.html" />
+
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>Slow waves analysis - sleepeeg documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeeg  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeeg  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0%20complete%20pipeline.html">Complete pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1%20cleaning.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2%20ica.html">ICA preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3%20dashboard.html">Preprocessing dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4%20spectral.html">Spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5%20grand%20spectral.html">Grand spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6%20spindles.html">Spindles analysis</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Slow waves analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8%20rems.html">Rapid eye movements analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SpectrumPlots.html">SpectrumPlots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SleepSpectrum.html">SleepSpectrum</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="slow-waves-analysis">
+<h1>Slow waves analysis<a class="headerlink" href="#slow-waves-analysis" title="Link to this heading">#</a></h1>
+<section id="intoductory-notes">
+<h2>Intoductory notes:<a class="headerlink" href="#intoductory-notes" title="Link to this heading">#</a></h2>
+<p>This notebook presents slow waves detection functionality.</p>
+<p>Recommended reading:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://raphaelvallat.com/yasa/build/html/faq.html#event-detection">YASA: FAQ</a></p></li>
+<li><p><a class="reference external" href="https://github.com/raphaelvallat/yasa/blob/master/notebooks/05_sw_detection.ipynb">YASA: Slow-waves detection</a></p></li>
+<li><p><a class="reference external" href="https://github.com/raphaelvallat/yasa/blob/master/notebooks/06_sw_detection_multi.ipynb">YASA: Multi-channel slow-wave detection</a></p></li>
+<li><p><a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.SWResults.html#yasa-swresults">YASA: SWResults class</a></p></li>
+<li><p><a class="reference external" href="https://mne.tools/stable/auto_tutorials/time-freq/20_sensors_time_frequency.html#time-frequency-analysis-power-and-inter-trial-coherence">MNE: Time-frequency analysis: power and inter-trial coherence</a></p></li>
+<li><p><a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.AverageTFR.html#mne-time-frequency-averagetfr">MNE: AverageTFR class</a></p></li>
+</ol>
+</section>
+<section id="import-module">
+<h2>Import module<a class="headerlink" href="#import-module" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> widget
+<span class="kn">from</span> <span class="nn">sleepeeg.pipeline</span> <span class="kn">import</span> <span class="n">SlowWavesPipe</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="spindles-detection">
+<h2>Spindles detection<a class="headerlink" href="#spindles-detection" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span> <span class="o">=</span> <span class="n">SlowWavesPipe</span><span class="p">(</span>
+    <span class="n">path_to_eeg</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw.fif&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\processing&quot;</span><span class="p">,</span>
+    <span class="n">path_to_hypno</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\staging.txt&quot;</span><span class="p">,</span>
+    <span class="n">hypno_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw.fif...
+    Reading extended channel information
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 0 ... 2032249 =      0.000 ...  8128.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw-1.fif...
+    Reading extended channel information
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 2032250 ... 2229772 =   8129.000 ...  8919.088 secs
+Ready.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hypnogram is LONGER than data by 0.91 seconds. Cropping hypnogram to match data.size.
+</pre></div>
+</div>
+</div>
+</div>
+<p>Please refer to the YASA’s <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sw_detect.html">documentation</a> for details about the arguments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span>
+    <span class="n">picks</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;eeg&quot;</span><span class="p">],</span>
+    <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+    <span class="n">include</span><span class="o">=</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">freq_sw</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">dur_neg</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.5</span><span class="p">),</span>
+    <span class="n">dur_pos</span><span class="o">=</span><span class="p">(</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">amp_neg</span><span class="o">=</span><span class="p">(</span><span class="mi">40</span><span class="p">,</span> <span class="mi">200</span><span class="p">),</span>
+    <span class="n">amp_pos</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">150</span><span class="p">),</span>
+    <span class="n">amp_ptp</span><span class="o">=</span><span class="p">(</span><span class="mi">75</span><span class="p">,</span> <span class="mi">350</span><span class="p">),</span>
+    <span class="n">coupling</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">coupling_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;freq_sp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">16</span><span class="p">),</span> <span class="s2">&quot;p&quot;</span><span class="p">:</span> <span class="mf">0.05</span><span class="p">,</span> <span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span>
+    <span class="n">remove_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>c:\Users\Gennadiy\Documents\eeg-processing-pipeline\.venv\Lib\site-packages\antropy\fractal.py:197: NumbaDeprecationWarning: <span class=" -Color -Color-Bold">The &#39;nopython&#39; keyword argument was not supplied to the &#39;numba.jit&#39; decorator. The implicit default value for this argument is currently False, but it will be changed to True in Numba 0.59.0. See https://numba.readthedocs.io/en/stable/reference/deprecation.html#deprecation-of-object-mode-fall-back-behaviour-when-using-jit for details.</span>
+  @jit((types.Array(types.float64, 1, &quot;C&quot;, readonly=True), types.int32))
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading 0 ... 2229772  =      0.000 ...  8919.088 secs...
+EEG channel type selected for re-referencing
+Applying average reference.
+Applying a custom (&#39;EEG&#39;,) reference.
+Removing existing average EEG reference projection.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Parallel(n_jobs=-1)]: Using backend LokyBackend with 16 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   2 tasks      | elapsed:    2.1s
+[Parallel(n_jobs=-1)]: Done  56 tasks      | elapsed:    4.3s
+[Parallel(n_jobs=-1)]: Done 146 tasks      | elapsed:    7.5s
+[Parallel(n_jobs=-1)]: Done 257 out of 257 | elapsed:   10.9s finished
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f9e4a1ee3a2d4ed3887d6b2dfb4714c8", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>Please refer to the YASA’s <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.SWResults.html">documentation</a> for details about the arguments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+    <span class="n">grp_chan</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">grp_stage</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span> <span class="n">sort</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Count</th>
+      <th>Density</th>
+      <th>Duration</th>
+      <th>ValNegPeak</th>
+      <th>ValPosPeak</th>
+      <th>PTP</th>
+      <th>Slope</th>
+      <th>Frequency</th>
+    </tr>
+    <tr>
+      <th>Stage</th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>2338</td>
+      <td>132.453082</td>
+      <td>1.484115</td>
+      <td>-80.979296</td>
+      <td>54.150413</td>
+      <td>135.129709</td>
+      <td>403.303421</td>
+      <td>0.740573</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>1292</td>
+      <td>198.769231</td>
+      <td>1.210765</td>
+      <td>-74.731964</td>
+      <td>48.105816</td>
+      <td>122.837781</td>
+      <td>445.367416</td>
+      <td>0.885849</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7778</td>
+      <td>118.748092</td>
+      <td>1.231468</td>
+      <td>-70.059891</td>
+      <td>43.555949</td>
+      <td>113.615840</td>
+      <td>408.338839</td>
+      <td>0.861258</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>78632</td>
+      <td>1894.746988</td>
+      <td>1.230909</td>
+      <td>-63.615579</td>
+      <td>50.000042</td>
+      <td>113.615622</td>
+      <td>409.404133</td>
+      <td>0.856935</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>324</td>
+      <td>18.514286</td>
+      <td>1.520407</td>
+      <td>-72.216701</td>
+      <td>48.068223</td>
+      <td>120.284924</td>
+      <td>331.656728</td>
+      <td>0.722056</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">plot_average</span><span class="p">(</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">center</span><span class="o">=</span><span class="s2">&quot;NegPeak&quot;</span><span class="p">,</span>
+    <span class="n">hue</span><span class="o">=</span><span class="s2">&quot;Stage&quot;</span><span class="p">,</span>
+    <span class="n">time_before</span><span class="o">=</span><span class="mf">0.4</span><span class="p">,</span>
+    <span class="n">time_after</span><span class="o">=</span><span class="mf">0.8</span><span class="p">,</span>
+    <span class="n">filt</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span>
+    <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "c17af549388743eca16256dc512f869b", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">plot_topomap</span><span class="p">(</span>
+    <span class="n">prop</span><span class="o">=</span><span class="s2">&quot;Slope&quot;</span><span class="p">,</span>  <span class="c1">#  Any of the event properties returned by pipe.results.summary().</span>
+    <span class="n">stage</span><span class="o">=</span><span class="s2">&quot;N3&quot;</span><span class="p">,</span>  <span class="c1"># Stage to plot the topomap for.</span>
+    <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>  <span class="c1"># Aggregation function for channel grouping.</span>
+    <span class="c1"># Should contain at least index of the provided &quot;stage&quot;.</span>
+    <span class="n">sleep_stages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;Wake&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;N1&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;N2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;N3&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;REM&quot;</span><span class="p">:</span> <span class="mi">4</span><span class="p">},</span>
+    <span class="n">axis</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Whether to plot on provided matplotlib axis.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the plot as a file.</span>
+    <span class="n">topomap_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">),</span>  <span class="c1"># Arguments passed to mne.viz.plot_topomap().</span>
+    <span class="n">cbar_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to plt.colorbar().</span>
+    <span class="n">subplots_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to the plt.subplots(). Have no effect if axis is provided.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "721b577ffd0a4e999f92b6e0c79676f1", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">plot_topomap_collage</span><span class="p">(</span>
+    <span class="c1"># Some of the event properties returned by pipe.results.summary().</span>
+    <span class="n">props</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Slope&quot;</span><span class="p">,</span> <span class="s2">&quot;Frequency&quot;</span><span class="p">,</span> <span class="s2">&quot;Duration&quot;</span><span class="p">],</span>
+    <span class="n">aggfunc</span><span class="o">=</span><span class="s2">&quot;mean&quot;</span><span class="p">,</span>  <span class="c1"># Aggregation function for channel grouping.</span>
+    <span class="c1"># Tuple of strs or &quot;all&quot;, e.g., (&quot;N1&quot;, &quot;REM&quot;) or &quot;all&quot; (plots all &quot;sleep_stages&quot;).</span>
+    <span class="n">stages_to_plot</span><span class="o">=</span><span class="s2">&quot;all&quot;</span><span class="p">,</span>
+    <span class="c1"># Should contain at least indices of the provided &quot;stages_to_plot&quot;.</span>
+    <span class="n">sleep_stages</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;N2&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;N3&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span>
+    <span class="n">low_percentile</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>  <span class="c1"># Set min color value by percentile of the property data.</span>
+    <span class="n">high_percentile</span><span class="o">=</span><span class="mi">95</span><span class="p">,</span>  <span class="c1"># Set max color value by percentile of the property data.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save the plot as a file.</span>
+    <span class="n">topomap_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">cmap</span><span class="o">=</span><span class="s2">&quot;plasma&quot;</span><span class="p">),</span>  <span class="c1"># Arguments passed to mne.viz.plot_topomap().</span>
+    <span class="n">cbar_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to plt.colorbar().</span>
+    <span class="n">figure_args</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Arguments passed to the plt.figure().</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "f78a790ca1964f668c342fce78af04a4", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+<p>Constructs MNE <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.AverageTFR.html">AverageTFR</a> object for every available sleep stage.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">apply_tfr</span><span class="p">(</span>
+    <span class="n">freqs</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>  <span class="c1"># Interval of frequencies of interest.</span>
+    <span class="n">n_freqs</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>  <span class="c1"># TFR frequency resolution.</span>
+    <span class="n">time_before</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>  <span class="c1"># Time in sec before the peak to use in TFR computation. Should be positive.</span>
+    <span class="n">time_after</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>  <span class="c1"># Time in sec after the peak to use in TFR computation.</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;morlet&quot;</span><span class="p">,</span>  <span class="c1"># TFR method: &#39;morlet&#39; or &#39;multitaper&#39;.</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Whether to save AverageTFR object per sleep stage as hdf5 file.</span>
+    <span class="n">overwrite</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>  <span class="c1"># Whether to overwrite existings files.</span>
+    <span class="n">n_cycles</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">tfrs</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>100%|██████████| 257/257 [08:09&lt;00:00,  1.90s/it]
+100%|██████████| 257/257 [00:18&lt;00:00, 13.79it/s]
+100%|██████████| 106/106 [00:03&lt;00:00, 27.76it/s]
+100%|██████████| 256/256 [00:52&lt;00:00,  4.91it/s]
+100%|██████████| 252/252 [00:12&lt;00:00, 20.78it/s]
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;N3&#39;: &lt;AverageTFR | time : [-4.000000, 4.000000], freq : [0.500000, 5.000000], nave : 305, channels : 257, ~392.6 MB&gt;,
+ &#39;Wake&#39;: &lt;AverageTFR | time : [-4.000000, 4.000000], freq : [0.500000, 5.000000], nave : 9, channels : 257, ~392.6 MB&gt;,
+ &#39;REM&#39;: &lt;AverageTFR | time : [-4.000000, 4.000000], freq : [0.500000, 5.000000], nave : 3, channels : 106, ~162.0 MB&gt;,
+ &#39;N2&#39;: &lt;AverageTFR | time : [-4.000000, 4.000000], freq : [0.500000, 5.000000], nave : 30, channels : 256, ~391.1 MB&gt;,
+ &#39;N1&#39;: &lt;AverageTFR | time : [-4.000000, 4.000000], freq : [0.500000, 5.000000], nave : 5, channels : 252, ~385.0 MB&gt;}
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">tfrs</span><span class="p">[</span><span class="s2">&quot;N2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">data</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([[[ 3415.49139812,  3451.46416259,  3487.67997989, ...,
+         24926.03584319, 24775.85058283, 24625.57657035],
+        [ 2795.51911791,  2826.68500349,  2858.0832817 , ...,
+         21039.85516906, 20924.85518731, 20809.44106365],
+        [ 2309.39443814,  2335.90132367,  2362.61664799, ...,
+         18342.98530878, 18258.93539666, 18174.02689377],
+        ...,
+        [ 2247.79245189,  2379.1596992 ,  2500.78701639, ...,
+          7595.99927528,  7378.89104422,  7113.65983891],
+        [ 2240.90766722,  2374.28344314,  2497.96039732, ...,
+          7557.71880983,  7339.63412839,  7072.81114684],
+        [ 2233.5540185 ,  2368.8918006 ,  2494.57789152, ...,
+          7520.08505107,  7300.95895467,  7032.49391766]],
+
+       [[15843.6122264 , 15967.62922189, 16091.78399625, ...,
+         53619.96900854, 53191.49336325, 52763.52191696],
+        [14997.66527678, 15123.54933507, 15249.52121795, ...,
+         49040.84621626, 48615.88161856, 48191.43043081],
+        [14364.71482277, 14494.51546129, 14624.37635777, ...,
+         45025.74424767, 44606.77329268, 44188.27855884],
+        ...,
+        [ 2772.95062258,  2934.83926698,  3086.93696707, ...,
+          3576.27118974,  3416.91454608,  3244.49966653],
+        [ 2751.35153309,  2913.67408822,  3066.12368284, ...,
+          3542.93134473,  3384.58169039,  3212.90012725],
+        [ 2729.99368896,  2892.74122012,  3045.53556942, ...,
+          3510.43420095,  3353.05523698,  3182.07115995]],
+
+       [[14166.09832736, 14283.49826215, 14401.12506896, ...,
+         21861.60150651, 21652.06151226, 21443.4555679 ],
+        [13439.17791607, 13558.64810772, 13678.27161087, ...,
+         20974.00406911, 20752.26555441, 20531.6902634 ],
+        [12957.81615772, 13083.29055884, 13208.90632441, ...,
+         20087.57973845, 19856.03142103, 19625.8850999 ],
+        ...,
+        [ 1778.5482309 ,  1919.57799246,  2061.73770249, ...,
+          3252.19415843,  3088.96417028,  2918.64401686],
+        [ 1757.53338936,  1898.06255754,  2039.73805675, ...,
+          3223.13939855,  3060.94190532,  2891.45537236],
+        [ 1736.91868675,  1876.94060511,  2018.12401221, ...,
+          3194.75590504,  3033.5775961 ,  2864.90930386]],
+
+       ...,
+
+       [[ 7914.36582562,  7983.74394342,  8053.26720653, ...,
+         10702.13175435, 10648.71349834, 10594.92036832],
+        [ 7490.64124362,  7563.7485845 ,  7637.05657544, ...,
+         10848.13722128, 10790.61850972, 10732.55451556],
+        [ 7034.09538237,  7109.62735298,  7185.41723646, ...,
+         11149.07199576, 11083.31999317, 11016.88156541],
+        ...,
+        [  923.17746841,   978.11579794,  1032.65349511, ...,
+          1949.16883867,  1858.1603123 ,  1760.81085382],
+        [  921.06699775,   975.84606157,  1030.1293268 , ...,
+          1933.31152044,  1842.30241217,  1744.92727452],
+        [  919.09878492,   973.72736583,  1027.76350399, ...,
+          1917.53091649,  1826.55554311,  1729.18577916]],
+
+       [[ 4754.70314759,  4799.40414793,  4844.24935184, ...,
+          8222.99764447,  8167.88848323,  8112.79612937],
+        [ 4552.70634336,  4600.53537725,  4648.55506227, ...,
+          7787.74223666,  7735.97252601,  7684.08903494],
+        [ 4320.3250629 ,  4370.55836591,  4421.03267704, ...,
+          7585.83059254,  7534.52492168,  7482.97605498],
+        ...,
+        [  789.88684018,   837.01795547,   883.15318918, ...,
+          1651.7521973 ,  1567.05899968,  1478.18016827],
+        [  789.76297684,   837.00833885,   883.17343237, ...,
+          1637.23613579,  1552.64345207,  1463.8418807 ],
+        [  789.66901267,   837.03075114,   883.22635229, ...,
+          1622.86206884,  1538.38884821,  1449.6818319 ]],
+
+       [[10461.36845653, 10540.73228873, 10620.19513738, ...,
+         13231.64601078, 13122.45424509, 13013.51887069],
+        [10142.4936374 , 10225.9093088 , 10309.41231527, ...,
+         12731.82179648, 12616.96330374, 12502.39545523],
+        [ 9824.1712044 ,  9911.61440579,  9999.14257094, ...,
+         12269.62298365, 12149.10247078, 12028.91649072],
+        ...,
+        [ 2739.75865189,  2917.68362638,  3090.94669525, ...,
+          1994.77381739,  1877.69159003,  1759.2636154 ],
+        [ 2717.96908926,  2895.71089285,  3068.65883686, ...,
+          1978.94284847,  1862.33027158,  1744.27948723],
+        [ 2696.52497917,  2874.07748854,  3046.70210513, ...,
+          1963.47643305,  1847.32731409,  1729.64628125]]])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">tfrs</span><span class="p">[</span><span class="s2">&quot;N2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">to_data_frame</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>time</th>
+      <th>freq</th>
+      <th>E1</th>
+      <th>E10</th>
+      <th>E100</th>
+      <th>E101</th>
+      <th>E102</th>
+      <th>E103</th>
+      <th>E104</th>
+      <th>E105</th>
+      <th>...</th>
+      <th>E91</th>
+      <th>E92</th>
+      <th>E93</th>
+      <th>E94</th>
+      <th>E95</th>
+      <th>E96</th>
+      <th>E97</th>
+      <th>E98</th>
+      <th>E99</th>
+      <th>VREF</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>-4.000</td>
+      <td>0.5</td>
+      <td>3415.491398</td>
+      <td>15843.612226</td>
+      <td>14166.098327</td>
+      <td>15267.160940</td>
+      <td>13825.759854</td>
+      <td>10456.609279</td>
+      <td>11441.424265</td>
+      <td>13656.451134</td>
+      <td>...</td>
+      <td>21316.711251</td>
+      <td>4735.849036</td>
+      <td>9350.636134</td>
+      <td>8683.254970</td>
+      <td>68596.201743</td>
+      <td>7783.486630</td>
+      <td>5217.715244</td>
+      <td>7914.365826</td>
+      <td>4754.703148</td>
+      <td>10461.368457</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>-3.996</td>
+      <td>0.5</td>
+      <td>3451.464163</td>
+      <td>15967.629222</td>
+      <td>14283.498262</td>
+      <td>15394.817286</td>
+      <td>13943.669480</td>
+      <td>10538.756453</td>
+      <td>11529.070441</td>
+      <td>13749.763944</td>
+      <td>...</td>
+      <td>21545.780820</td>
+      <td>4787.794716</td>
+      <td>9424.282955</td>
+      <td>8756.812957</td>
+      <td>69016.735069</td>
+      <td>7840.528060</td>
+      <td>5266.850836</td>
+      <td>7983.743943</td>
+      <td>4799.404148</td>
+      <td>10540.732289</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>-3.992</td>
+      <td>0.5</td>
+      <td>3487.679980</td>
+      <td>16091.783996</td>
+      <td>14401.125069</td>
+      <td>15522.746975</td>
+      <td>14061.871502</td>
+      <td>10621.067236</td>
+      <td>11616.835633</td>
+      <td>13843.029721</td>
+      <td>...</td>
+      <td>21775.920974</td>
+      <td>4840.174266</td>
+      <td>9497.936463</td>
+      <td>8830.481760</td>
+      <td>69435.726975</td>
+      <td>7897.525662</td>
+      <td>5316.114497</td>
+      <td>8053.267207</td>
+      <td>4844.249352</td>
+      <td>10620.195137</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>-3.988</td>
+      <td>0.5</td>
+      <td>3524.138662</td>
+      <td>16216.067455</td>
+      <td>14518.971536</td>
+      <td>15650.942656</td>
+      <td>14180.358098</td>
+      <td>10703.537712</td>
+      <td>11704.714776</td>
+      <td>13936.241905</td>
+      <td>...</td>
+      <td>22007.112349</td>
+      <td>4892.989342</td>
+      <td>9571.588910</td>
+      <td>8904.254297</td>
+      <td>69853.126499</td>
+      <td>7954.472727</td>
+      <td>5365.501205</td>
+      <td>8122.929334</td>
+      <td>4889.235358</td>
+      <td>10699.752450</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>-3.984</td>
+      <td>0.5</td>
+      <td>3560.839963</td>
+      <td>16340.470365</td>
+      <td>14637.030211</td>
+      <td>15779.396942</td>
+      <td>14299.121367</td>
+      <td>10786.163951</td>
+      <td>11792.702802</td>
+      <td>14029.393988</td>
+      <td>...</td>
+      <td>22239.335147</td>
+      <td>4946.241491</td>
+      <td>9645.232499</td>
+      <td>8978.123423</td>
+      <td>70268.882535</td>
+      <td>8011.362542</td>
+      <td>5415.005912</td>
+      <td>8192.724001</td>
+      <td>4934.358684</td>
+      <td>10779.399710</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>200095</th>
+      <td>3.984</td>
+      <td>5.0</td>
+      <td>7789.804646</td>
+      <td>3775.845222</td>
+      <td>3488.761794</td>
+      <td>3761.756993</td>
+      <td>3632.354196</td>
+      <td>3252.324110</td>
+      <td>3249.296268</td>
+      <td>3110.784021</td>
+      <td>...</td>
+      <td>2676.280477</td>
+      <td>1454.996625</td>
+      <td>2389.059761</td>
+      <td>2475.528573</td>
+      <td>1781.301446</td>
+      <td>1255.954586</td>
+      <td>1210.347227</td>
+      <td>2075.303446</td>
+      <td>1774.884429</td>
+      <td>2187.922463</td>
+    </tr>
+    <tr>
+      <th>200096</th>
+      <td>3.988</td>
+      <td>5.0</td>
+      <td>7684.462974</td>
+      <td>3651.986213</td>
+      <td>3346.919230</td>
+      <td>3619.476638</td>
+      <td>3503.520640</td>
+      <td>3127.342124</td>
+      <td>3119.096012</td>
+      <td>2990.811345</td>
+      <td>...</td>
+      <td>2633.003127</td>
+      <td>1393.422771</td>
+      <td>2292.957837</td>
+      <td>2390.697767</td>
+      <td>1780.836628</td>
+      <td>1217.935302</td>
+      <td>1185.928595</td>
+      <td>2000.834174</td>
+      <td>1702.026187</td>
+      <td>2077.259632</td>
+    </tr>
+    <tr>
+      <th>200097</th>
+      <td>3.992</td>
+      <td>5.0</td>
+      <td>7520.085051</td>
+      <td>3510.434201</td>
+      <td>3194.755905</td>
+      <td>3463.967769</td>
+      <td>3360.184955</td>
+      <td>2990.431244</td>
+      <td>2977.597488</td>
+      <td>2858.935070</td>
+      <td>...</td>
+      <td>2571.387904</td>
+      <td>1326.088682</td>
+      <td>2188.829627</td>
+      <td>2294.471396</td>
+      <td>1765.855057</td>
+      <td>1173.707091</td>
+      <td>1154.146278</td>
+      <td>1917.530916</td>
+      <td>1622.862069</td>
+      <td>1963.476433</td>
+    </tr>
+    <tr>
+      <th>200098</th>
+      <td>3.996</td>
+      <td>5.0</td>
+      <td>7300.958955</td>
+      <td>3353.055237</td>
+      <td>3033.577596</td>
+      <td>3296.761148</td>
+      <td>3203.945672</td>
+      <td>2843.124458</td>
+      <td>2826.380851</td>
+      <td>2716.753468</td>
+      <td>...</td>
+      <td>2492.579234</td>
+      <td>1253.958909</td>
+      <td>2077.757472</td>
+      <td>2188.310666</td>
+      <td>1736.587105</td>
+      <td>1123.878448</td>
+      <td>1115.483268</td>
+      <td>1826.555543</td>
+      <td>1538.388848</td>
+      <td>1847.327314</td>
+    </tr>
+    <tr>
+      <th>200099</th>
+      <td>4.000</td>
+      <td>5.0</td>
+      <td>7032.493918</td>
+      <td>3182.071160</td>
+      <td>2864.909304</td>
+      <td>3119.659689</td>
+      <td>3036.689667</td>
+      <td>2687.167804</td>
+      <td>2667.216964</td>
+      <td>2566.070566</td>
+      <td>...</td>
+      <td>2398.128622</td>
+      <td>1178.074120</td>
+      <td>1960.970456</td>
+      <td>2073.823267</td>
+      <td>1693.677993</td>
+      <td>1069.179498</td>
+      <td>1070.583690</td>
+      <td>1729.185779</td>
+      <td>1449.681832</td>
+      <td>1729.646281</td>
+    </tr>
+  </tbody>
+</table>
+<p>200100 rows × 258 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">tfrs</span><span class="p">[</span><span class="s2">&quot;N2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="s2">&quot;E101&quot;</span><span class="p">]),</span>
+<span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">tfrs</span><span class="p">[</span><span class="s2">&quot;N3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">plot</span><span class="p">([</span><span class="s2">&quot;E101&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+No baseline correction applied
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "da876f6792f143299703759ee509b9f2", "version_major": 2, "version_minor": 0}</script><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>NOTE: pick_channels() is a legacy function. New code should use inst.pick(...).
+No baseline correction applied
+</pre></div>
+</div>
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "3ff2c0ed060e462e8cb3422b26e889ad", "version_major": 2, "version_minor": 0}</script><div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&lt;Figure size 640x480 with 2 Axes&gt;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>If you want to load saved TFR files:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">slow_waves_pipe</span><span class="o">.</span><span class="n">read_tfrs</span><span class="p">(</span><span class="n">dirpath</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading C:\Users\Gennadiy\Documents\data\HZ4\processing\SlowWavesPipe\slowwaves_N1-tfr.h5 ...
+Reading C:\Users\Gennadiy\Documents\data\HZ4\processing\SlowWavesPipe\slowwaves_N2-tfr.h5 ...
+Reading C:\Users\Gennadiy\Documents\data\HZ4\processing\SlowWavesPipe\slowwaves_N3-tfr.h5 ...
+Reading C:\Users\Gennadiy\Documents\data\HZ4\processing\SlowWavesPipe\slowwaves_REM-tfr.h5 ...
+Reading C:\Users\Gennadiy\Documents\data\HZ4\processing\SlowWavesPipe\slowwaves_Wake-tfr.h5 ...
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="8%20rems.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Rapid eye movements analysis</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="6%20spindles.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Spindles analysis</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Slow waves analysis</a><ul>
+<li><a class="reference internal" href="#intoductory-notes">Intoductory notes:</a></li>
+<li><a class="reference internal" href="#import-module">Import module</a></li>
+<li><a class="reference internal" href="#spindles-detection">Spindles detection</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>

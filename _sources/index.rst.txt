@@ -9,6 +9,7 @@ Welcome to sleep-eeg-processing's documentation!
 .. toctree::
    :maxdepth: 1
 
+   notebooks
    api
 
 Indices and tables

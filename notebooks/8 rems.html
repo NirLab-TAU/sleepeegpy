@@ -1,0 +1,530 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="generator" content="Docutils 0.19: https://docutils.sourceforge.io/" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="API Reference" href="../api.html" /><link rel="prev" title="Slow waves analysis" href="7%20slow_waves.html" />
+
+    <!-- Generated with Sphinx 7.2.5 and Furo 2023.08.19 -->
+        <title>Rapid eye movements analysis - sleepeeg documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeeg  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeeg  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0%20complete%20pipeline.html">Complete pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1%20cleaning.html">Preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="2%20ica.html">ICA preprocessing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3%20dashboard.html">Preprocessing dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4%20spectral.html">Spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5%20grand%20spectral.html">Grand spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6%20spindles.html">Spindles analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7%20slow_waves.html">Slow waves analysis</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">Rapid eye movements analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SpectrumPlots.html">SpectrumPlots</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeeg.base.SleepSpectrum.html">SleepSpectrum</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeeg.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="rapid-eye-movements-analysis">
+<h1>Rapid eye movements analysis<a class="headerlink" href="#rapid-eye-movements-analysis" title="Link to this heading">#</a></h1>
+<section id="intoductory-notes">
+<h2>Intoductory notes:<a class="headerlink" href="#intoductory-notes" title="Link to this heading">#</a></h2>
+<p>This notebook presents REMs detection functionality.</p>
+<p>Recommended reading:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://raphaelvallat.com/yasa/build/html/faq.html#event-detection">YASA: FAQ</a></p></li>
+<li><p><a class="reference external" href="https://github.com/raphaelvallat/yasa/blob/master/notebooks/07_REMs_detection.ipynb">YASA: Rapid Eye Movements (REMs) detection</a></p></li>
+<li><p><a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.REMResults.html#yasa.REMResults">YASA: REMResults class</a></p></li>
+</ol>
+</section>
+<section id="import-module">
+<h2>Import module<a class="headerlink" href="#import-module" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="o">%</span><span class="k">matplotlib</span> widget
+<span class="kn">from</span> <span class="nn">sleepeeg.pipeline</span> <span class="kn">import</span> <span class="n">RapidEyeMovementsPipe</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="rems-detection">
+<h2>REMs detection<a class="headerlink" href="#rems-detection" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rems_pipe</span> <span class="o">=</span> <span class="n">RapidEyeMovementsPipe</span><span class="p">(</span>
+    <span class="n">path_to_eeg</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw.fif&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\processing&quot;</span><span class="p">,</span>
+    <span class="n">path_to_hypno</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\HZ4\staging.txt&quot;</span><span class="p">,</span>
+    <span class="n">hypno_freq</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw.fif...
+    Reading extended channel information
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 0 ... 2032249 =      0.000 ...  8128.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\HZ4\processing\CleaningPipe\cleaned_raw-1.fif...
+    Reading extended channel information
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 2032250 ... 2229772 =   8129.000 ...  8919.088 secs
+Ready.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Hypnogram is LONGER than data by 0.91 seconds. Cropping hypnogram to match data.size.
+</pre></div>
+</div>
+</div>
+</div>
+<p>Please refer to the YASA’s <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.rem_detect.html">documentation</a> for details about the arguments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rems_pipe</span><span class="o">.</span><span class="n">detect</span><span class="p">(</span>
+    <span class="n">reference</span><span class="o">=</span><span class="s2">&quot;average&quot;</span><span class="p">,</span>
+    <span class="n">loc_chname</span><span class="o">=</span><span class="s2">&quot;E46&quot;</span><span class="p">,</span>
+    <span class="n">roc_chname</span><span class="o">=</span><span class="s2">&quot;E238&quot;</span><span class="p">,</span>
+    <span class="n">include</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+    <span class="n">freq_rem</span><span class="o">=</span><span class="p">(</span><span class="mf">0.5</span><span class="p">,</span> <span class="mi">5</span><span class="p">),</span>
+    <span class="n">duration</span><span class="o">=</span><span class="p">(</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">1.2</span><span class="p">),</span>
+    <span class="n">amplitude</span><span class="o">=</span><span class="p">(</span><span class="mi">50</span><span class="p">,</span> <span class="mi">325</span><span class="p">),</span>
+    <span class="n">remove_outliers</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading 0 ... 2229772  =      0.000 ...  8919.088 secs...
+EEG channel type selected for re-referencing
+Applying average reference.
+Applying a custom (&#39;EEG&#39;,) reference.
+Removing existing average EEG reference projection.
+Setting 166506 of 2229773 (7.47%) samples to NaN, retaining 2063267 (92.53%) samples.
+Setting 166506 of 2229773 (7.47%) samples to NaN, retaining 2063267 (92.53%) samples.
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Parallel(n_jobs=1)]: Using backend SequentialBackend with 1 concurrent workers.
+[Parallel(n_jobs=1)]: Done   1 out of   1 | elapsed:    0.0s remaining:    0.0s
+[Parallel(n_jobs=1)]: Done   2 out of   2 | elapsed:    0.0s remaining:    0.0s
+[Parallel(n_jobs=1)]: Done   2 out of   2 | elapsed:    0.0s finished
+</pre></div>
+</div>
+</div>
+</div>
+<p>Please refer to the YASA’s <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.REMResults.html#yasa.REMResults.summary">documentation</a> for details about the arguments.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rems_pipe</span><span class="o">.</span><span class="n">results</span><span class="o">.</span><span class="n">summary</span><span class="p">(</span>
+    <span class="n">grp_stage</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> 
+    <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> 
+    <span class="n">aggfunc</span><span class="o">=</span><span class="s1">&#39;mean&#39;</span><span class="p">,</span> 
+    <span class="n">sort</span><span class="o">=</span><span class="kc">True</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Start</th>
+      <th>Peak</th>
+      <th>End</th>
+      <th>Duration</th>
+      <th>LOCAbsValPeak</th>
+      <th>ROCAbsValPeak</th>
+      <th>LOCAbsRiseSlope</th>
+      <th>ROCAbsRiseSlope</th>
+      <th>LOCAbsFallSlope</th>
+      <th>ROCAbsFallSlope</th>
+      <th>Stage</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>3737.376</td>
+      <td>3737.976</td>
+      <td>3738.224</td>
+      <td>0.848</td>
+      <td>67.097038</td>
+      <td>40.429828</td>
+      <td>81.349422</td>
+      <td>7.997705</td>
+      <td>275.801546</td>
+      <td>161.863886</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>4008.692</td>
+      <td>4009.232</td>
+      <td>4009.432</td>
+      <td>0.740</td>
+      <td>76.320543</td>
+      <td>70.589721</td>
+      <td>87.398770</td>
+      <td>125.410993</td>
+      <td>360.926204</td>
+      <td>373.176045</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>4030.576</td>
+      <td>4031.176</td>
+      <td>4031.268</td>
+      <td>0.692</td>
+      <td>62.078592</td>
+      <td>75.080389</td>
+      <td>70.180525</td>
+      <td>80.548894</td>
+      <td>676.546582</td>
+      <td>791.329919</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>4066.100</td>
+      <td>4066.200</td>
+      <td>4066.528</td>
+      <td>0.428</td>
+      <td>57.173321</td>
+      <td>62.168568</td>
+      <td>539.789877</td>
+      <td>623.796866</td>
+      <td>116.043347</td>
+      <td>196.427090</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>4068.220</td>
+      <td>4068.548</td>
+      <td>4068.932</td>
+      <td>0.712</td>
+      <td>100.597910</td>
+      <td>128.369310</td>
+      <td>316.384167</td>
+      <td>382.219199</td>
+      <td>265.608162</td>
+      <td>323.028222</td>
+      <td>4</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">rems_pipe</span><span class="o">.</span><span class="n">plot_average</span><span class="p">(</span> 
+    <span class="n">save</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> 
+    <span class="n">center</span><span class="o">=</span><span class="s2">&quot;Peak&quot;</span><span class="p">,</span>
+    <span class="n">time_before</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">time_after</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span>
+    <span class="n">filt</span><span class="o">=</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span><span class="kc">None</span><span class="p">),</span>
+    <span class="n">mask</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<script type="application/vnd.jupyter.widget-view+json">{"model_id": "5e6c20d5beaf4adf9b8b94c60cf95899", "version_major": 2, "version_minor": 0}</script></div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="../api.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">API Reference</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="7%20slow_waves.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Slow waves analysis</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">Rapid eye movements analysis</a><ul>
+<li><a class="reference internal" href="#intoductory-notes">Intoductory notes:</a></li>
+<li><a class="reference internal" href="#import-module">Import module</a></li>
+<li><a class="reference internal" href="#rems-detection">REMs detection</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>

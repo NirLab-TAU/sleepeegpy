@@ -23,6 +23,9 @@
          ~BaseEventPipe.detect
       
       
+         ~BaseEventPipe.interpolate_bads
+      
+      
          ~BaseEventPipe.plot
       
       
