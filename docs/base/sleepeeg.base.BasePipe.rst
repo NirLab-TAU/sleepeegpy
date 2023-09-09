@@ -17,6 +17,9 @@
    
       
       
+         ~BasePipe.interpolate_bads
+      
+      
          ~BasePipe.plot
       
       

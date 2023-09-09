@@ -20,6 +20,12 @@
          ~SpectralPipe.compute_psds_per_stage
       
       
+         ~SpectralPipe.interpolate_bads
+      
+      
+         ~SpectralPipe.parametrize
+      
+      
          ~SpectralPipe.plot
       
       
@@ -44,6 +50,9 @@
          ~SpectralPipe.read_spectra
       
       
+         ~SpectralPipe.save_psds
+      
+      
          ~SpectralPipe.save_raw
       
       
@@ -61,6 +70,7 @@
 
    .. autosummary::
    
+      ~SpectralPipe.fooofs
       ~SpectralPipe.bad_data_percent
       ~SpectralPipe.sf
       ~SpectralPipe.path_to_hypno

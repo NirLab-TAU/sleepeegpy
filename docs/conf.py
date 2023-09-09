@@ -9,6 +9,8 @@
 import os
 import sys
 import inspect
+import shutil
+from pathlib import Path
 
 sys.path.append(os.path.abspath(".."))
 
@@ -26,8 +28,10 @@ extensions = [
     "sphinx_autodoc_typehints",
     "sphinx.ext.linkcode",
     "sphinx.ext.autosummary",
+    "myst_nb",
 ]
 
+nb_execution_mode = "off"
 # autosummary_generate = False
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
@@ -84,3 +88,17 @@ def linkcode_resolve(domain, info):
     else:
         linespec = ""
     return f"https://github.com/NirLab-TAU/sleepeeg/blob/main/{info['module'].replace('.', '/')}.py{linespec}"
+
+
+def all_but_ipynb(dir, contents):
+    return [c for c in contents if (Path(dir) / c).suffix != ".ipynb"]
+
+
+print("Copy example notebooks into docs/notebooks")
+project_root = Path(r"C:\Users\Gennadiy\Documents\eeg-processing-pipeline")
+shutil.rmtree(project_root / "docs/notebooks", ignore_errors=True)
+shutil.copytree(
+    project_root / "notebooks",
+    project_root / "docs/notebooks",
+    ignore=all_but_ipynb,
+)

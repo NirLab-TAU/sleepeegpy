@@ -20,6 +20,9 @@
          ~GrandSpectralPipe.compute_psds_per_stage
       
       
+         ~GrandSpectralPipe.parametrize
+      
+      
          ~GrandSpectralPipe.plot_psds
       
       
@@ -27,6 +30,9 @@
       
       
          ~GrandSpectralPipe.plot_topomap_collage
+      
+      
+         ~GrandSpectralPipe.save_psds
       
    
    
@@ -40,6 +46,7 @@
       ~GrandSpectralPipe.pipes
       ~GrandSpectralPipe.output_dir
       ~GrandSpectralPipe.mne_raw
+      ~GrandSpectralPipe.fooofs
       ~GrandSpectralPipe.psds
    
    
