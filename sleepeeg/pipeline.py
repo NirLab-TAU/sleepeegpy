@@ -281,6 +281,20 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     spectrogram and topomaps per sleep stage.
     """
 
+    mne_raw: mne.io.Raw | mne.Epochs = field(init=False)
+    """An instanse of :py:class:`mne:mne.io.Raw` or :py:class:`mne:mne.Epochs`.
+    """
+
+    @mne_raw.default
+    def _read_mne_raw(self):
+        if self.prec_pipe:
+            return self.prec_pipe.mne_raw
+        try:
+            eeg = mne.io.read_raw(self.path_to_eeg)
+        except ValueError:
+            eeg = mne.read_epochs(self.path_to_eeg)
+        return eeg
+
     fooofs: dict = field(init=False, factory=dict)
     """Instances of :py:class:`fooof:fooof.FOOOF` per sleep stage.
     """
@@ -320,33 +334,48 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
 
         psd_kwargs["fmin"] = fmin
         psd_kwargs["fmax"] = fmax
-        inst = self.mne_raw.copy().load_data()
+
         if reference is not None:
-            inst.set_eeg_reference(ref_channels=reference)
-        data = inst.get_data(
-            picks=picks, reject_by_annotation="NaN" if reject_by_annotation else None
-        )
+            inst = self.mne_raw.copy().load_data().set_eeg_reference(reference)
+        else:
+            inst = self.mne_raw
 
-        for stage, stage_idx in sleep_stages.items():
-            n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
-
-            # Two cases: when one stage is provided as integer vs
-            # when multiple stages as list, e.g., 'NREM': (1,2,3).
-            try:
-                stage_mask = np.logical_or.reduce(
-                    [self.hypno_up == i for i in stage_idx]
+        if isinstance(inst, mne.Epochs):
+            for stage, stage_epo in sleep_stages.items():
+                self.psds[stage] = (
+                    inst[stage_epo].compute_psd(picks=picks, **psd_kwargs).average()
                 )
-            except TypeError:
-                stage_mask = self.hypno_up == stage_idx
+                self.psds[stage].info["description"] = str(
+                    round(len(inst[stage_epo]) / len(inst) * 100, 2)
+                )
+        else:
+            data = inst.get_data(
+                picks=picks,
+                reject_by_annotation="NaN" if reject_by_annotation else None,
+            )
 
-            # Get regions with the sleep stage of interest.
-            regions = collapse(ndimage.find_objects(ndimage.label(stage_mask)[0]))
-            psds, freqs, n_samples = self._compute_spectra(data, regions, **psd_kwargs)
-            info = self.mne_raw.copy().pick(picks).info
-            # Save percentage of the sleep stage.
-            info["description"] = str(round(n_samples / n_samples_total * 100, 2))
+            for stage, stage_idx in sleep_stages.items():
+                n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
 
-            self.psds[stage] = mne.time_frequency.SpectrumArray(psds, info, freqs)
+                # Two cases: when one stage is provided as integer vs
+                # when multiple stages as list, e.g., 'NREM': (1,2,3).
+                try:
+                    stage_mask = np.logical_or.reduce(
+                        [self.hypno_up == i for i in stage_idx]
+                    )
+                except TypeError:
+                    stage_mask = self.hypno_up == stage_idx
+
+                # Get regions with the sleep stage of interest.
+                regions = collapse(ndimage.find_objects(ndimage.label(stage_mask)[0]))
+                psds, freqs, n_samples = self._compute_spectra(
+                    data, regions, **psd_kwargs
+                )
+                info = self.mne_raw.copy().pick(picks).info
+                # Save percentage of the sleep stage.
+                info["description"] = str(round(n_samples / n_samples_total * 100, 2))
+
+                self.psds[stage] = mne.time_frequency.SpectrumArray(psds, info, freqs)
 
         if save:
             self.save_psds(overwrite)
