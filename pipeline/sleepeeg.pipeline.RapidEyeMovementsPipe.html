@@ -341,12 +341,11 @@
 <li><p><strong>aggfunc</strong> – Averaging function, “mean” or “median”. Defaults to “mean”.</p></li>
 <li><p><strong>sleep_stages</strong> – Mapping between sleep stages names and their integer representations.
 Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
-<li><p><strong>axis</strong> – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+<li><p><strong>axis</strong> – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.8.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
 Defaults to None.</p></li>
 <li><p><strong>save</strong> – Whether to save the figure. Defaults to False.</p></li>
 <li><p><strong>topomap_args</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.5)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.Defaults to None.</p></li>
-<li><p><strong>cbar_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
-<li><p><strong>subplots_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.subplots.html#matplotlib.pyplot.subplots" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.subplots()</span></code></a>.Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -370,12 +369,11 @@ Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}
 Defaults to 5.</p></li>
 <li><p><strong>high_percentile</strong> – Set max color value by percentile of the property data.
 Defaults to 95.</p></li>
+<li><p><strong>fig</strong> – Instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">mpl:matplotlib.pyplot.figure</span></code>. Defaults to None.</p></li>
 <li><p><strong>save</strong> – Whether to save the figure. Defaults to False.</p></li>
 <li><p><strong>topomap_args</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.5)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.
 Defaults to None.</p></li>
-<li><p><strong>cbar_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
-Defaults to None.</p></li>
-<li><p><strong>figure_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.figure.html#matplotlib.pyplot.figure" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.figure()</span></code></a>.
+<li><p><strong>cbar_args</strong> – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
 Defaults to None.</p></li>
 </ul>
 </dd>
@@ -384,7 +382,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.RapidEyeMovementsPipe.apply_tfr">
-<span class="sig-name descname"><span class="pre">apply_tfr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_after</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'morlet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">tfr_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L643-L768"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.RapidEyeMovementsPipe.apply_tfr" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">apply_tfr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_after</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'morlet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">tfr_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L636-L761"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.RapidEyeMovementsPipe.apply_tfr" title="Link to this definition">#</a></dt>
 <dd><p>Transforms the events signal to time-frequency representation.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -467,7 +465,7 @@ Defaults to False.</p></li>
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>legend</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]) – ch_groups names to connect to colors. Defaults to None.</p></li>
-<li><p><strong>legend_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="(in Matplotlib v3.7.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.legend()</span></code></a>.
+<li><p><strong>legend_args</strong> (<code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="(in Matplotlib v3.8.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.legend()</span></code></a>.
 Defaults to None.</p></li>
 <li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.5)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a>.</p></li>
 </ul>
@@ -494,7 +492,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeeg.pipeline.RapidEyeMovementsPipe.read_tfrs">
-<span class="sig-name descname"><span class="pre">read_tfrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L770-L789"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.RapidEyeMovementsPipe.read_tfrs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">read_tfrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeeg/blob/main/sleepeeg/pipeline.py#L763-L782"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeeg.pipeline.RapidEyeMovementsPipe.read_tfrs" title="Link to this definition">#</a></dt>
 <dd><p>Loads TFRs stored in hdf5 files.</p>
 <p>Filenames should end with {type_of_event}_{sleep_stage}-tfr.h5</p>
 <dl class="field-list simple">
