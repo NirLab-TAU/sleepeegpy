@@ -284,7 +284,10 @@ def create_dashboard(
     else:
         from ast import literal_eval
 
-        bads = literal_eval(pipe.mne_raw.info["description"])
+        try:
+            bads = literal_eval(pipe.mne_raw.info["description"])
+        except SyntaxError:
+            bads = []
 
     pipe.set_eeg_reference(ref_channels=reference)
     s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)

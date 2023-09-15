@@ -429,7 +429,6 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         save: bool = False,
         topomap_args: dict = None,
         cbar_args: dict = None,
-        subplots_args: dict = None,
     ):
         """Plots topomap for a sleep stage and some property of detected events.
 
@@ -444,7 +443,6 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             save: Whether to save the figure. Defaults to False.
             topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
             cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
-            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
         """
         from more_itertools import collapse
         from natsort import natsort_keygen
@@ -453,7 +451,6 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
-        subplots_args = subplots_args or dict()
         topomap_args.setdefault("cmap", color_palette("rocket_r", as_cmap=True))
         cbar_args.setdefault("label", prop)
 
@@ -471,7 +468,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             )
 
         if not axis:
-            fig, axis = plt.subplots(**subplots_args)
+            fig, axis = plt.subplots()
 
         # Group by channel, average (median) per stage and sort channels again.
         per_stage = grouped_summary.loc[
@@ -508,10 +505,10 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         low_percentile: float = 5,
         high_percentile: float = 95,
+        fig: plt.figure = None,
         save: bool = False,
         topomap_args: dict = None,
         cbar_args: dict = None,
-        figure_args: dict = None,
     ):
         """Plots topomap collage for multiple sleep stages and event properties.
 
@@ -527,12 +524,11 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
                 Defaults to 5.
             high_percentile: Set max color value by percentile of the property data.
                 Defaults to 95.
+            fig: Instance of :py:class:`mpl:matplotlib.pyplot.figure`. Defaults to None.
             save: Whether to save the figure. Defaults to False.
             topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.
                 Defaults to None.
             cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.
-                Defaults to None.
-            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.
                 Defaults to None.
 
         """
@@ -542,7 +538,6 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
-        figure_args = figure_args or dict()
         topomap_args.setdefault("cmap", "plasma")
         topomap_args.setdefault("vlim", [None, None])
 
@@ -555,10 +550,8 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             }
         n_rows = len(stages_to_plot)
         n_cols = len(props)
-
-        figure_args.setdefault("figsize", (n_cols * 4, n_rows * 4))
-        figure_args.setdefault("layout", "constrained")
-        fig = plt.figure(**figure_args)
+        if fig is None:
+            fig = plt.figure(figsize=(n_cols * 4, n_rows * 4), layout="constrained")
 
         subfigs = fig.subfigures(n_rows, 1)
 
@@ -809,7 +802,7 @@ class SpectrumPlots(ABC):
         plot_sensors: bool = False,
         save: bool = False,
         legend_args: dict = None,
-        **subplots_kw,
+        **plot_kwargs,
     ):
         """Plot PSD per sleep stage.
 
@@ -825,7 +818,7 @@ class SpectrumPlots(ABC):
             plot_sensors: Whether to plot sensor map showing which channels were used for
                 computing PSD. Defaults to False.
             save: Whether to save the figure. Defaults to False.
-            **subplots_kw: Arguments passed to the :py:func:`mpl:matplotlib.pyplot.subplots`.
+            **plot_kwargs: Arguments passed to the :py:func:`mpl:matplotlib.pyplot.plot`.
                 Have no effect if axis is provided.Defaults to None.
         """
         from mne.io.pick import _picks_to_idx
@@ -833,7 +826,7 @@ class SpectrumPlots(ABC):
         legend_args = legend_args or dict()
 
         if not axis:
-            fig, axis = plt.subplots(**subplots_kw)
+            fig, axis = plt.subplots()
 
         for stage, spectrum in self.psds.items():
             # In case picks contain multiple channels - their powers will be avged.
@@ -846,6 +839,7 @@ class SpectrumPlots(ABC):
                 spectrum._freqs,
                 psds,
                 label=f"{stage} ({spectrum.info['description']}%)",
+                **plot_kwargs,
             )
 
         axis.set_xlim(freq_range)
@@ -922,7 +916,6 @@ class SpectrumPlots(ABC):
         save: bool = False,
         topomap_args: dict = None,
         cbar_args: dict = None,
-        subplots_args: dict = None,
     ):
         """Plots topomap for a sleep stage and a frequency band.
 
@@ -937,13 +930,11 @@ class SpectrumPlots(ABC):
             save: Whether to save the figure. Defaults to False.
             topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
             cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
-            subplots_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.subplots`.Defaults to None.
         """
         from .utils import plot_topomap
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
-        subplots_args = subplots_args or dict()
         topomap_args.setdefault("cmap", "plasma")
         cbar_args.setdefault(
             "label",
@@ -953,7 +944,7 @@ class SpectrumPlots(ABC):
             raise KeyError(f"The {stage} stage is not in self.psds")
 
         if axis is None:
-            fig, axis = plt.subplots(**subplots_args)
+            fig, axis = plt.subplots()
 
         [(_, b)] = band.items()
 
@@ -1006,10 +997,10 @@ class SpectrumPlots(ABC):
         dB: bool = False,
         low_percentile: float = 5,
         high_percentile: float = 95,
+        fig: plt.figure = None,
         save: bool = False,
         topomap_args: dict = None,
         cbar_args: dict = None,
-        figure_args: dict = None,
     ):
         """Plots topomap collage for multiple sleep stages and bands.
 
@@ -1029,16 +1020,17 @@ class SpectrumPlots(ABC):
                 Defaults to 5.
             high_percentile: Set max color value by percentile of the band data.
                 Defaults to 95.
+            fig: Instance of :py:class:`mpl:matplotlib.pyplot.figure`. Defaults to None.
             save: Whether to save the figure. Defaults to False.
-            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.Defaults to None.
-            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.Defaults to None.
-            figure_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.figure`.Defaults to None.
+            topomap_args: Arguments passed to :py:func:`mne:mne.viz.plot_topomap`.
+                Defaults to None.
+            cbar_args: Arguments passed to :py:func:`mpl:matplotlib.pyplot.colorbar`.
+                Defaults to None.
         """
         from .utils import plot_topomap
 
         topomap_args = topomap_args or dict()
         cbar_args = cbar_args or dict()
-        figure_args = figure_args or dict()
         topomap_args.setdefault("cmap", "plasma")
         topomap_args.setdefault("vlim", [None, None])
         cbar_args.setdefault(
@@ -1050,10 +1042,8 @@ class SpectrumPlots(ABC):
             stages_to_plot = self.psds.keys()
         n_rows = len(stages_to_plot)
         n_cols = len(bands)
-
-        figure_args.setdefault("figsize", (n_cols * 4, n_rows * 4))
-        figure_args.setdefault("layout", "constrained")
-        fig = plt.figure(**figure_args)
+        if fig is None:
+            fig = plt.figure(figsize=(n_cols * 4, n_rows * 4), layout="constrained")
         subfigs = fig.subfigures(n_rows, 1)
 
         if low_percentile:
