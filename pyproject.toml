@@ -7,7 +7,7 @@ exclude = ["notebooks"]  # empty by default
 
 [project]
 name = "sleepeeg"
-version = "0.4.0"
+version = "0.4.1"
 authors = [
     {name = "Gennadiy Belonosov", email = "gennadiyb@mail.tau.ac.il"},
 ]
