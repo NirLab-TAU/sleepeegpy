@@ -1,9 +1,10 @@
 import os
 import time
 from collections.abc import Iterable, Sequence
+from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from mne import pick_types
 from mne.io.pick import _picks_to_idx
@@ -194,19 +195,26 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
     )
 
 
+def _check_pipe_folders(output_dir):
+    pipes = ["CleaningPipe", "ICAPipe", "SpectralPipe"]
+    p = Path(output_dir)
+    children = [f.name for f in p.iterdir()]
+    return {pipe: pipe in children for pipe in pipes}
+
+
 def create_dashboard(
     subject_code: str | os.PathLike,
     path_to_eeg: str | os.PathLike,
     path_to_hypnogram: str | os.PathLike | None,
     hypno_freq: float | None,
-    path_to_bad_channels: str | os.PathLike | None,
-    path_to_annotations: str | os.PathLike | None,
     output_dir: str | os.PathLike,
-    reference: Iterable[str] | str | None = None,
+    reference: Iterable[str] | str | None,
+    hypno_psd_pick: Iterable[str] | str = ["E101"],
     resampling_freq: float | None = None,
     bandpass_filter_freqs: Iterable[float | None] = None,
-    hypno_psd_pick: Iterable[str] | str = ["E101"],
     path_to_ica_fif: str | os.PathLike = None,
+    path_to_bad_channels: str | os.PathLike | None = None,
+    path_to_annotations: str | os.PathLike | None = None,
     topomap_cbar_limits: Sequence[tuple[float, float]] | None = None,
 ):
     """Applies cleaning, runs psd analyses and plots them on the dashboard.
@@ -220,18 +228,18 @@ def create_dashboard(
         path_to_eeg: Path to the raw mff file.
         path_to_hypnogram: Path to the hypnogram yasa-style hypnogram.
         hypno_freq: Sampling rate of the hypnogram in Hz.
-        path_to_bad_channels: Path to bad_channels.txt saved by plot() method.
-        path_to_annotations: Path to annotations saved by plot() method.
         output_dir: Directory to save the dashboard image in.
         reference: Reference to apply as accepts
             :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
             Defaults to None.
+        hypno_psd_pick: Channel to compute spectrogram and PSD plots for.
+            Defaults to ['E101'].
         resampling_freq: New frequency in Hz. Defaults to None.
         bandpass_filter_freqs: Lower and upper bounds of the filter.
             Defaults to None.
-        hypno_psd_pick: Channel to compute spectrogram and PSD plots for.
-            Defaults to ['E101'].
         path_to_ica_fif: Path to ica components file. Defaults to None.
+        path_to_bad_channels: Path to bad_channels.txt.
+        path_to_annotations: Path to annotations.
         topomap_cbar_limits: Power limits for topography plots.
             If None - will be adaptive. Defaults to None.
     """
@@ -244,20 +252,18 @@ def create_dashboard(
     else:
         is_adaptive_topo = False
 
+    pipe_folders = _check_pipe_folders(output_dir=output_dir)
+
     fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
     gs = fig.add_gridspec(5, 4)
     info_subfig = fig.add_subfigure(gs[0:2, 0:2])
     topo_subfig = fig.add_subfigure(gs[0:2, 2:4])
     info_axes = info_subfig.subplots(1, 2)
     topo_axes = topo_subfig.subplots(2, 2)
-    spectrum_before = fig.add_subfigure(gs[2:5, 0:2])
-    gs_s_bef = spectrum_before.add_gridspec(3, 1)
-    spectrum_after = fig.add_subfigure(gs[2:5, 2:4])
-    gs_s_aft = spectrum_after.add_gridspec(3, 1)
-    hypno_before = spectrum_before.add_subplot(gs_s_bef[0:1])
-    hypno_after = spectrum_after.add_subplot(gs_s_aft[0:1])
-    psd_before = spectrum_before.add_subplot(gs_s_bef[1:3])
-    psd_after = spectrum_after.add_subplot(gs_s_aft[1:3])
+    hypno_before = fig.add_subplot(gs[2:3, 0:2])
+    hypno_after = fig.add_subplot(gs[2:3, 2:4])
+    psd_before = fig.add_subplot(gs[3:5, 0:2])
+    psd_after = fig.add_subplot(gs[3:5, 2:4])
 
     fig.suptitle(f"Dashboard <{subject_code}>")
     pick = (
@@ -265,8 +271,8 @@ def create_dashboard(
         if isinstance(hypno_psd_pick, str)
         else ", ".join(str(x) for x in hypno_psd_pick)
     )
-    spectrum_before.suptitle(f"Spectra after interpolating bad channels ({pick})")
-    spectrum_after.suptitle(f"Spectra after rejecting bad data spans ({pick})")
+    hypno_before.set_title(f"Spectra after interpolating bad channels ({pick})")
+    hypno_after.set_title(f"Spectra after rejecting bad data spans ({pick})")
 
     pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
 
@@ -378,3 +384,15 @@ def create_dashboard(
     psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
     fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")
+
+    del pipe
+    del s_pipe
+    p = Path(output_dir)
+    for pipe, is_existed in pipe_folders.items():
+        if not is_existed:
+            try:
+                os.rmdir(p / pipe)
+            except:
+                pass
+
+    return fig

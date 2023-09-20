@@ -26,7 +26,6 @@ def plot_topomap(
     data,
     axis,
     info=None,
-    shrink_cbar=0.6,
     topomap_args=None,
     cbar_args=None,
 ):
@@ -44,7 +43,7 @@ def plot_topomap(
     )
 
     cbar_args = cbar_args or dict()
-    cbar_args.setdefault("shrink", shrink_cbar)
+    cbar_args.setdefault("shrink", 0.6)
     cbar_args.setdefault("orientation", "vertical")
     colorbar(
         im,

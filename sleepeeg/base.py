@@ -554,6 +554,8 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             fig = plt.figure(figsize=(n_cols * 4, n_rows * 4), layout="constrained")
 
         subfigs = fig.subfigures(n_rows, 1)
+        if not isinstance(subfigs, Iterable):
+            subfigs = [subfigs]
 
         # Get detection results df and sort it naturally by channel name.
         grouped_summary = (
@@ -634,7 +636,7 @@ class BaseEventPipe(BaseHypnoPipe, ABC):
             )
 
     @logger_wraps()
-    def apply_tfr(
+    def compute_tfr(
         self,
         freqs: Iterable[float],
         n_freqs: int,
@@ -1044,7 +1046,10 @@ class SpectrumPlots(ABC):
         n_cols = len(bands)
         if fig is None:
             fig = plt.figure(figsize=(n_cols * 4, n_rows * 4), layout="constrained")
+
         subfigs = fig.subfigures(n_rows, 1)
+        if not isinstance(subfigs, Iterable):
+            subfigs = [subfigs]
 
         if low_percentile:
             perc_low = dict()
