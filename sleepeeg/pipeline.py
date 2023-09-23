@@ -485,7 +485,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             )
 
         # Save the figure if 'save' set to True
-        if save and fig:
+        if save and "fig" in locals():
             self._savefig(
                 f"spectrogram.png",
                 fig,

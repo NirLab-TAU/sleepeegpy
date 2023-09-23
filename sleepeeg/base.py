@@ -992,7 +992,7 @@ class SpectrumPlots(ABC):
             "Delta": (0, 3.99),
             "Theta": (4, 7.99),
             "Alpha": (8, 12.49),
-            "SMR": (12.5, 15),
+            "Sigma": (12.5, 15),
             "Beta": (12.5, 29.99),
             "Gamma": (30, 60),
         },
@@ -1014,7 +1014,7 @@ class SpectrumPlots(ABC):
             bands: Dict of name-value pairs - with name=arbitrary name
                 and value=(l_freq, h_freq).
                 Defaults to { "Delta": (0, 3.99), "Theta": (4, 7.99), "Alpha": (8, 12.49),
-                "SMR": (12.5, 15), "Beta": (12.5, 29.99), "Gamma": (30, 60), }.
+                "Sigma": (12.5, 15), "Beta": (12.5, 29.99), "Gamma": (30, 60), }.
             dB: Whether transform PSD to dB. Defaults to False.
             sleep_stages: Mapping between sleep stages names and their integer representations.
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.

@@ -130,13 +130,13 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
     if len(sleep_stages) == 1:
         stages = ["All"] * 4
         topo_axes[0, 0].set_title(f"Alpha (8-12 Hz)")
-        topo_axes[0, 1].set_title(f"SMR (12-15 Hz)")
+        topo_axes[0, 1].set_title(f"Sigma (12-15 Hz)")
         topo_axes[1, 0].set_title(f"Delta (0.5-4 Hz)")
         topo_axes[1, 1].set_title(f"Theta (4-8 Hz)")
     else:
         stages = ["Wake", "N2", "N3", "REM"]
         topo_axes[0, 0].set_title(f"{stages[0]}, Alpha (8-12 Hz)")
-        topo_axes[0, 1].set_title(f"{stages[1]}, SMR (12-15 Hz)")
+        topo_axes[0, 1].set_title(f"{stages[1]}, Sigma (12-15 Hz)")
         topo_axes[1, 0].set_title(f"{stages[2]}, Delta (0.5-4 Hz)")
         topo_axes[1, 1].set_title(f"{stages[3]}, Theta (4-8 Hz)")
 
@@ -169,7 +169,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
 
     s_pipe.plot_topomap(
         stage=stages[1],
-        band={"SMR": (12, 15)},
+        band={"Sigma": (12, 15)},
         dB=False,
         axis=topo_axes[0, 1],
         topomap_args=dict(cmap="plasma", vlim=topo_lims[1]),
@@ -383,8 +383,6 @@ def create_dashboard(
     psd_before.yaxis.set_label_coords(-0.05, 0.5)
     psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
-    fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")
-
     del pipe
     del s_pipe
     p = Path(output_dir)
@@ -394,5 +392,7 @@ def create_dashboard(
                 os.rmdir(p / pipe)
             except:
                 pass
+
+    fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")
 
     return fig
