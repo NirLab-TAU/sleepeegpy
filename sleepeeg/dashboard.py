@@ -84,7 +84,6 @@ def _hypno_psd(
     s_pipe.compute_psds_per_stage(
         sleep_stages=sleep_stages,
         reference=None,
-        method="welch",
         fmin=0,
         fmax=25,
         save=False,
@@ -143,7 +142,6 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         s_pipe.compute_psds_per_stage(
             sleep_stages=sleep_stages,
             reference="average",
-            method="welch",
             fmin=0,
             fmax=25,
             save=False,
