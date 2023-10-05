@@ -9,7 +9,7 @@ from matplotlib.colors import LinearSegmentedColormap
 from mne import pick_types
 from mne.io.pick import _picks_to_idx
 
-from .pipeline import CleaningPipe, SpectralPipe
+from .pipeline import CleaningPipe, ICAPipe, SpectralPipe
 
 
 def _init_s_pipe(prec_pipe, path_to_hypnogram, hypno_freq):
@@ -50,7 +50,7 @@ def _filter(pipe, sfreq, fmin, fmax):
     if sfreq is None or sfreq >= pipe.sf:
         sfreq = pipe.sf
     else:
-        pipe.resample(sfreq=sfreq, n_jobs=-1)
+        pipe.resample(sfreq=sfreq)
 
     notch_freqs = np.arange(50, int(pipe.sf / 2), 50)
     hp = pipe.mne_raw.info["highpass"]
@@ -58,14 +58,14 @@ def _filter(pipe, sfreq, fmin, fmax):
     if fmin is None or fmin <= hp:
         fmin = hp
     else:
-        pipe.filter(l_freq=fmin, h_freq=None, n_jobs=-1)
+        pipe.filter(l_freq=fmin, h_freq=None)
     if fmax is None or fmax >= lp:
         fmax = lp
     else:
-        pipe.filter(l_freq=None, h_freq=fmax, n_jobs=-1)
+        pipe.filter(l_freq=None, h_freq=fmax)
 
     if fmax > 50:
-        pipe.notch(freqs=notch_freqs, n_jobs=-1)
+        pipe.notch(freqs=notch_freqs)
     else:
         notch_freqs = [None]
 
@@ -91,7 +91,6 @@ def _hypno_psd(
         save=False,
         picks="eeg",
         reject_by_annotation=rba,
-        n_jobs=-1,
         verbose=False,
         n_fft=2048,
         n_per_seg=768,
@@ -150,7 +149,6 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
             save=False,
             picks="eeg",
             reject_by_annotation=True,
-            n_jobs=-1,
             verbose=False,
             n_fft=2048,
             n_per_seg=2048,
@@ -204,11 +202,11 @@ def _check_pipe_folders(output_dir):
 
 def create_dashboard(
     subject_code: str | os.PathLike,
-    path_to_eeg: str | os.PathLike,
-    path_to_hypnogram: str | os.PathLike | None,
-    hypno_freq: float | None,
-    output_dir: str | os.PathLike,
-    reference: Iterable[str] | str | None,
+    path_to_eeg: str | os.PathLike | None = None,
+    path_to_hypnogram: str | os.PathLike | None = None,
+    hypno_freq: float | None = None,
+    output_dir: str | os.PathLike | None = None,
+    reference: Iterable[str] | str | None = None,
     hypno_psd_pick: Iterable[str] | str = ["E101"],
     resampling_freq: float | None = None,
     bandpass_filter_freqs: Iterable[float | None] = None,
@@ -216,6 +214,7 @@ def create_dashboard(
     path_to_bad_channels: str | os.PathLike | None = None,
     path_to_annotations: str | os.PathLike | None = None,
     topomap_cbar_limits: Sequence[tuple[float, float]] | None = None,
+    prec_pipe: ICAPipe | CleaningPipe | None = None,
 ):
     """Applies cleaning, runs psd analyses and plots them on the dashboard.
     Can accept raw, resampled, filtered or cleaned (annotated) recording,
@@ -242,6 +241,9 @@ def create_dashboard(
         path_to_annotations: Path to annotations.
         topomap_cbar_limits: Power limits for topography plots.
             If None - will be adaptive. Defaults to None.
+        prec_pipe: A pipe object from which to build the dashboard.
+            If of type ICAPipe, the components should be marked for exclusion,
+            but not applied. Defaults to None.
     """
 
     if bandpass_filter_freqs is None:
@@ -252,7 +254,18 @@ def create_dashboard(
     else:
         is_adaptive_topo = False
 
-    pipe_folders = _check_pipe_folders(output_dir=output_dir)
+    pipe_folders = _check_pipe_folders(
+        output_dir=prec_pipe.output_dir if prec_pipe else output_dir
+    )
+
+    if isinstance(prec_pipe, CleaningPipe):
+        pipe = prec_pipe
+    elif isinstance(prec_pipe, ICAPipe):
+        pipe = CleaningPipe(prec_pipe=prec_pipe)
+    elif prec_pipe is None:
+        pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
+    else:
+        raise TypeError("prec_pipe expected to be CleaningPipe or ICAPipe")
 
     fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
     gs = fig.add_gridspec(5, 4)
@@ -274,8 +287,6 @@ def create_dashboard(
     hypno_before.set_title(f"Spectra after interpolating bad channels ({pick})")
     hypno_after.set_title(f"Spectra after rejecting bad data spans ({pick})")
 
-    pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
-
     sfreq, fmin, fmax, notch_freqs = _filter(
         pipe,
         resampling_freq,
@@ -294,8 +305,8 @@ def create_dashboard(
             bads = literal_eval(pipe.mne_raw.info["description"])
         except SyntaxError:
             bads = []
-
-    pipe.set_eeg_reference(ref_channels=reference)
+    if reference:
+        pipe.set_eeg_reference(ref_channels=reference)
     s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
     min_psd, max_psd = _hypno_psd(
         s_pipe,
@@ -313,10 +324,12 @@ def create_dashboard(
 
     is_ica = False
     if path_to_ica_fif:
-        from sleepeeg.pipeline import ICAPipe
-
         is_ica = True
         pipe = ICAPipe(prec_pipe=pipe, path_to_ica=path_to_ica_fif)
+        pipe.apply()
+    elif isinstance(prec_pipe, ICAPipe):
+        is_ica = True
+        pipe = prec_pipe
         pipe.apply()
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
@@ -375,7 +388,7 @@ def create_dashboard(
         max_psd,
         rba=True,
     )
-
+    psd_after.get_legend().remove()
     _topo(s_pipe, reference, sleep_stages, topo_axes, topomap_cbar_limits)
 
     hypno_before.yaxis.set_label_coords(-0.05, 0.5)
@@ -383,16 +396,13 @@ def create_dashboard(
     psd_before.yaxis.set_label_coords(-0.05, 0.5)
     psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
-    del pipe
-    del s_pipe
-    p = Path(output_dir)
-    for pipe, is_existed in pipe_folders.items():
+    for pipe_name, is_existed in pipe_folders.items():
         if not is_existed:
             try:
-                os.rmdir(p / pipe)
+                os.rmdir(pipe.output_dir / pipe_name)
             except:
                 pass
 
-    fig.savefig(f"{output_dir}/dashboard_{subject_code}.png")
+    fig.savefig(pipe.output_dir / f"dashboard_{subject_code}.png")
 
     return fig

@@ -586,11 +586,11 @@ class SpindlesPipe(BaseEventPipe):
         """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
         from yasa import spindles_detect
 
+        inst = self.mne_raw.copy().load_data()
+        if reference is not None:
+            inst.set_eeg_reference(ref_channels=reference)
         self.results = spindles_detect(
-            data=self.mne_raw.copy()
-            .load_data()
-            .set_eeg_reference(ref_channels=reference)
-            .pick(picks),
+            data=inst.pick(picks),
             hypno=self.hypno_up,
             verbose=verbose,
             include=include,
@@ -631,11 +631,11 @@ class SlowWavesPipe(BaseEventPipe):
         """A wrapper around :py:func:`yasa:yasa.sw_detect` with option to save."""
         from yasa import sw_detect
 
+        inst = self.mne_raw.copy().load_data()
+        if reference is not None:
+            inst.set_eeg_reference(ref_channels=reference)
         self.results = sw_detect(
-            data=self.mne_raw.copy()
-            .load_data()
-            .set_eeg_reference(ref_channels=reference)
-            .pick(picks),
+            data=inst.pick(picks),
             hypno=self.hypno_up,
             verbose=verbose,
             include=include,
@@ -673,11 +673,12 @@ class RapidEyeMovementsPipe(BaseEventPipe):
         """A wrapper around :py:func:`yasa:yasa.rem_detect` with option to save."""
         from yasa import rem_detect
 
-        referenced = (
-            self.mne_raw.copy().load_data().set_eeg_reference(ref_channels=reference)
-        )
-        loc = referenced.get_data([loc_chname], units="uV", reject_by_annotation="NaN")
-        roc = referenced.get_data([roc_chname], units="uV", reject_by_annotation="NaN")
+        inst = self.mne_raw.copy().load_data()
+        if reference is not None:
+            inst.set_eeg_reference(ref_channels=reference)
+
+        loc = inst.get_data([loc_chname], units="uV", reject_by_annotation="NaN")
+        roc = inst.get_data([roc_chname], units="uV", reject_by_annotation="NaN")
         self.results = rem_detect(
             loc=loc,
             roc=roc,
