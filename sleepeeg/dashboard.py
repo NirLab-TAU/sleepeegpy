@@ -12,8 +12,8 @@ from mne.io.pick import _picks_to_idx
 from .pipeline import CleaningPipe, ICAPipe, SpectralPipe
 
 
-def _init_s_pipe(prec_pipe, path_to_hypnogram, hypno_freq):
-    if path_to_hypnogram is None:
+def _init_s_pipe(prec_pipe, hypnogram, hypno_freq, predict_hypno_args):
+    if hypnogram is None:
         s_pipe = SpectralPipe(
             prec_pipe=prec_pipe,
         )
@@ -21,10 +21,17 @@ def _init_s_pipe(prec_pipe, path_to_hypnogram, hypno_freq):
         s_pipe.hypno_freq = s_pipe.sf
         s_pipe._upsample_hypno()
         sleep_stages = {"All": 0}
+    elif hypnogram == "predict":
+        s_pipe = SpectralPipe(
+            prec_pipe=prec_pipe,
+            hypno_freq=hypno_freq,
+        )
+        s_pipe.predict_hypno(**predict_hypno_args)
+        sleep_stages = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}
     else:
         s_pipe = SpectralPipe(
             prec_pipe=prec_pipe,
-            path_to_hypno=path_to_hypnogram,
+            path_to_hypno=hypnogram,
             hypno_freq=hypno_freq,
         )
         sleep_stages = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}
@@ -203,8 +210,9 @@ def _check_pipe_folders(output_dir):
 def create_dashboard(
     subject_code: str | os.PathLike,
     path_to_eeg: str | os.PathLike | None = None,
-    path_to_hypnogram: str | os.PathLike | None = None,
+    hypnogram: str | os.PathLike | None = None,
     hypno_freq: float | None = None,
+    predict_hypno_args: dict | None = None,
     output_dir: str | os.PathLike | None = None,
     reference: Iterable[str] | str | None = None,
     hypno_psd_pick: Iterable[str] | str = ["E101"],
@@ -225,8 +233,15 @@ def create_dashboard(
     Args:
         subject_code: Subject code.
         path_to_eeg: Path to the raw mff file.
-        path_to_hypnogram: Path to the hypnogram yasa-style hypnogram.
+        hypnogram: Either path to the yasa-style hypnogram or
+            'predict' for hypnogram prediction using YASA.
+            If 'predict', make sure to pass predict_hypno_args.
+            Defaults to None.
         hypno_freq: Sampling rate of the hypnogram in Hz.
+        predict_hypno_args: dict containing 'eeg_name', 'eog_name',
+            'emg_name', 'ref_name' and 'save' keys. First four should be
+            channel names according to YASA's suggestions, 'save' is a bool
+            for whether to save predicted hypnogram as a file. Defaults to None.
         output_dir: Directory to save the dashboard image in.
         reference: Reference to apply as accepts
             :py:meth:`mne:mne.io.Raw.set_eeg_reference`.
@@ -253,6 +268,18 @@ def create_dashboard(
         is_adaptive_topo = True
     else:
         is_adaptive_topo = False
+
+    predict_hypno_args = predict_hypno_args or dict()
+    if hypnogram == "predict":
+        if set(predict_hypno_args.keys()) < {
+            "eeg_name",
+            "eog_name",
+            "emg_name",
+            "ref_name",
+        }:
+            raise ValueError(
+                "predict_hypno_args should include all of the keys: 'eeg_name', 'eog_name', 'emg_name', 'ref_name'."
+            )
 
     pipe_folders = _check_pipe_folders(
         output_dir=prec_pipe.output_dir if prec_pipe else output_dir
@@ -307,7 +334,7 @@ def create_dashboard(
             bads = []
     if reference:
         pipe.set_eeg_reference(ref_channels=reference)
-    s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
+    s_pipe, sleep_stages = _init_s_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
     min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
@@ -376,7 +403,7 @@ def create_dashboard(
         horizontalalignment="left",
     )
 
-    s_pipe, sleep_stages = _init_s_pipe(pipe, path_to_hypnogram, hypno_freq)
+    s_pipe.mne_raw = pipe.mne_raw
 
     _hypno_psd(
         s_pipe,

@@ -286,7 +286,7 @@ class BaseHypnoPipe(BasePipe, ABC):
                 "Sampling frequency of hypnogram must be smaller than that of eeg signal."
             )
         if not repeats.is_integer():
-            raise ValueError("sf_hypno / sf_data must be a whole number.")
+            raise ValueError("sf_data / sf_hypno must be a whole number.")
         hypno_up = np.repeat(np.asarray(self.hypno), repeats)
 
         # Fit to data
@@ -343,13 +343,13 @@ class BaseHypnoPipe(BasePipe, ABC):
         self.hypno = hypno_str_to_int(hypno)
         self.hypno_freq = 1 / 30
         self._upsample_hypno()
-        sls.plot_predict_proba()
         if save:
             np.savetxt(
                 self.output_dir / self.__class__.__name__ / "predicted_hypno.txt",
                 self.hypno,
                 fmt="%d",
             )
+            sls.plot_predict_proba()
             self._savefig("predicted_hypno_probabilities.png")
 
     def sleep_stats(self, save: bool = False):
@@ -365,7 +365,7 @@ class BaseHypnoPipe(BasePipe, ABC):
 
         if self.hypno is None:
             raise ValueError("There is no hypnogram to get stats from.")
-        stats = sleep_statistics(self.hypno, self.hypno_freq)
+        stats = sleep_statistics(self.hypno_up, self.sf)
         if save:
             with open(
                 self.output_dir / self.__class__.__name__ / "sleep_stats.csv",
