@@ -14,7 +14,7 @@ from pathlib import Path
 
 sys.path.append(os.path.abspath(".."))
 
-project = "sleepeeg"
+project = "sleepeegpy"
 copyright = "2023, Yuval Nir lab"
 author = "Gennadiy Belonosov"
 
@@ -87,7 +87,7 @@ def linkcode_resolve(domain, info):
         linespec = "#L%d-L%d" % (lineno, lineno + len(source) - 1)
     else:
         linespec = ""
-    return f"https://github.com/NirLab-TAU/sleepeeg/blob/main/{info['module'].replace('.', '/')}.py{linespec}"
+    return f"https://github.com/NirLab-TAU/sleepeegpy/blob/main/{info['module'].replace('.', '/')}.py{linespec}"
 
 
 def all_but_ipynb(dir, contents):

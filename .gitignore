@@ -3,4 +3,4 @@ docs/_build
 sleepeeg.egg-info
 dist
 docs/notebooks
-sleepeeg/__pycache__
+sleepeegpy/__pycache__
