@@ -89,7 +89,7 @@ def _hypno_psd(
     max_psd,
     rba,
 ):
-    s_pipe.compute_psds_per_stage(
+    s_pipe.compute_psd(
         sleep_stages=sleep_stages,
         reference=None,
         fmin=0,
@@ -146,7 +146,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         topo_axes[1, 1].set_title(f"{stages[3]}, Theta (4-8 Hz)")
 
     if reference != "average":
-        s_pipe.compute_psds_per_stage(
+        s_pipe.compute_psd(
             sleep_stages=sleep_stages,
             reference="average",
             fmin=0,

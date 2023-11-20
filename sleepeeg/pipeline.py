@@ -300,7 +300,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     """
 
     @logger_wraps()
-    def compute_psds_per_stage(
+    def compute_psd(
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         reference: Iterable[str] | str | None = None,
@@ -801,7 +801,7 @@ class GrandSpectralPipe(SpectrumPlots):
             fig.savefig(self.output_dir / self.__class__.__name__ / fname, **kwargs)
 
     @logger_wraps()
-    def compute_psds_per_stage(
+    def compute_psd(
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         reference: Iterable[str] | str | None = None,
@@ -834,7 +834,7 @@ class GrandSpectralPipe(SpectrumPlots):
 
         avg_func = np.median if average == "median" else np.mean
         for pipe in self.pipes:
-            pipe.compute_psds_per_stage(
+            pipe.compute_psd(
                 sleep_stages=sleep_stages,
                 reference=reference,
                 fmin=fmin,
