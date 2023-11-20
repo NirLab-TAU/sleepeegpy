@@ -13,7 +13,7 @@ import numpy as np
 from attrs import define, field
 from loguru import logger
 
-from .base import BaseEventPipe, BaseHypnoPipe, BasePipe, SleepSpectrum, SpectrumPlots
+from .base import BaseEventPipe, BaseHypnoPipe, BasePipe, SpectrumPlots
 from .utils import logger_wraps
 
 # For type annotation of pipe elements.
@@ -281,6 +281,20 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     spectrogram and topomaps per sleep stage.
     """
 
+    mne_raw: mne.io.Raw | mne.Epochs = field(init=False)
+    """An instanse of :py:class:`mne:mne.io.Raw` or :py:class:`mne:mne.Epochs`.
+    """
+
+    @mne_raw.default
+    def _read_mne_raw(self):
+        if self.prec_pipe:
+            return self.prec_pipe.mne_raw
+        try:
+            eeg = mne.io.read_raw(self.path_to_eeg)
+        except ValueError:
+            eeg = mne.read_epochs(self.path_to_eeg)
+        return eeg
+
     fooofs: dict = field(init=False, factory=dict)
     """Instances of :py:class:`fooof:fooof.FOOOF` per sleep stage.
     """
@@ -290,25 +304,21 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         reference: Iterable[str] | str | None = None,
-        method: str = "welch",
         fmin: float = 0,
         fmax: float = 60,
         picks: str | Iterable[str] = "eeg",
         reject_by_annotation: bool = True,
         save: bool = False,
         overwrite: bool = False,
-        n_jobs: bool = -1,
-        verbose: bool = False,
         **psd_kwargs,
     ):
-        """For each sleep stage creates a :class:`.SleepSpectrum` object.
+        """For each sleep stage creates a :py:class:`mne:mne.time_frequency.SpectrumArray` object.
 
         Args:
             sleep_stages: Sleep stages mapping in hypnogram.
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
             reference: Which eeg reference to compute PSD with.
                 If None, the reference isn't changed. Defaults to None.
-            method: Spectral estimation method. Defaults to "welch".
             fmin: Lower frequency bound. Defaults to 0.
             fmax: Upper frequency bound. Defaults to 60.
             picks: Channels to compute spectra for. Refer to :py:meth:`mne:mne.io.Raw.pick`.
@@ -316,37 +326,82 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             reject_by_annotation: Whether to not use the annotations for the spectra computation.
                 Defaults to True.
             save: Whether to save the spectra in .h5 files. Defaults to False.
-            overwrite: Whether to overwrite the file. Defaults to False.
-            n_jobs: The number of jobs to run in parallel. If -1,
-                it is set to the number of CPU cores. Defaults to -1.
-            verbose: Control verbosity of the logging output.
-                If None, use the default verbosity level. Defaults to False.
-            **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
-                or :py:func:`mne:mne.time_frequency.psd_array_multitaper` and 'multitaper_segments_len'
-                for length of the uniform segments.
+            overwrite: Whether to overwrite psd files. Defaults to False.
+            **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`.
         """
-        inst = self.mne_raw.copy().load_data()
+        from more_itertools import collapse
+        from scipy import ndimage
+
+        psd_kwargs["fmin"] = fmin
+        psd_kwargs["fmax"] = fmax
+
         if reference is not None:
-            inst.set_eeg_reference(ref_channels=reference)
-        for stage, stage_idx in sleep_stages.items():
-            self.psds[stage] = SleepSpectrum(
-                inst,
-                hypno=self.hypno_up,
-                stage_idx=stage_idx,
-                method=method,
-                fmin=fmin,
-                fmax=fmax,
-                tmin=None,
-                tmax=None,
+            inst = self.mne_raw.copy().load_data().set_eeg_reference(reference)
+        else:
+            inst = self.mne_raw
+
+        if isinstance(inst, mne.Epochs):
+            for stage, stage_epo in sleep_stages.items():
+                self.psds[stage] = (
+                    inst[stage_epo].compute_psd(picks=picks, **psd_kwargs).average()
+                )
+                self.psds[stage].info["description"] = str(
+                    round(len(inst[stage_epo]) / len(inst) * 100, 2)
+                )
+        else:
+            data = inst.get_data(
                 picks=picks,
-                proj=False,
-                reject_by_annotation=reject_by_annotation,
-                n_jobs=n_jobs,
-                verbose=verbose,
-                **psd_kwargs,
+                reject_by_annotation="NaN" if reject_by_annotation else None,
             )
+
+            for stage, stage_idx in sleep_stages.items():
+                n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
+
+                # Two cases: when one stage is provided as integer vs
+                # when multiple stages as list, e.g., 'NREM': (1,2,3).
+                try:
+                    stage_mask = np.logical_or.reduce(
+                        [self.hypno_up == i for i in stage_idx]
+                    )
+                except TypeError:
+                    stage_mask = self.hypno_up == stage_idx
+
+                # Get regions with the sleep stage of interest.
+                regions = collapse(ndimage.find_objects(ndimage.label(stage_mask)[0]))
+                psds, freqs, n_samples = self._compute_spectra(
+                    data, regions, **psd_kwargs
+                )
+                info = self.mne_raw.copy().pick(picks).info
+                # Save percentage of the sleep stage.
+                info["description"] = str(round(n_samples / n_samples_total * 100, 2))
+
+                self.psds[stage] = mne.time_frequency.SpectrumArray(psds, info, freqs)
+
         if save:
             self.save_psds(overwrite)
+
+    def _compute_spectra(self, data, regions, **kwargs):
+        psds_list, weights = [], []
+        n_samples = 0
+
+        for region in regions:
+            # For weighting.
+            n_samples_per_reg = np.count_nonzero(~np.isnan(data[:, region]), axis=1)[0]
+            psds, freqs = mne.time_frequency.psd_array_welch(
+                data[:, region], self.sf, **kwargs
+            )
+            psds_list.append(psds)
+            weights.append(n_samples_per_reg)
+            n_samples += n_samples_per_reg
+
+        # If there are nans in PSD, mask'em.
+        masked_data = np.ma.masked_array(
+            np.array(psds_list), np.isnan(np.array(psds_list))
+        )
+        # Weighted average
+        average = np.ma.average(masked_data, weights=weights, axis=0)
+        avg_psds = average.filled(np.nan)
+        return avg_psds, freqs, n_samples
 
     @logger_wraps()
     def parametrize(self, picks, freq_range=None, average_ch=False, **kwargs):
@@ -750,7 +805,6 @@ class GrandSpectralPipe(SpectrumPlots):
         self,
         sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         reference: Iterable[str] | str | None = None,
-        method: str = "welch",
         fmin: float = 0,
         fmax: float = 60,
         average: str = "mean",
@@ -758,18 +812,15 @@ class GrandSpectralPipe(SpectrumPlots):
         reject_by_annotation: bool = True,
         save: bool = False,
         overwrite: bool = False,
-        n_jobs: bool = -1,
-        verbose: bool = False,
         **psd_kwargs,
     ):
-        """For each sleep stage creates a :class:`.SleepSpectrum` object.
+        """For each sleep stage creates a :py:class:`mne:mne.time_frequency.SpectrumArray` object.
 
         Args:
             sleep_stages: Sleep stages mapping in hypnogram.
                 Defaults to {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4}.
             reference: Which eeg reference to compute PSD with.
                 If None, the reference isn't changed. Defaults to None.
-            method: Spectral estimation method.. Defaults to "welch".
             fmin: Lower frequency bound. Defaults to 0.
             fmax: Upper frequency bound. Defaults to 60.
             picks: Channels to compute spectra for. Refer to :py:meth:`mne:mne.io.Raw.pick`.
@@ -778,10 +829,7 @@ class GrandSpectralPipe(SpectrumPlots):
                 Defaults to True.
             save: Whether to save the spectra in .h5 files. Defaults to False.
             overwrite: Whether to overwrite the file. Defaults to False.
-            n_jobs: _description_. Defaults to -1.
-            verbose: _description_. Defaults to False.
             **psd_kwargs: Additional arguments passed to :py:func:`mne:mne.time_frequency.psd_array_welch`
-                or :py:func:`mne:mne.time_frequency.psd_array_multitaper`.
         """
 
         avg_func = np.median if average == "median" else np.mean
@@ -789,21 +837,26 @@ class GrandSpectralPipe(SpectrumPlots):
             pipe.compute_psds_per_stage(
                 sleep_stages=sleep_stages,
                 reference=reference,
-                method=method,
                 fmin=fmin,
                 fmax=fmax,
                 picks=picks,
                 reject_by_annotation=reject_by_annotation,
                 save=False,
                 overwrite=overwrite,
-                n_jobs=n_jobs,
-                verbose=verbose,
                 **psd_kwargs,
             )
 
         for stage in sleep_stages:
             spectra = [pipe.psds[stage] for pipe in self.pipes]
-            self.psds[stage] = avg_func(spectra, axis=0)
+            avg_psds = avg_func([spectrum._data for spectrum in spectra], axis=0)
+            avg_stage_dur = round(
+                avg_func([float(spectrum.info["description"]) for spectrum in spectra]),
+                2,
+            )
+            freqs = spectra[0]._freqs
+            info = spectra[0].info
+            info["description"] = str(avg_stage_dur)
+            self.psds[stage] = mne.time_frequency.SpectrumArray(avg_psds, info, freqs)
 
         if save:
             self.save_psds(overwrite)
