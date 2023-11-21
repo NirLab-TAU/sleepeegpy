@@ -1,0 +1,728 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="SpectrumPlots" href="sleepeegpy.base.SpectrumPlots.html" /><link rel="prev" title="BaseHypnoPipe" href="sleepeegpy.base.BaseHypnoPipe.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>BaseEventPipe - sleepeegpy documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeegpy  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeegpy  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/0_complete_pipeline.html">Complete pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/1_cleaning.html">Cleaning</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/2_ica.html">ICA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/3_dashboard.html">Preprocessing dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/4_spectral.html">Spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/5_grand%20spectral.html">Grand spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/6_spindles.html">Spindles analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/7_slow_waves.html">Slow waves analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../notebooks/8_rems.html">Rapid eye movements analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2 current has-children"><a class="reference internal" href="../base.html">base module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="sleepeegpy.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeegpy.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sleepeegpy.base.SpectrumPlots.html">SpectrumPlots</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="baseeventpipe">
+<h1>BaseEventPipe<a class="headerlink" href="#baseeventpipe" title="Link to this heading">#</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.base.</span></span><span class="sig-name descname"><span class="pre">BaseEventPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L382-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <a class="reference internal" href="sleepeegpy.base.BaseHypnoPipe.html#sleepeegpy.base.BaseHypnoPipe" title="sleepeegpy.base.BaseHypnoPipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseHypnoPipe</span></code></a>, <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>A base class for event detection.</p>
+<blockquote class="epigraph">
+<div><p><strong>Methods:</strong></p>
+</div></blockquote>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.compute_tfr" title="sleepeegpy.base.BaseEventPipe.compute_tfr"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_tfr</span></code></a></p></td>
+<td><p>Transforms the events signal to time-frequency representation.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.detect" title="sleepeegpy.base.BaseEventPipe.detect"><code class="xref py py-obj docutils literal notranslate"><span class="pre">detect</span></code></a></p></td>
+<td><p>Each event class should contain the detection method</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.interpolate_bads" title="sleepeegpy.base.BaseEventPipe.interpolate_bads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_bads</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot" title="sleepeegpy.base.BaseEventPipe.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_average" title="sleepeegpy.base.BaseEventPipe.plot_average"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_average</span></code></a></p></td>
+<td><p>Plot average of the detected event.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_sensors" title="sleepeegpy.base.BaseEventPipe.plot_sensors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sensors</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_topomap" title="sleepeegpy.base.BaseEventPipe.plot_topomap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap</span></code></a></p></td>
+<td><p>Plots topomap for a sleep stage and some property of detected events.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_topomap_collage" title="sleepeegpy.base.BaseEventPipe.plot_topomap_collage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap_collage</span></code></a></p></td>
+<td><p>Plots topomap collage for multiple sleep stages and event properties.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.predict_hypno" title="sleepeegpy.base.BaseEventPipe.predict_hypno"><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict_hypno</span></code></a></p></td>
+<td><p>Runs YASA's automatic sleep staging.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.read_tfrs" title="sleepeegpy.base.BaseEventPipe.read_tfrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">read_tfrs</span></code></a></p></td>
+<td><p>Loads TFRs stored in hdf5 files.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.save_raw" title="sleepeegpy.base.BaseEventPipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.set_eeg_reference" title="sleepeegpy.base.BaseEventPipe.set_eeg_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_eeg_reference</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.sleep_stats" title="sleepeegpy.base.BaseEventPipe.sleep_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sleep_stats</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<blockquote class="epigraph">
+<div><p><strong>Attributes:</strong></p>
+</div></blockquote>
+<div class="table-wrapper autosummary longtable docutils container">
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.bad_data_percent" title="sleepeegpy.base.BaseEventPipe.bad_data_percent"><code class="xref py py-obj docutils literal notranslate"><span class="pre">bad_data_percent</span></code></a></p></td>
+<td><p>Calculates percent of data segments annotated as BAD.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.sf" title="sleepeegpy.base.BaseEventPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.tfrs" title="sleepeegpy.base.BaseEventPipe.tfrs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">tfrs</span></code></a></p></td>
+<td><p>Instances of <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.AverageTFR.html#mne.time_frequency.AverageTFR" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.AverageTFR</span></code></a> per sleep stage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.results" title="sleepeegpy.base.BaseEventPipe.results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">results</span></code></a></p></td>
+<td><p>Event detection results as returned by YASA's event detection methods.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.path_to_hypno" title="sleepeegpy.base.BaseEventPipe.path_to_hypno"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_hypno</span></code></a></p></td>
+<td><p>Path to hypnogram.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno_freq" title="sleepeegpy.base.BaseEventPipe.hypno_freq"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypno_freq</span></code></a></p></td>
+<td><p>Sampling rate of the hypnogram in Hz.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno" title="sleepeegpy.base.BaseEventPipe.hypno"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypno</span></code></a></p></td>
+<td><p>Hypnogram with sampling frequency hypno_freq with int representing sleep stage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno_up" title="sleepeegpy.base.BaseEventPipe.hypno_up"><code class="xref py py-obj docutils literal notranslate"><span class="pre">hypno_up</span></code></a></p></td>
+<td><p>Hypnogram upsampled to the sampling frequency of the raw data.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.prec_pipe" title="sleepeegpy.base.BaseEventPipe.prec_pipe"><code class="xref py py-obj docutils literal notranslate"><span class="pre">prec_pipe</span></code></a></p></td>
+<td><p>Preceding pipe that hands over mne_raw object and output_dir.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.path_to_eeg" title="sleepeegpy.base.BaseEventPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
+<td><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.output_dir" title="sleepeegpy.base.BaseEventPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
+<td><p>Path to the directory where the output will be saved.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.mne_raw" title="sleepeegpy.base.BaseEventPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
+<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.results">
+<span class="sig-name descname"><span class="pre">results</span></span><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.results" title="Link to this definition">#</a></dt>
+<dd><p>Event detection results as returned by YASA’s event detection methods.
+Depending on the child class can be instance of either
+<a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.SpindlesResults.html#yasa.SpindlesResults" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.SpindlesResults</span></code></a>, <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.SWResults.html#yasa.SWResults" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.SWResults</span></code></a> or <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.REMResults.html#yasa.REMResults" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.REMResults</span></code></a> classes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.tfrs">
+<span class="sig-name descname"><span class="pre">tfrs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.tfrs" title="Link to this definition">#</a></dt>
+<dd><p>Instances of <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.AverageTFR.html#mne.time_frequency.AverageTFR" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.AverageTFR</span></code></a> per sleep stage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.detect">
+<em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">detect</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L396-L399"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.detect" title="Link to this definition">#</a></dt>
+<dd><p>Each event class should contain the detection method</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.plot_average">
+<span class="sig-name descname"><span class="pre">plot_average</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L409-L419"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.plot_average" title="Link to this definition">#</a></dt>
+<dd><p>Plot average of the detected event.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure to file. Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to the YASA’s plot_average().</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.bad_data_percent">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad_data_percent</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.bad_data_percent" title="Link to this definition">#</a></dt>
+<dd><p>Calculates percent of data segments annotated as BAD.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>percent of bad data spans in raw data</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.interpolate_bads">
+<span class="sig-name descname"><span class="pre">interpolate_bads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">interp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L100-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.interpolate_bads" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**interp_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.plot">
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L125-L152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.plot" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_annotations</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save annotations as txt. Defaults to False.</p></li>
+<li><p><strong>save_bad_channels</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save bad channels as txt. Defaults to False.</p></li>
+<li><p><strong>overwrite</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to overwrite annotations and bad_channels files if exist.
+Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.plot_sensors">
+<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L154-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.plot_sensors" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>legend</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – ch_groups names to connect to colors. Defaults to None.</p></li>
+<li><p><strong>legend_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.legend()</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.plot_topomap">
+<span class="sig-name descname"><span class="pre">plot_topomap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">prop</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'N2'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggfunc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L421-L497"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.plot_topomap" title="Link to this definition">#</a></dt>
+<dd><p>Plots topomap for a sleep stage and some property of detected events.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>prop</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Any event property returned by self.results.summary().</p></li>
+<li><p><strong>stage</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – One of the sleep_stages keys. Defaults to “N2”.</p></li>
+<li><p><strong>aggfunc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Averaging function, “mean” or “median”. Defaults to “mean”.</p></li>
+<li><p><strong>sleep_stages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.predict_hypno">
+<span class="sig-name descname"><span class="pre">predict_hypno</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eeg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E183'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eog_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E252'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E247'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E26'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L314-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.predict_hypno" title="Link to this definition">#</a></dt>
+<dd><p>Runs YASA’s automatic sleep staging.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>eeg_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Preferentially a central electrode. Defaults to “E183”.</p></li>
+<li><p><strong>eog_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Preferentially, the left LOC channel. Defaults to “E252”.</p></li>
+<li><p><strong>emg_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Preferentially a chin electrode. Defaults to “E247”.</p></li>
+<li><p><strong>ref_name</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Reference channel, preferentially a mastoid. Defaults to “E26”.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the hypnogram to file. Defaults to True.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.save_raw">
+<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L198-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.save_raw" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>fname</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Filename for the fif file being saved.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.set_eeg_reference">
+<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L209-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.set_eeg_reference" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ref_channels</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ref_channels</span></code></a>. Defaults to ‘average’.</p></li>
+<li><p><strong>projection</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projection</span></code></a>. Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.sf">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.sf" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>sampling frequency</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.sleep_stats">
+<span class="sig-name descname"><span class="pre">sleep_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L355-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.sleep_stats" title="Link to this definition">#</a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the stats to csv. Defaults to False.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.path_to_hypno">
+<span class="sig-name descname"><span class="pre">path_to_hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.path_to_hypno" title="Link to this definition">#</a></dt>
+<dd><p>Path to hypnogram. Must be text file with every
+row being int representing sleep stage for the epoch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.hypno_freq">
+<span class="sig-name descname"><span class="pre">hypno_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.hypno_freq" title="Link to this definition">#</a></dt>
+<dd><p>Sampling rate of the hypnogram in Hz.</p>
+<p>E.g., 1/30 means 1 sample per 30 secs epoch,
+250 means 1 sample per 1/250 sec epoch.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.hypno">
+<span class="sig-name descname"><span class="pre">hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">ndarray</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.hypno" title="Link to this definition">#</a></dt>
+<dd><p>Hypnogram with sampling frequency hypno_freq
+with int representing sleep stage.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.hypno_up">
+<span class="sig-name descname"><span class="pre">hypno_up</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">array</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.hypno_up" title="Link to this definition">#</a></dt>
+<dd><p>Hypnogram upsampled to the sampling frequency of the raw data.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.prec_pipe">
+<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Type</span></code><span class="pre">[</span><code class="xref py py-class docutils literal notranslate"><span class="pre">TypeVar</span></code><span class="pre">(</span><code class="docutils literal notranslate"><span class="pre">BasePipeType</span></code><span class="pre">,</span> <span class="pre">bound=</span> <span class="pre">BasePipe)]</span></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.prec_pipe" title="Link to this definition">#</a></dt>
+<dd><p>Preceding pipe that hands over mne_raw object and output_dir.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.path_to_eeg">
+<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.path_to_eeg" title="Link to this definition">#</a></dt>
+<dd><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.output_dir">
+<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Path</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.output_dir" title="Link to this definition">#</a></dt>
+<dd><p>Path to the directory where the output will be saved.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.mne_raw">
+<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code></em><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.mne_raw" title="Link to this definition">#</a></dt>
+<dd><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a>.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.plot_topomap_collage">
+<span class="sig-name descname"><span class="pre">plot_topomap_collage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">props</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggfunc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'mean'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">stages_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L499-L636"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.plot_topomap_collage" title="Link to this definition">#</a></dt>
+<dd><p>Plots topomap collage for multiple sleep stages and event properties.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>props</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Properties from the self.results.summary() to generate topomaps for.</p></li>
+<li><p><strong>aggfunc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Averaging function, “mean” or “median”. Defaults to “mean”.</p></li>
+<li><p><strong>stages_to_plot</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – stages_to_plot: Tuple of strings representing names from sleep_stages,
+e.g., (“REM”, “N1”). If set to “all” plots every stage provided in sleep_stages.
+Defaults to “all”.</p></li>
+<li><p><strong>sleep_stages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>low_percentile</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Set min color value by percentile of the property data.
+Defaults to 5.</p></li>
+<li><p><strong>high_percentile</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Set max color value by percentile of the property data.
+Defaults to 95.</p></li>
+<li><p><strong>fig</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">figure</span></code></span>) – Instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">mpl:matplotlib.pyplot.figure</span></code>. Defaults to None.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.compute_tfr">
+<span class="sig-name descname"><span class="pre">compute_tfr</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_freqs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_before</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_after</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'morlet'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">tfr_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L638-L763"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.compute_tfr" title="Link to this definition">#</a></dt>
+<dd><p>Transforms the events signal to time-frequency representation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>freqs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code>]</span>) – Lower and upper bounds of frequencies of interest in Hz, e.g., (10,20).</p></li>
+<li><p><strong>n_freqs</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">int</span></code></span>) – Frequency resolution in TFR.</p></li>
+<li><p><strong>time_before</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Seconds before the event peak to get from the real data.</p></li>
+<li><p><strong>time_after</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Seconds after the event peak to get from the real data</p></li>
+<li><p><strong>method</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – TFR transform method. Defaults to “morlet”.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the TFRs to file. Defaults to False.</p></li>
+<li><p><strong>overwrite</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to overwrite existing TFR files.</p></li>
+<li><p><strong>**tfr_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.tfr_array_morlet.html#mne.time_frequency.tfr_array_morlet" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.tfr_array_morlet()</span></code></a>
+or <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.tfr_array_multitaper.html#mne.time_frequency.tfr_array_multitaper" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.tfr_array_multitaper()</span></code></a>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.BaseEventPipe.read_tfrs">
+<span class="sig-name descname"><span class="pre">read_tfrs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L765-L784"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.BaseEventPipe.read_tfrs" title="Link to this definition">#</a></dt>
+<dd><p>Loads TFRs stored in hdf5 files.</p>
+<p>Filenames should end with {type_of_event}_{sleep_stage}-tfr.h5</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>dirpath</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Path to the directory containing hdf5 files. Defaults to None.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="sleepeegpy.base.SpectrumPlots.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">SpectrumPlots</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="sleepeegpy.base.BaseHypnoPipe.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">BaseHypnoPipe</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">BaseEventPipe</a><ul>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe</span></code></a><ul>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.results"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.results</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.tfrs"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.tfrs</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.detect"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.detect()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_average"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.plot_average()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.bad_data_percent"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.bad_data_percent</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.interpolate_bads"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.interpolate_bads()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.plot()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_sensors"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.plot_sensors()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_topomap"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.plot_topomap()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.predict_hypno"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.predict_hypno()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.save_raw"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.save_raw()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.set_eeg_reference"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.set_eeg_reference()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.sf"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.sf</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.sleep_stats"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.sleep_stats()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.path_to_hypno"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.path_to_hypno</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno_freq"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.hypno_freq</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.hypno</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.hypno_up"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.hypno_up</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.prec_pipe"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.prec_pipe</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.path_to_eeg"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.path_to_eeg</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.output_dir"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.output_dir</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.mne_raw</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.plot_topomap_collage"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.plot_topomap_collage()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.compute_tfr"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.compute_tfr()</span></code></a></li>
+<li><a class="reference internal" href="#sleepeegpy.base.BaseEventPipe.read_tfrs"><code class="docutils literal notranslate"><span class="pre">BaseEventPipe.read_tfrs()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>

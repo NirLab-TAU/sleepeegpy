@@ -1,0 +1,531 @@
+<!doctype html>
+<html class="no-js" lang="en" data-content_root="../">
+  <head><meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="Preprocessing dashboard" href="3_dashboard.html" /><link rel="prev" title="Cleaning" href="1_cleaning.html" />
+
+    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
+        <title>ICA - sleepeegpy documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
+    
+    
+
+
+<style>
+  body {
+    --color-code-background: #f8f8f8;
+  --color-code-foreground: black;
+  
+  }
+  @media not print {
+    body[data-theme="dark"] {
+      --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+    }
+    @media (prefers-color-scheme: dark) {
+      body:not([data-theme="light"]) {
+        --color-code-background: #202020;
+  --color-code-foreground: #d0d0d0;
+  
+      }
+    }
+  }
+</style></head>
+  <body>
+    
+    <script>
+      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
+    </script>
+    
+
+<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
+  <symbol id="svg-toc" viewBox="0 0 24 24">
+    <title>Contents</title>
+    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
+      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
+    </svg>
+  </symbol>
+  <symbol id="svg-menu" viewBox="0 0 24 24">
+    <title>Menu</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
+      <line x1="3" y1="12" x2="21" y2="12"></line>
+      <line x1="3" y1="6" x2="21" y2="6"></line>
+      <line x1="3" y1="18" x2="21" y2="18"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
+    <title>Expand</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
+      <polyline points="9 18 15 12 9 6"></polyline>
+    </svg>
+  </symbol>
+  <symbol id="svg-sun" viewBox="0 0 24 24">
+    <title>Light mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
+      <circle cx="12" cy="12" r="5"></circle>
+      <line x1="12" y1="1" x2="12" y2="3"></line>
+      <line x1="12" y1="21" x2="12" y2="23"></line>
+      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+      <line x1="1" y1="12" x2="3" y2="12"></line>
+      <line x1="21" y1="12" x2="23" y2="12"></line>
+      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+    </svg>
+  </symbol>
+  <symbol id="svg-moon" viewBox="0 0 24 24">
+    <title>Dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
+    </svg>
+  </symbol>
+  <symbol id="svg-sun-half" viewBox="0 0 24 24">
+    <title>Auto light/dark mode</title>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
+      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M13 12h5" />
+      <path d="M13 15h4" />
+      <path d="M13 18h1" />
+      <path d="M13 9h4" />
+      <path d="M13 6h1" />
+    </svg>
+  </symbol>
+</svg>
+
+<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
+<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
+<label class="overlay sidebar-overlay" for="__navigation">
+  <div class="visually-hidden">Hide navigation sidebar</div>
+</label>
+<label class="overlay toc-overlay" for="__toc">
+  <div class="visually-hidden">Hide table of contents sidebar</div>
+</label>
+
+
+
+<div class="page">
+  <header class="mobile-header">
+    <div class="header-left">
+      <label class="nav-overlay-icon" for="__navigation">
+        <div class="visually-hidden">Toggle site navigation sidebar</div>
+        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
+      </label>
+    </div>
+    <div class="header-center">
+      <a href="../index.html"><div class="brand">sleepeegpy  documentation</div></a>
+    </div>
+    <div class="header-right">
+      <div class="theme-toggle-container theme-toggle-header">
+        <button class="theme-toggle">
+          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+        </button>
+      </div>
+      <label class="toc-overlay-icon toc-header-icon" for="__toc">
+        <div class="visually-hidden">Toggle table of contents sidebar</div>
+        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+      </label>
+    </div>
+  </header>
+  <aside class="sidebar-drawer">
+    <div class="sidebar-container">
+      
+      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
+  
+  
+  <span class="sidebar-brand-text">sleepeegpy  documentation</span>
+  
+</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
+  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
+  <input type="hidden" name="check_keywords" value="yes">
+  <input type="hidden" name="area" value="default">
+</form>
+<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
+  <ul class="current">
+<li class="toctree-l1 current has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="0_complete_pipeline.html">Complete pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="1_cleaning.html">Cleaning</a></li>
+<li class="toctree-l2 current current-page"><a class="current reference internal" href="#">ICA</a></li>
+<li class="toctree-l2"><a class="reference internal" href="3_dashboard.html">Preprocessing dashboard</a></li>
+<li class="toctree-l2"><a class="reference internal" href="4_spectral.html">Spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="5_grand%20spectral.html">Grand spectral analyses</a></li>
+<li class="toctree-l2"><a class="reference internal" href="6_spindles.html">Spindles analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="7_slow_waves.html">Slow waves analysis</a></li>
+<li class="toctree-l2"><a class="reference internal" href="8_rems.html">Rapid eye movements analysis</a></li>
+</ul>
+</li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api.html">API Reference</a><input class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BasePipe.html">BasePipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BaseEventPipe.html">BaseEventPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.SpectrumPlots.html">SpectrumPlots</a></li>
+</ul>
+</li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.CleaningPipe.html">CleaningPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.ICAPipe.html">ICAPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SpectralPipe.html">SpectralPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pipeline/sleepeegpy.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+</div>
+</div>
+
+      </div>
+      
+    </div>
+  </aside>
+  <div class="main">
+    <div class="content">
+      <div class="article-container">
+        <a href="#" class="back-to-top muted-link">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
+          </svg>
+          <span>Back to top</span>
+        </a>
+        <div class="content-icon-container">
+          
+<div class="theme-toggle-container theme-toggle-content">
+            <button class="theme-toggle">
+              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
+              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
+              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
+              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
+            </button>
+          </div>
+          <label class="toc-overlay-icon toc-content-icon" for="__toc">
+            <div class="visually-hidden">Toggle table of contents sidebar</div>
+            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
+          </label>
+        </div>
+        <article role="main">
+          <section id="ica">
+<h1>ICA<a class="headerlink" href="#ica" title="Link to this heading">#</a></h1>
+<section id="introductory-notes">
+<h2>Introductory notes:<a class="headerlink" href="#introductory-notes" title="Link to this heading">#</a></h2>
+<p>This notebook presents ICA artifact repairment functionality:</p>
+<ul class="simple">
+<li><p>Fitting ICA</p></li>
+<li><p>Exploring components</p></li>
+<li><p>Excluding components from the raw data</p></li>
+</ul>
+<p>Recommended reading:</p>
+<ol class="arabic simple">
+<li><p><a class="reference external" href="https://mne.tools/stable/auto_tutorials/preprocessing/40_artifact_correction_ica.html">MNE: Repairing artifacts with ICA</a></p></li>
+<li><p><a class="reference external" href="https://www.learningeeg.com/artifacts">Learning eeg: artifacts</a></p></li>
+</ol>
+</section>
+<section id="import-data">
+<h2>Import data<a class="headerlink" href="#import-data" title="Link to this heading">#</a></h2>
+<section id="import-module">
+<h3>Import module<a class="headerlink" href="#import-module" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sleepeegpy.pipeline</span> <span class="kn">import</span> <span class="n">ICAPipe</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="initialize-icapipe-object">
+<h3>Initialize ICAPipe object<a class="headerlink" href="#initialize-icapipe-object" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span> <span class="o">=</span> <span class="n">ICAPipe</span><span class="p">(</span>
+    <span class="c1"># can be any type of eeg file that MNE&#39;s read_raw() function supports.</span>
+    <span class="n">path_to_eeg</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\cleaned_raw.fif&quot;</span><span class="p">,</span>
+    <span class="n">output_dir</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\EL3001&quot;</span><span class="p">,</span>  <span class="c1"># A directory you want the results to be saved in</span>
+    <span class="n">method</span><span class="o">=</span><span class="s2">&quot;fastica&quot;</span><span class="p">,</span>  <span class="c1"># ICA method, can be either &#39;fastica&#39;, &#39;infomax&#39; or &#39;picard&#39;</span>
+    <span class="n">fit_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># Additional parameters passed to the ICA estimator as specified by &#39;method&#39;.</span>
+    <span class="n">n_components</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>  <span class="c1"># Number of principal components that are passed to the ICA algorithm during fitting.</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="mi">120</span><span class="p">,</span>  <span class="c1"># A seed for the NumPy random number generator (RNG).</span>
+    <span class="c1"># path_to_ica=r&quot;C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\exclude-ica.fif&quot;,  # If you want to load already fitted ICA - use this argument.</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\cleaned_raw.fif...
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 0 ... 1994499 =      0.000 ...  7977.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\cleaned_raw-1.fif...
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 1994500 ... 3988999 =   7978.000 ... 15955.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\cleaned_raw-2.fif...
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 3989000 ... 5983499 =  15956.000 ... 23933.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\cleaned_raw-3.fif...
+    Read a total of 1 projection items:
+        Average EEG reference (1 x 257)  idle
+    Range : 5983500 ... 5985607 =  23934.000 ... 23942.428 secs
+Ready.
+Reading 0 ... 5985607  =      0.000 ... 23942.428 secs...
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="fit">
+<h2>Fit<a class="headerlink" href="#fit" title="Link to this heading">#</a></h2>
+<p>Run the ICA decomposition on 1 Hz high-pass filtered data</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">filter_kwargs</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">l_freq</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">h_freq</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Filtering raw data in 1 contiguous segment
+Setting up high-pass filter at 1 Hz
+
+FIR filter parameters
+---------------------
+Designing a one-pass, zero-phase, non-causal highpass filter:
+- Windowed time-domain design (firwin) method
+- Hamming window with 0.0194 passband ripple and 53 dB stopband attenuation
+- Lower passband edge: 1.00
+- Lower transition bandwidth: 1.00 Hz (-6 dB cutoff frequency: 0.50 Hz)
+- Filter length: 825 samples (3.300 s)
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[Parallel(n_jobs=-1)]: Using backend LokyBackend with 16 concurrent workers.
+[Parallel(n_jobs=-1)]: Done   2 tasks      | elapsed:    2.2s
+[Parallel(n_jobs=-1)]: Done  56 tasks      | elapsed:    4.4s
+[Parallel(n_jobs=-1)]: Done 146 tasks      | elapsed:    7.7s
+[Parallel(n_jobs=-1)]: Done 257 out of 257 | elapsed:   11.6s finished
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Fitting ICA to data using 257 channels (please be patient, this may take a while)
+Omitting 166506 of 2229773 (7.47%) samples, retaining 2063267 (92.53%) samples.
+Selecting by number: 30 components
+Fitting ICA took 164.8s.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="explore">
+<h2>Explore<a class="headerlink" href="#explore" title="Link to this heading">#</a></h2>
+<p>Plot independent components from raw data, you can select here components you want to exclude.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span><span class="o">.</span><span class="n">plot_sources</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Creating RawArray with float64 data, n_channels=40, n_times=5985608
+    Range : 0 ... 5985607 =      0.000 ... 23942.428 secs
+Ready.
+Using qt as 2D backend.
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;mne_qt_browser._pg_figure.MNEQtBrowser at 0x208e2a5ae60&gt;
+</pre></div>
+</div>
+</div>
+</div>
+<p>Plot components on interpolated sensor topography.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">ica_pipe</span><span class="o">.</span><span class="n">plot_components</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/1f2d679846b137c365160f667bdc95d456f1d3dccca37e60636c7328cc36f6dc.png" src="../_images/1f2d679846b137c365160f667bdc95d456f1d3dccca37e60636c7328cc36f6dc.png" />
+<img alt="../_images/699e3af77579e9b455b5fc72a2068ee1bb92957831c3c76f300fd3ea254e402a.png" src="../_images/699e3af77579e9b455b5fc72a2068ee1bb92957831c3c76f300fd3ea254e402a.png" />
+</div>
+</div>
+<p>Display component properties.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">_</span> <span class="o">=</span> <span class="n">ica_pipe</span><span class="o">.</span><span class="n">plot_properties</span><span class="p">(</span><span class="n">picks</span><span class="o">=</span><span class="p">[</span><span class="mi">7</span><span class="p">],</span> <span class="n">psd_args</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">fmin</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fmax</span><span class="o">=</span><span class="mi">40</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>    Using multitaper spectrum estimation with 7 DPSS windows
+Not setting metadata
+3700 matching events found
+No baseline correction applied
+0 projection items activated
+</pre></div>
+</div>
+<img alt="../_images/3510f059eaf547c7bf2d1d412c564e9a2fbe774ea9c40a16df7af5b38a8f0a76.png" src="../_images/3510f059eaf547c7bf2d1d412c564e9a2fbe774ea9c40a16df7af5b38a8f0a76.png" />
+</div>
+</div>
+</section>
+<section id="exclude">
+<h2>Exclude<a class="headerlink" href="#exclude" title="Link to this heading">#</a></h2>
+<p>Apply to the raw signal ICA component exclusion.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span><span class="o">.</span><span class="n">apply</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Excluded ICA components: [38, 27, 22, 7]
+</pre></div>
+</div>
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Applying ICA to Raw instance
+    Transforming to ICA space (40 components)
+    Zeroing out 4 ICA components
+    Projecting back using 257 PCA components
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="save-repaired-eeg-signal-and-ica-solution">
+<h2>Save repaired EEG signal and ica solution<a class="headerlink" href="#save-repaired-eeg-signal-and-ica-solution" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span><span class="o">.</span><span class="n">save_raw</span><span class="p">(</span><span class="s2">&quot;after_ica_raw.fif&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Writing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw.fif
+Closing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw.fif
+Writing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-1.fif
+Closing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-1.fif
+Writing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-2.fif
+Closing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-2.fif
+Writing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-3.fif
+Closing C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\after_ica_raw-3.fif
+[done]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">ica_pipe</span><span class="o">.</span><span class="n">save_ica</span><span class="p">(</span><span class="n">fname</span><span class="o">=</span><span class="s2">&quot;exclude-ica.fif&quot;</span><span class="p">,</span> <span class="n">overwrite</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Overwriting existing file.
+Writing ICA solution to C:\Users\Gennadiy\Documents\data\EL3001\ICAPipe\exclude-ica.fif...
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+</section>
+
+        </article>
+      </div>
+      <footer>
+        
+        <div class="related-pages">
+          <a class="next-page" href="3_dashboard.html">
+              <div class="page-info">
+                <div class="context">
+                  <span>Next</span>
+                </div>
+                <div class="title">Preprocessing dashboard</div>
+              </div>
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+            </a>
+          <a class="prev-page" href="1_cleaning.html">
+              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
+              <div class="page-info">
+                <div class="context">
+                  <span>Previous</span>
+                </div>
+                
+                <div class="title">Cleaning</div>
+                
+              </div>
+            </a>
+        </div>
+        <div class="bottom-of-page">
+          <div class="left-details">
+            <div class="copyright">
+                Copyright &#169; 2023, Yuval Nir lab
+            </div>
+            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
+            
+            <a href="https://github.com/pradyunsg/furo">Furo</a>
+            
+          </div>
+          <div class="right-details">
+            
+          </div>
+        </div>
+        
+      </footer>
+    </div>
+    <aside class="toc-drawer">
+      
+      
+      <div class="toc-sticky toc-scroll">
+        <div class="toc-title-container">
+          <span class="toc-title">
+            On this page
+          </span>
+        </div>
+        <div class="toc-tree-container">
+          <div class="toc-tree">
+            <ul>
+<li><a class="reference internal" href="#">ICA</a><ul>
+<li><a class="reference internal" href="#introductory-notes">Introductory notes:</a></li>
+<li><a class="reference internal" href="#import-data">Import data</a><ul>
+<li><a class="reference internal" href="#import-module">Import module</a></li>
+<li><a class="reference internal" href="#initialize-icapipe-object">Initialize ICAPipe object</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#fit">Fit</a></li>
+<li><a class="reference internal" href="#explore">Explore</a></li>
+<li><a class="reference internal" href="#exclude">Exclude</a></li>
+<li><a class="reference internal" href="#save-repaired-eeg-signal-and-ica-solution">Save repaired EEG signal and ica solution</a></li>
+</ul>
+</li>
+</ul>
+
+          </div>
+        </div>
+      </div>
+      
+      
+    </aside>
+  </div>
+</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../_static/doctools.js?v=888ff710"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
+    </body>
+</html>
