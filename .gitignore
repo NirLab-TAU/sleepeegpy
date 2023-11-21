@@ -1,6 +1,6 @@
 docs/_build
 .vscode/settings.json
-sleepeeg.egg-info
+sleepeegpy.egg-info
 dist
 docs/notebooks
 sleepeegpy/__pycache__

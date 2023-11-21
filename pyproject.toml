@@ -13,7 +13,7 @@ authors = [
 ]
 description = "Sleep EEG preprocessing, analysis and visualization"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.10, <3.12"
 license = {text = "MIT"}
 keywords = ['sleep', 'eeg']
 dependencies = [
