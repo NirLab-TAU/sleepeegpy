@@ -1,7 +1,7 @@
 pipeline module
 ===============
 
-.. module:: sleepeeg.pipeline
+.. module:: sleepeegpy.pipeline
 
 .. autosummary::
    :toctree: pipeline

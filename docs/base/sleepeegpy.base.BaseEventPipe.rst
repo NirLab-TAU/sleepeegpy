@@ -1,7 +1,7 @@
 ﻿BaseEventPipe
 =============
 
-.. currentmodule:: sleepeeg.base
+.. currentmodule:: sleepeegpy.base
 
 .. autoclass:: BaseEventPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~BaseEventPipe.apply_tfr
+         ~BaseEventPipe.compute_tfr
       
       
          ~BaseEventPipe.detect

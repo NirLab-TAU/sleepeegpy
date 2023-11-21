@@ -1,7 +1,7 @@
 ﻿BaseHypnoPipe
 =============
 
-.. currentmodule:: sleepeeg.base
+.. currentmodule:: sleepeegpy.base
 
 .. autoclass:: BaseHypnoPipe
    :members:

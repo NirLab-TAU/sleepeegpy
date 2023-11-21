@@ -1,7 +1,7 @@
 ﻿ICAPipe
 =======
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: ICAPipe
    :members:

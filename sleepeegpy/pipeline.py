@@ -478,7 +478,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             trimperc: The amount of data to trim on both ends of the distribution
                 when normalizing the colormap. Defaults to 2.5.
             freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
-            cmap: Matplotlib colormap. :std:doc:`mpl:tutorials/colors/colormaps`.
+            cmap: Matplotlib colormap. :std:doc:`mpl:users/explain/colors/colormaps`.
                 Defaults to "Spectral_r".
             overlap: Whether to plot hypnogram over the spectrogram or on top of it.
                 Defaults to False.

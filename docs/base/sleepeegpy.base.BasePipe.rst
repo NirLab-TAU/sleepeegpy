@@ -1,7 +1,7 @@
 ﻿BasePipe
 ========
 
-.. currentmodule:: sleepeeg.base
+.. currentmodule:: sleepeegpy.base
 
 .. autoclass:: BasePipe
    :members:

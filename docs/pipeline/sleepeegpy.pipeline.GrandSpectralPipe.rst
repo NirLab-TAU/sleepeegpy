@@ -1,7 +1,7 @@
 ﻿GrandSpectralPipe
 =================
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: GrandSpectralPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~GrandSpectralPipe.compute_psds_per_stage
+         ~GrandSpectralPipe.compute_psd
       
       
          ~GrandSpectralPipe.parametrize

@@ -1,7 +1,7 @@
 ﻿RapidEyeMovementsPipe
 =====================
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: RapidEyeMovementsPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~RapidEyeMovementsPipe.apply_tfr
+         ~RapidEyeMovementsPipe.compute_tfr
       
       
          ~RapidEyeMovementsPipe.detect

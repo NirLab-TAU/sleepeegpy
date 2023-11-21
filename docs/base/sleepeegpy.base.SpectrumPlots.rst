@@ -1,7 +1,7 @@
 ﻿SpectrumPlots
 =============
 
-.. currentmodule:: sleepeeg.base
+.. currentmodule:: sleepeegpy.base
 
 .. autoclass:: SpectrumPlots
    :members:

@@ -1,7 +1,7 @@
 ﻿SpectralPipe
 ============
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: SpectralPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~SpectralPipe.compute_psds_per_stage
+         ~SpectralPipe.compute_psd
       
       
          ~SpectralPipe.interpolate_bads
@@ -70,6 +70,7 @@
 
    .. autosummary::
    
+      ~SpectralPipe.mne_raw
       ~SpectralPipe.fooofs
       ~SpectralPipe.bad_data_percent
       ~SpectralPipe.sf
@@ -80,7 +81,6 @@
       ~SpectralPipe.prec_pipe
       ~SpectralPipe.path_to_eeg
       ~SpectralPipe.output_dir
-      ~SpectralPipe.mne_raw
       ~SpectralPipe.psds
    
    

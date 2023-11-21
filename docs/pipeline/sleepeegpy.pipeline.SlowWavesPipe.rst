@@ -1,7 +1,7 @@
 ﻿SlowWavesPipe
 =============
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: SlowWavesPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~SlowWavesPipe.apply_tfr
+         ~SlowWavesPipe.compute_tfr
       
       
          ~SlowWavesPipe.detect

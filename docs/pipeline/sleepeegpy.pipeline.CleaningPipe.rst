@@ -1,7 +1,7 @@
 ﻿CleaningPipe
 ============
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: CleaningPipe
    :members:

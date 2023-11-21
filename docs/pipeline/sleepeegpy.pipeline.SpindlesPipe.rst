@@ -1,7 +1,7 @@
 ﻿SpindlesPipe
 ============
 
-.. currentmodule:: sleepeeg.pipeline
+.. currentmodule:: sleepeegpy.pipeline
 
 .. autoclass:: SpindlesPipe
    :members:
@@ -17,7 +17,7 @@
    
       
       
-         ~SpindlesPipe.apply_tfr
+         ~SpindlesPipe.compute_tfr
       
       
          ~SpindlesPipe.detect

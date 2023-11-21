@@ -1,7 +1,7 @@
 base module
 ===========
 
-.. currentmodule:: sleepeeg.base
+.. currentmodule:: sleepeegpy.base
 
 .. autosummary::
    :toctree: base
@@ -10,4 +10,3 @@ base module
    BaseHypnoPipe
    BaseEventPipe
    SpectrumPlots
-   SleepSpectrum
