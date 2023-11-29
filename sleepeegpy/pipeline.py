@@ -412,7 +412,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             freq_range: Range of frequencies to parametrize.
                 If None, set to bandpass filter boundaries. Defaults to None.
             average_ch: Whether to average psds over channels.
-                If False or and multiple channels are provided, the FOOOFGroup will be used.
+                If False or multiple channels are provided, the FOOOFGroup will be used.
                 Defaults to False.
             **kwargs: Arguments passed to :py:class:`fooof:fooof.FOOOF`.
         """
@@ -870,8 +870,7 @@ class GrandSpectralPipe(SpectrumPlots):
             freq_range: Range of frequencies to parametrize.
                 If None, set to bandpass filter boundaries. Defaults to None.
             average_ch: Whether to average psds over channels.
-                If False and more than one channel is provided,
-                will be averaged over subjects. Defaults to False.
+                If False will be averaged over subjects. Defaults to False.
             **kwargs: Arguments passed to :py:class:`fooof:fooof.FOOOFGroup`.
         """
         from collections import defaultdict
@@ -887,9 +886,6 @@ class GrandSpectralPipe(SpectrumPlots):
             spectra = np.array(
                 [spectrum.get_data(picks=picks) for spectrum in spectra_objs]
             )
-            if spectra.shape[1] > 1:
-                spectra = spectra.mean(axis=1 if average_ch else 0)
-            else:
-                spectra = np.squeeze(spectra)
+            spectra = spectra.mean(axis=1 if average_ch else 0)
             self.fooofs[stage] = FOOOFGroup(**kwargs)
             self.fooofs[stage].fit(freqs, spectra, freq_range)
