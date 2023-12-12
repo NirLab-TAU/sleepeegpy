@@ -9,7 +9,7 @@
         <title>Complete pipeline - sleepeegpy documentation</title>
       <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
     
     
@@ -239,11 +239,52 @@
 <h2>Import module<a class="headerlink" href="#import-module" title="Link to this heading">#</a></h2>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sleepeegpy.pipeline</span> <span class="kn">import</span> <span class="p">(</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">pooch</span>
+<span class="kn">from</span> <span class="nn">sleepeegpy.pipeline</span> <span class="kn">import</span> <span class="p">(</span>
     <span class="n">CleaningPipe</span><span class="p">,</span> <span class="n">ICAPipe</span><span class="p">,</span> <span class="n">SpectralPipe</span><span class="p">,</span> 
     <span class="n">SpindlesPipe</span><span class="p">,</span> <span class="n">SlowWavesPipe</span><span class="p">,</span> <span class="n">RapidEyeMovementsPipe</span>
     <span class="p">)</span>
 <span class="kn">from</span> <span class="nn">sleepeegpy.dashboard</span> <span class="kn">import</span> <span class="n">create_dashboard</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="retrieve-the-example-dataset">
+<h2>Retrieve the example dataset<a class="headerlink" href="#retrieve-the-example-dataset" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">doi</span> <span class="o">=</span> <span class="s2">&quot;10.5281/zenodo.10362189&quot;</span>
+<span class="n">odie</span> <span class="o">=</span> <span class="n">pooch</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">path</span><span class="o">=</span><span class="n">pooch</span><span class="o">.</span><span class="n">os_cache</span><span class="p">(</span><span class="s2">&quot;sleepeegpy_dataset&quot;</span><span class="p">),</span>
+    <span class="n">base_url</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;doi:</span><span class="si">{</span><span class="n">doi</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">odie</span><span class="o">.</span><span class="n">load_registry_from_doi</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">bad_channels</span> <span class="o">=</span> <span class="n">odie</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;bad_channels.txt&quot;</span><span class="p">)</span>
+<span class="n">annotations</span> <span class="o">=</span> <span class="n">odie</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;annotations.txt&quot;</span><span class="p">)</span>
+<span class="n">path_to_eeg</span> <span class="o">=</span> <span class="n">odie</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="s2">&quot;resampled_raw.fif&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">4</span><span class="p">):</span>
+    <span class="n">odie</span><span class="o">.</span><span class="n">fetch</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;resampled_raw-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">.fif&quot;</span><span class="p">,</span> <span class="n">progressbar</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Downloading file &#39;bad_channels.txt&#39; from &#39;doi:10.5281/zenodo.10362189/bad_channels.txt&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+Downloading file &#39;annotations.txt&#39; from &#39;doi:10.5281/zenodo.10362189/annotations.txt&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+Downloading file &#39;resampled_raw.fif&#39; from &#39;doi:10.5281/zenodo.10362189/resampled_raw.fif&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+100%|#############################################| 2.15G/2.15G [00:00&lt;?, ?B/s]
+Downloading file &#39;resampled_raw-1.fif&#39; from &#39;doi:10.5281/zenodo.10362189/resampled_raw-1.fif&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+100%|#####################################| 2.15G/2.15G [00:00&lt;00:00, 2.15TB/s]
+Downloading file &#39;resampled_raw-2.fif&#39; from &#39;doi:10.5281/zenodo.10362189/resampled_raw-2.fif&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+100%|#############################################| 2.15G/2.15G [00:00&lt;?, ?B/s]
+Downloading file &#39;resampled_raw-3.fif&#39; from &#39;doi:10.5281/zenodo.10362189/resampled_raw-3.fif&#39; to &#39;C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache&#39;.
+100%|#####################################| 2.31M/2.31M [00:00&lt;00:00, 2.31GB/s]
 </pre></div>
 </div>
 </div>
@@ -255,18 +296,25 @@
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span> <span class="o">=</span> <span class="n">CleaningPipe</span><span class="p">(</span>
-    <span class="n">path_to_eeg</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\EL3001\EL3001_SLEEP.mff&quot;</span><span class="p">,</span>
+    <span class="n">path_to_eeg</span><span class="o">=</span><span class="n">path_to_eeg</span><span class="p">,</span>
     <span class="n">output_dir</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;C:\Users\Gennadiy\Documents\data\EL3001&quot;</span><span class="p">,</span>
 <span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading EGI MFF Header from C:\Users\Gennadiy\Documents\data\EL3001\EL3001_SLEEP.mff...
-    Reading events ...
-    Assembling measurement info ...
-    Synthesizing trigger channel &quot;STI 014&quot; ...
-    Excluding events {} ...
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Opening raw data file C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache\resampled_raw.fif...
+    Range : 0 ... 1994499 =      0.000 ...  7977.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache\resampled_raw-1.fif...
+    Range : 1994500 ... 3988999 =   7978.000 ... 15955.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache\resampled_raw-2.fif...
+    Range : 3989000 ... 5983499 =  15956.000 ... 23933.996 secs
+Ready.
+Opening raw data file C:\Users\Gennadiy\AppData\Local\sleepeegpy_dataset\sleepeegpy_dataset\Cache\resampled_raw-3.fif...
+    Range : 5983500 ... 5985607 =  23934.000 ... 23942.428 secs
+Ready.
 </pre></div>
 </div>
 </div>
@@ -276,134 +324,12 @@
 <p>This can take more than an hour depending on eeg signal size and specs of the computer you’re running the analysis on.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">mne_raw</span><span class="o">.</span><span class="n">load_data</span><span class="p">()</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span><span class="n">sfreq</span><span class="o">=</span><span class="mi">250</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Reading 0 ... 23942429  =      0.000 ... 23942.429 secs...
-</pre></div>
-</div>
-<div class="output text_html"><details open>
-    <summary><strong>General</strong></summary>
-    <table class="table table-hover table-striped table-sm table-responsive small">
-        <tr>
-            <th>Measurement date</th>
-            
-            <td>February 09, 2022  09:26:56 GMT</td>
-            
-        </tr>
-        <tr>
-            <th>Experimenter</th>
-            
-            <td>Unknown</td>
-            
-        </tr>
-        <tr>
-            <th>Participant</th>
-            
-            <td>Unknown</td>
-            
-        </tr>
-    </table>
-    </details>
-    <details open>
-        <summary><strong>Channels</strong></summary>
-        <table class="table table-hover table-striped table-sm table-responsive small">
-            <tr>
-                <th>Digitized points</th>
-                
-                <td>260 points</td>
-                
-            </tr>
-            <tr>
-                <th>Good channels</th>
-                <td>257 EEG, 3 Stimulus, 7 BIO, 2 EMG</td>
-            </tr>
-            <tr>
-                <th>Bad channels</th>
-                <td>None</td>
-            </tr>
-            <tr>
-                <th>EOG channels</th>
-                <td>Not available</td>
-            </tr>
-            <tr>
-                <th>ECG channels</th>
-                <td>Not available</td>
-            </tr>
-        </table>
-        </details>
-        <details open>
-            <summary><strong>Data</strong></summary>
-            <table class="table table-hover table-striped table-sm table-responsive small">
-                
-                <tr>
-                    <th>Sampling frequency</th>
-                    <td>1000.00 Hz</td>
-                </tr>
-                
-                
-                <tr>
-                    <th>Highpass</th>
-                    <td>0.00 Hz</td>
-                </tr>
-                
-                
-                <tr>
-                    <th>Lowpass</th>
-                    <td>500.00 Hz</td>
-                </tr>
-                
-                
-                
-                <tr>
-                    <th>Filenames</th>
-                    <td>signal1.bin</td>
-                </tr>
-                
-                
-                <tr>
-                    <th>Duration</th>
-                    <td>06:39:03 (HH:MM:SS)</td>
-                </tr>
-                
-            </table>
-            </details></div></div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">resample</span><span class="p">(</span>
-    <span class="n">sfreq</span><span class="o">=</span><span class="mi">250</span><span class="p">,</span>  <span class="c1"># Desired new sampling frequency</span>
-<span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>28 events found on stim channel STI 014
-Event IDs: [1 2]
-28 events found on stim channel STI 014
-Event IDs: [1 2]
-</pre></div>
-</div>
-</div>
-</div>
-<div class="cell docutils container">
-<div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pipe</span><span class="o">.</span><span class="n">save_raw</span><span class="p">(</span><span class="s1">&#39;resampled_raw.fif&#39;</span><span class="p">)</span>
-</pre></div>
-</div>
-</div>
-<div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Writing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw.fif
-Closing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw.fif
-Writing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-1.fif
-Closing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-1.fif
-Writing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-2.fif
-Closing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-2.fif
-Writing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-3.fif
-Closing C:\Users\Gennadiy\Documents\data\EL3001\CleaningPipe\resampled_raw-3.fif
-[done]
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Sampling frequency of the instance is already 250.0, returning unmodified.
 </pre></div>
 </div>
 </div>
@@ -1044,6 +970,7 @@ Setting 289559 of 5985608 (4.84%) samples to NaN, retaining 5696049 (95.16%) sam
 <li><a class="reference internal" href="#">Complete pipeline</a><ul>
 <li><a class="reference internal" href="#introductory-notes">Introductory notes:</a></li>
 <li><a class="reference internal" href="#import-module">Import module</a></li>
+<li><a class="reference internal" href="#retrieve-the-example-dataset">Retrieve the example dataset</a></li>
 <li><a class="reference internal" href="#cleaning">Cleaning</a><ul>
 <li><a class="reference internal" href="#resampling">Resampling</a></li>
 <li><a class="reference internal" href="#filtering">Filtering</a></li>

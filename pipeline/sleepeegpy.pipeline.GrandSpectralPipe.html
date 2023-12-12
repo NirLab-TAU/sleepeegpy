@@ -226,7 +226,7 @@
 <h1>GrandSpectralPipe<a class="headerlink" href="#grandspectralpipe" title="Link to this heading">#</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.GrandSpectralPipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.pipeline.</span></span><span class="sig-name descname"><span class="pre">GrandSpectralPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L763-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.GrandSpectralPipe" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.pipeline.</span></span><span class="sig-name descname"><span class="pre">GrandSpectralPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pipes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L763-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.GrandSpectralPipe" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="../base/sleepeegpy.base.SpectrumPlots.html#sleepeegpy.base.SpectrumPlots" title="sleepeegpy.base.SpectrumPlots"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumPlots</span></code></a></p>
 <p>The pipeline element combining results from multiple subjects.</p>
 <p>Contains methods for computing and plotting combined PSD
@@ -430,7 +430,7 @@ Defaults to True.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.GrandSpectralPipe.parametrize">
-<span class="sig-name descname"><span class="pre">parametrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_ch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L864-L895"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.GrandSpectralPipe.parametrize" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">parametrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_ch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L864-L891"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.GrandSpectralPipe.parametrize" title="Link to this definition">#</a></dt>
 <dd><p>Spectral parametrization by <a class="reference external" href="https://fooof-tools.github.io/fooof/index.html" title="(in fooof v1.1.0)"><span>FOOOF - fitting oscillations &amp; one over f</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -439,8 +439,7 @@ Defaults to True.</p></li>
 <li><p><strong>freq_range</strong> – Range of frequencies to parametrize.
 If None, set to bandpass filter boundaries. Defaults to None.</p></li>
 <li><p><strong>average_ch</strong> – Whether to average psds over channels.
-If False and more than one channel is provided,
-will be averaged over subjects. Defaults to False.</p></li>
+If False will be averaged over subjects. Defaults to False.</p></li>
 <li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://fooof-tools.github.io/fooof/generated/fooof.FOOOFGroup.html#fooof.FOOOFGroup" title="(in fooof v1.1.0)"><code class="docutils literal notranslate"><span class="pre">fooof.FOOOFGroup</span></code></a>.</p></li>
 </ul>
 </dd>

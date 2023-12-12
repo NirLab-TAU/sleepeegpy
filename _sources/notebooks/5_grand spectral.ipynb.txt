@@ -375,8 +375,7 @@
                 "    picks=['E101'],  # Channels to use, if multiple channels are provided, their PSDs will be averaged.\n",
                 "    freq_range=[0.5, 40],  # Range of frequencies to parametrize.\n",
                 "    # Whether to average psds over channels.\n",
-                "    # If False and more than one channel is provided,\n",
-                "    # will be averaged over subjects.\n",
+                "    # If False will be averaged over subjects.\n",
                 "    average_ch=False,\n",
                 ")"
             ]
