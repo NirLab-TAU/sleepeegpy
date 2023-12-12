@@ -32,7 +32,9 @@ dependencies = [
     "natsort",
     "more-itertools",
     "h5io",
-    "loguru"
+    "loguru",
+    "pooch",
+    "tqdm"
 ]
 
 [project.urls]
