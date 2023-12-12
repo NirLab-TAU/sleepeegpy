@@ -95,7 +95,7 @@ def all_but_ipynb(dir, contents):
 
 
 print("Copy example notebooks into docs/notebooks")
-project_root = Path(r"C:\Users\Gennadiy\Documents\eeg-processing-pipeline")
+project_root = Path("../")
 shutil.rmtree(project_root / "docs/notebooks", ignore_errors=True)
 shutil.copytree(
     project_root / "notebooks",
