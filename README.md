@@ -1,7 +1,7 @@
 # sleepeegpy
-**sleepeegpy** is a high-level package built on top of [mne-python](https://mne.tools/stable/index.html), [yasa](https://raphaelvallat.com/yasa/build/html/index.html) for preprocessing, analysis and visualisation of sleep EEG data.
+**sleepeegpy** is a high-level package built on top of [mne-python](https://mne.tools/stable/index.html), [yasa](https://raphaelvallat.com/yasa/build/html/index.html) and [specparam (fooof)](https://fooof-tools.github.io/fooof/) for preprocessing, analysis and visualisation of sleep EEG data.
 ## Installation
-0. Make sure you have [Python](https://www.python.org/downloads/) version installed. Requires Python 3.10 or higher.
+0. Make sure you have [Python](https://www.python.org/downloads/) version installed. Requires Python >3.9, <3.12.
 1. Create a Python virtual environment, for more info you can refer to python [venv](https://docs.python.org/3/tutorial/venv.html), [virtualenv](https://virtualenv.pypa.io/en/latest/user_guide.html) or [conda](https://conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html).
 2. Activate the environment
 3. 
@@ -28,5 +28,5 @@ bad_channels = odie.fetch("bad_channels.txt")
 annotations = odie.fetch("annotations.txt")
 path_to_eeg = odie.fetch("resampled_raw.fif")
 for i in range(1,4):
-    odie.fetch(f"resample_raw-{i}.fif")
+    odie.fetch(f"resampled_raw-{i}.fif")
 ```
