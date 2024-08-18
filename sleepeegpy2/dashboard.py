@@ -269,15 +269,7 @@ def create_dashboard(
     predict_hypno_args = _validate_hypno_args(hypnogram, predict_hypno_args)
 
     pipe_folders = _check_pipe_folders(output_dir=prec_pipe.output_dir if prec_pipe else output_dir)
-
-    if isinstance(prec_pipe, CleaningPipe):
-        pipe = prec_pipe
-    elif isinstance(prec_pipe, ICAPipe):
-        pipe = CleaningPipe(prec_pipe=prec_pipe)
-    elif prec_pipe is None:
-        pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
-    else:
-        raise TypeError("prec_pipe expected to be CleaningPipe or ICAPipe")
+    pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
 
     fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
     gs = fig.add_gridspec(5, 4)
@@ -306,6 +298,7 @@ def create_dashboard(
     if path_to_bad_channels is not None:
         pipe.read_bad_channels(path=path_to_bad_channels)
         pipe.interpolate_bads(reset_bads=True)
+
     if path_to_bad_channels is not None:
         bads = pipe.mne_raw.info["bads"]
     else:
@@ -329,15 +322,7 @@ def create_dashboard(
     if path_to_annotations is not None:
         pipe.read_annotations(path=path_to_annotations)
 
-    is_ica = False
-    if path_to_ica_fif:
-        is_ica = True
-        pipe = ICAPipe(prec_pipe=pipe, path_to_ica=path_to_ica_fif)
-        pipe.apply()
-    elif isinstance(prec_pipe, ICAPipe):
-        is_ica = True
-        pipe = prec_pipe
-        pipe.apply()
+    is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     cmap = LinearSegmentedColormap.from_list("", ["red", "red"])
@@ -413,6 +398,31 @@ def create_dashboard(
     fig.savefig(pipe.output_dir / f"dashboard_{subject_code}.png")
 
     return fig
+
+
+def _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe):
+    is_ica = False
+    if path_to_ica_fif:
+        is_ica = True
+        pipe = ICAPipe(prec_pipe=pipe, path_to_ica=path_to_ica_fif)
+        pipe.apply()
+    elif isinstance(prec_pipe, ICAPipe):
+        is_ica = True
+        pipe = prec_pipe
+        pipe.apply()
+    return is_ica, pipe
+
+
+def get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe):
+    if isinstance(prec_pipe, CleaningPipe):
+        pipe = prec_pipe
+    elif isinstance(prec_pipe, ICAPipe):
+        pipe = CleaningPipe(prec_pipe=prec_pipe)
+    elif prec_pipe is None:
+        pipe = CleaningPipe(path_to_eeg=path_to_eeg, output_dir=output_dir)
+    else:
+        raise TypeError("prec_pipe expected to be CleaningPipe or ICAPipe")
+    return pipe
 
 
 def _validate_hypno_args(hypnogram, predict_hypno_args):
