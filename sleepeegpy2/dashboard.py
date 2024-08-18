@@ -82,16 +82,16 @@ def _filter(pipe, sfreq, fmin, fmax):
 
 
 def _hypno_psd(
-        s_pipe,
+        spectral_pipe,
         sleep_stages,
         hypno_psd_pick,
-        ax_hypno,
-        ax_psd,
+        hypno_axes,
+        psd_axes,
         min_psd,
         max_psd,
         rba,
 ):
-    s_pipe.compute_psd(
+    spectral_pipe.compute_psd(
         sleep_stages=sleep_stages,
         reference=None,
         fmin=0,
@@ -107,29 +107,29 @@ def _hypno_psd(
     )
 
     if min_psd is None and max_psd is None:
-        min_psd, max_psd = _get_min_max_psds(s_pipe.psds, hypno_psd_pick)
+        min_psd, max_psd = _get_min_max_psds(spectral_pipe.psds, hypno_psd_pick)
 
-    win_sec = s_pipe.mne_raw.n_times / s_pipe.sf / 900
-    s_pipe.plot_hypnospectrogram(
+    win_sec = spectral_pipe.mne_raw.n_times / spectral_pipe.sf / 900
+    spectral_pipe.plot_hypnospectrogram(
         picks=hypno_psd_pick,
         win_sec=win_sec,
         freq_range=(0, 25),
         cmap="Spectral_r",
         overlap=True,
-        axis=ax_hypno,
+        axis=hypno_axes,
         reject_by_annotation="NaN" if rba else None,
     )
     r = max_psd - min_psd
-    s_pipe.plot_psds(
+    spectral_pipe.plot_psds(
         picks=hypno_psd_pick,
         psd_range=(min_psd - 0.1 * r, max_psd + 0.1 * r),
         freq_range=(0, 25),
         dB=True,
         xscale="linear",
-        axis=ax_psd,
+        axis=psd_axes,
         legend_args=dict(loc="upper right", fontsize="medium"),
     )
-    ax_psd.axvspan(0, s_pipe.mne_raw.info["highpass"], alpha=0.3, color="gray")
+    psd_axes.axvspan(0, spectral_pipe.mne_raw.info["highpass"], alpha=0.3, color="gray")
     return min_psd, max_psd
 
 
@@ -272,21 +272,8 @@ def create_dashboard(
     pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
 
     fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
-    gs = fig.add_gridspec(5, 4)
-    info_subfig = fig.add_subfigure(gs[0:2, 0:2])
-    topo_subfig = fig.add_subfigure(gs[0:2, 2:4])
-    info_axes = info_subfig.subplots(1, 2)
-    topo_axes = topo_subfig.subplots(2, 2)
-    hypno_before = fig.add_subplot(gs[2:3, 0:2])
-    hypno_after = fig.add_subplot(gs[2:3, 2:4])
-    psd_before = fig.add_subplot(gs[3:5, 0:2])
-    psd_after = fig.add_subplot(gs[3:5, 2:4])
     fig.suptitle(f"Dashboard <{subject_code}>")
-
-    picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
-
-    hypno_before.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
-    hypno_after.set_title(f"Spectra after rejecting bad data spans ({picks_str_repr})")
+    grid_spec = fig.add_gridspec(5, 4)
 
     sfreq, fmin, fmax, notch_freqs = _filter(
         pipe,
@@ -299,25 +286,34 @@ def create_dashboard(
         pipe.read_bad_channels(path=path_to_bad_channels)
         pipe.interpolate_bads(reset_bads=True)
 
+    bads = []
+    mne_info = pipe.mne_raw.info
     if path_to_bad_channels is not None:
-        bads = pipe.mne_raw.info["bads"]
-    else:
-        mne_info = pipe.mne_raw.info
-        is_description_exists = mne_info and "description" in mne_info and mne_info["description"] is not None
-        bads = literal_eval(mne_info["description"]) if is_description_exists else []
+        bads = mne_info["bads"]
+    elif mne_info and "description" in mne_info and mne_info["description"] is not None:
+        bads = literal_eval(mne_info["description"])
+
     if reference:
         pipe.set_eeg_reference(ref_channels=reference)
     s_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
+
+    picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
+
+    psd_before_axes = fig.add_subplot(grid_spec[3:5, 0:2])
+    hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
+    hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
+    hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
     min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
         hypno_psd_pick,
-        hypno_before,
-        psd_before,
+        hypno_before_axes,
+        psd_before_axes,
         min_psd=None,
         max_psd=None,
         rba=False,
     )
+    psd_before_axes.yaxis.set_label_coords(-0.05, 0.5)
 
     if path_to_annotations is not None:
         pipe.read_annotations(path=path_to_annotations)
@@ -326,6 +322,8 @@ def create_dashboard(
 
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     cmap = LinearSegmentedColormap.from_list("", ["red", "red"])
+    info_subfig = fig.add_subfigure(grid_spec[0:2, 0:2])
+    info_axes = info_subfig.subplots(1, 2)
     pipe.plot_sensors(
         legend=["Interpolated"],
         axes=info_axes[0],
@@ -336,15 +334,10 @@ def create_dashboard(
         cmap=cmap,
     )
 
-    recording_time = time.strftime(
-        "%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf)
-    )
+    recording_time = time.strftime("%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf))
+    interpolated_channels_percent = round(100 * len(interpolated) / len(pick_types(pipe.mne_raw.info, eeg=True)), 2)
 
-    interpolated_channels_percent = round(
-        100 * len(interpolated) / len(pick_types(pipe.mne_raw.info, eeg=True)), 2
-    )
-
-    textstr = "\n\n".join(
+    info_txt: str = "\n\n".join(
         (
             f"Recording duration: {recording_time}",
             f"Sampling frequency: {sfreq} Hz",
@@ -361,32 +354,35 @@ def create_dashboard(
     info_axes[1].text(
         0,
         0.5,
-        textstr,
+        info_txt,
         transform=info_axes[1].transAxes,
         fontsize="large",
         verticalalignment="center",
         horizontalalignment="left",
     )
 
+    psd_after = fig.add_subplot(grid_spec[3:5, 2:4])
     s_pipe.mne_raw = pipe.mne_raw
-
+    hypno_after_axes = fig.add_subplot(grid_spec[2:3, 2:4])
+    hypno_after_axes.set_title(f"Spectra after rejecting bad data spans ({picks_str_repr})")
     _hypno_psd(
         s_pipe,
         sleep_stages,
         hypno_psd_pick,
-        hypno_after,
+        hypno_after_axes,
         psd_after,
         min_psd,
         max_psd,
         rba=True,
     )
     psd_after.get_legend().remove()
+    hypno_after_axes.yaxis.set_label_coords(-0.05, 0.5)
+    psd_after.yaxis.set_label_coords(-0.05, 0.5)
+
+    topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
+    topo_axes = topo_subfig.subplots(2, 2)
     _topo(s_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
 
-    hypno_before.yaxis.set_label_coords(-0.05, 0.5)
-    hypno_after.yaxis.set_label_coords(-0.05, 0.5)
-    psd_before.yaxis.set_label_coords(-0.05, 0.5)
-    psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
     for pipe_name, is_existed in pipe_folders.items():
         if not is_existed:
