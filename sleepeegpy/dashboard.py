@@ -272,7 +272,6 @@ def create_dashboard(
     predict_hypno_args = _validate_hypno_args(hypnogram, predict_hypno_args)
 
     pipe_folders = _check_pipe_folders(output_dir=prec_pipe.output_dir if prec_pipe else output_dir)
-    # todo: pipe is now changing to cleaning
     pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
 
     bads, fmax, fmin, notch_freqs, sfreq = _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq)
@@ -280,14 +279,12 @@ def create_dashboard(
         pipe.set_eeg_reference(ref_channels=reference)
     spectral_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
 
-    # TODO: PLOTS?
     picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
     max_psd, min_psd = _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages)
 
     if path_to_annotations is not None:
         pipe.read_annotations(path=path_to_annotations)
 
-    # todo: pipe is now changing to ica
     is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
 
     psd_after = _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe,

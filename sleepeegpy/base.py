@@ -67,8 +67,6 @@ class BasePipe(ABC):
     @mne_raw.default
     def _read_mne_raw(self):
         if self.prec_pipe:
-            #TODO: Remove crops..crop(0,200*60)
-            mne.io.read_raw(self.path_to_eeg)
             return self.prec_pipe.mne_raw
         return mne.io.read_raw(self.path_to_eeg)
 
@@ -110,7 +108,6 @@ class BasePipe(ABC):
         from natsort import natsorted
 
         bads = self.mne_raw.info["bads"]
-        print("bads:",bads)
         self.mne_raw.load_data().interpolate_bads(**interp_kwargs)
         try:
             old_interp = literal_eval(self.mne_raw.info["description"])
