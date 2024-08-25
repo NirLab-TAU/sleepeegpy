@@ -133,7 +133,7 @@ def _hypno_psd(
     return min_psd, max_psd
 
 
-def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
+def _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, topo_lims):
     if len(sleep_stages) == 1:
         stages = ["All"] * 4
         topo_axes[0, 0].set_title(f"Alpha (8-12 Hz)")
@@ -148,7 +148,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         topo_axes[1, 1].set_title(f"{stages[3]}, Theta (4-8 Hz)")
 
     if reference != "average":
-        s_pipe.compute_psd(
+        spectral_pipe.compute_psd(
             sleep_stages=sleep_stages,
             reference="average",
             fmin=0,
@@ -163,7 +163,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
             window="hamming",
         )
 
-    s_pipe.plot_topomap(
+    spectral_pipe.plot_topomap(
         stage=stages[0],
         band={"Alpha": (8, 12)},
         dB=False,
@@ -172,7 +172,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         cbar_args=None,
     )
 
-    s_pipe.plot_topomap(
+    spectral_pipe.plot_topomap(
         stage=stages[1],
         band={"Sigma": (12, 15)},
         dB=False,
@@ -181,7 +181,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         cbar_args=None,
     )
 
-    s_pipe.plot_topomap(
+    spectral_pipe.plot_topomap(
         stage=stages[2],
         band={"Delta": (0.5, 4)},
         dB=False,
@@ -190,7 +190,7 @@ def _topo(s_pipe, reference, sleep_stages, topo_axes, topo_lims):
         cbar_args=None,
     )
 
-    s_pipe.plot_topomap(
+    spectral_pipe.plot_topomap(
         stage=stages[3],
         band={"Theta": (4, 8)},
         dB=False,
@@ -260,6 +260,9 @@ def create_dashboard(
             If of type ICAPipe, the components should be marked for exclusion,
             but not applied. Defaults to None.
     """
+    fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
+    fig.suptitle(f"Dashboard <{subject_code}>")
+    grid_spec = fig.add_gridspec(5, 4)
     is_adaptive_topo = not power_colorbar_limits
     if bandpass_filter_freqs is None:
         bandpass_filter_freqs = [None, None]
@@ -271,10 +274,41 @@ def create_dashboard(
     pipe_folders = _check_pipe_folders(output_dir=prec_pipe.output_dir if prec_pipe else output_dir)
     pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
 
-    fig = plt.figure(layout="constrained", figsize=(1600 / 96, 1200 / 96), dpi=96)
-    fig.suptitle(f"Dashboard <{subject_code}>")
-    grid_spec = fig.add_gridspec(5, 4)
+    bads, fmax, fmin, notch_freqs, sfreq = _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq)
+    if reference:
+        pipe.set_eeg_reference(ref_channels=reference)
+    spectral_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
 
+    picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
+    max_psd, min_psd = _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages)
+
+    if path_to_annotations is not None:
+        pipe.read_annotations(path=path_to_annotations)
+
+    is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
+
+    psd_after = _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe,
+                                     reference, sfreq)
+    spectral_pipe.mne_raw = pipe.mne_raw
+    _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
+                          spectral_pipe)
+
+    topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
+    topo_axes = topo_subfig.subplots(2, 2)
+    # Using problematic function
+    _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
+
+    for pipe_name, is_existed in pipe_folders.items():
+        if not is_existed:
+            try:
+                os.rmdir(pipe.output_dir / pipe_name)
+            except:
+                pass
+    fig.savefig(pipe.output_dir / f"dashboard_{subject_code}.png")
+    return fig
+
+
+def _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq):
     sfreq, fmin, fmax, notch_freqs = _filter(
         pipe,
         resampling_freq,
@@ -292,34 +326,30 @@ def create_dashboard(
         bads = mne_info["bads"]
     elif mne_info and "description" in mne_info and mne_info["description"] is not None:
         bads = literal_eval(mne_info["description"])
+    return bads, fmax, fmin, notch_freqs, sfreq
 
-    if reference:
-        pipe.set_eeg_reference(ref_channels=reference)
-    s_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
 
-    picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
-
-    psd_before_axes = fig.add_subplot(grid_spec[3:5, 0:2])
-    hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
-    hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
-    hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
-    min_psd, max_psd = _hypno_psd(
-        s_pipe,
+def _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
+                          spectral_pipe):
+    hypno_after_axes = fig.add_subplot(grid_spec[2:3, 2:4])
+    hypno_after_axes.set_title(f"Spectra after rejecting bad data spans ({picks_str_repr})")
+    _hypno_psd(
+        spectral_pipe,
         sleep_stages,
         hypno_psd_pick,
-        hypno_before_axes,
-        psd_before_axes,
-        min_psd=None,
-        max_psd=None,
-        rba=False,
+        hypno_after_axes,
+        psd_after,
+        min_psd,
+        max_psd,
+        rba=True,
     )
-    psd_before_axes.yaxis.set_label_coords(-0.05, 0.5)
+    psd_after.get_legend().remove()
+    hypno_after_axes.yaxis.set_label_coords(-0.05, 0.5)
+    psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
-    if path_to_annotations is not None:
-        pipe.read_annotations(path=path_to_annotations)
 
-    is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
-
+def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe, reference,
+                         sfreq):
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     cmap = LinearSegmentedColormap.from_list("", ["red", "red"])
     info_subfig = fig.add_subfigure(grid_spec[0:2, 0:2])
@@ -360,40 +390,28 @@ def create_dashboard(
         verticalalignment="center",
         horizontalalignment="left",
     )
-
     psd_after = fig.add_subplot(grid_spec[3:5, 2:4])
-    s_pipe.mne_raw = pipe.mne_raw
-    hypno_after_axes = fig.add_subplot(grid_spec[2:3, 2:4])
-    hypno_after_axes.set_title(f"Spectra after rejecting bad data spans ({picks_str_repr})")
-    _hypno_psd(
+    return psd_after
+
+
+def _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, s_pipe, sleep_stages):
+    psd_before_axes = fig.add_subplot(grid_spec[3:5, 0:2])
+    hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
+    hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
+    hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
+    # n_overlap = ?
+    min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
         hypno_psd_pick,
-        hypno_after_axes,
-        psd_after,
-        min_psd,
-        max_psd,
-        rba=True,
+        hypno_before_axes,
+        psd_before_axes,
+        min_psd=None,
+        max_psd=None,
+        rba=False,
     )
-    psd_after.get_legend().remove()
-    hypno_after_axes.yaxis.set_label_coords(-0.05, 0.5)
-    psd_after.yaxis.set_label_coords(-0.05, 0.5)
-
-    topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
-    topo_axes = topo_subfig.subplots(2, 2)
-    _topo(s_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
-
-
-    for pipe_name, is_existed in pipe_folders.items():
-        if not is_existed:
-            try:
-                os.rmdir(pipe.output_dir / pipe_name)
-            except:
-                pass
-
-    fig.savefig(pipe.output_dir / f"dashboard_{subject_code}.png")
-
-    return fig
+    psd_before_axes.yaxis.set_label_coords(-0.05, 0.5)
+    return max_psd, min_psd
 
 
 def _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe):
