@@ -5,7 +5,7 @@ from collections.abc import Iterable
 from pathlib import Path
 from typing import TypeVar
 import sys
-
+from mne import read_annotations
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
@@ -79,6 +79,7 @@ class CleaningPipe(BasePipe):
         Args:
             path: Path to the txt file with bad channel name per row. Defaults to None.
         """
+        # p = (Path(path) if path else os.path.join(self.output_dir, self.__class__.__name__, "bad_channels.txt"))
         p = (
             Path(path)
             if path
@@ -98,7 +99,6 @@ class CleaningPipe(BasePipe):
         Args:
             path: Path to txt file with mne-style annotations. Defaults to None.
         """
-        from mne import read_annotations
 
         p = (
             Path(path)
@@ -178,9 +178,11 @@ class ICAPipe(BasePipe):
 
         Args:
             prec_pipe: Preceding pipe that hands over mne_raw attribute. Defaults to None.
+            #todo: better specify the type of supported files
             path_to_eeg: Can be any file type supported by :py:func:`mne:mne.io.read_raw`. Defaults to None.
             output_dir: Path to the directory where the output will be saved. Defaults to None.
             method: The ICA method to use in the fit method. Defaults to 'fastica'.
+            for more information about the method check https://mne.tools/stable/auto_tutorials/preprocessing/40_artifact_correction_ica.html#what-is-ica
             n_components: Number of principal components (from the pre-whitening PCA step)
                 that are passed to the ICA algorithm during fitting:
                 read more at :py:class:`mne:mne.preprocessing.ICA`. Defaults to None.
@@ -302,7 +304,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     @logger_wraps()
     def compute_psd(
         self,
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
+        sleep_stages: dict = {'Wake': 0, 'N1': 1, 'N2': 2, 'N3': 3, 'REM': 4},
         reference: Iterable[str] | str | None = None,
         fmin: float = 0,
         fmax: float = 60,
@@ -353,7 +355,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 picks=picks,
                 reject_by_annotation="NaN" if reject_by_annotation else None,
             )
-
+            # TODO: allow missing sleep stages.
             for stage, stage_idx in sleep_stages.items():
                 n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
 
@@ -375,15 +377,22 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 # Save percentage of the sleep stage.
                 info["description"] = str(round(n_samples / n_samples_total * 100, 2))
 
-                self.psds[stage] = mne.time_frequency.SpectrumArray(psds, info, freqs)
+                self.psds[stage] = mne.time_frequency.SpectrumArray(data=psds, info=info, freqs=freqs)
+
+                # psds, freqs = mne.time_frequency.psd_array_welch(data, sfreq, n_fft=256, n_per_seg=None, average='mean')
+                #TODO: FIND BETTER WAY TO HANDLE EMPTY REGIONS
+                # if psds is not None:
+                #     self.psds[stage] = mne.time_frequency.SpectrumArray(data=psds, info=info, freqs=freqs)
 
         if save:
             self.save_psds(overwrite)
 
     def _compute_spectra(self, data, regions, **kwargs):
+        # todo: if there are bad channels, the problem is that avg_psds will exclude bad channels.
         psds_list, weights = [], []
         n_samples = 0
-
+        # freqs = None
+        # assert regions is None or len(regions) == 0
         for region in regions:
             # For weighting.
             n_samples_per_reg = np.count_nonzero(~np.isnan(data[:, region]), axis=1)[0]
@@ -477,7 +486,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 Defaults to 30.
             trimperc: The amount of data to trim on both ends of the distribution
                 when normalizing the colormap. Defaults to 2.5.
-            freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
+            freq_range: Range of x-axis on spectrogram plot. Defaults to (0, 40).
             cmap: Matplotlib colormap. :std:doc:`mpl:users/explain/colors/colormaps`.
                 Defaults to "Spectral_r".
             overlap: Whether to plot hypnogram over the spectrogram or on top of it.
@@ -640,7 +649,6 @@ class SpindlesPipe(BaseEventPipe):
     ):
         """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
         from yasa import spindles_detect
-
         inst = self.mne_raw.copy().load_data()
         if reference is not None:
             inst.set_eeg_reference(ref_channels=reference)
@@ -727,6 +735,7 @@ class RapidEyeMovementsPipe(BaseEventPipe):
     ):
         """A wrapper around :py:func:`yasa:yasa.rem_detect` with option to save."""
         from yasa import rem_detect
+
 
         inst = self.mne_raw.copy().load_data()
         if reference is not None:
@@ -834,6 +843,7 @@ class GrandSpectralPipe(SpectrumPlots):
 
         avg_func = np.median if average == "median" else np.mean
         for pipe in self.pipes:
+            # todo: problematic method here
             pipe.compute_psd(
                 sleep_stages=sleep_stages,
                 reference=reference,
