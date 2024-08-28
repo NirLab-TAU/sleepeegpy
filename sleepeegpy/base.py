@@ -107,7 +107,7 @@ class BasePipe(ABC):
         from ast import literal_eval
         from natsort import natsorted
 
-        bads = self.mne_raw.info["bads"]
+        bads = self.mne_raw.info["bads"] if self.mne_raw.info["bads"] is not None else []
         self.mne_raw.load_data().interpolate_bads(**interp_kwargs)
         try:
             old_interp = literal_eval(self.mne_raw.info["description"])
