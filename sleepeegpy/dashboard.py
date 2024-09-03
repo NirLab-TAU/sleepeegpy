@@ -295,7 +295,6 @@ def create_dashboard(
 
     topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
     topo_axes = topo_subfig.subplots(2, 2)
-    # Using problematic function
     _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
 
     for pipe_name, is_existed in pipe_folders.items():
@@ -350,6 +349,8 @@ def _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, pick
 
 def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe, reference,
                          sfreq):
+    if len(bads) == 0:
+        bads = None
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
     cmap = LinearSegmentedColormap.from_list("", ["red", "red"])
     info_subfig = fig.add_subfigure(grid_spec[0:2, 0:2])
