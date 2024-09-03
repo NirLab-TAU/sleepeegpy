@@ -104,7 +104,8 @@ class CleaningPipe(BasePipe):
             if path
             else self.output_dir / self.__class__.__name__ / "annotations.txt"
         )
-        self.mne_raw.set_annotations(read_annotations(p))
+        if os.path.isfile(p):
+            self.mne_raw.set_annotations(read_annotations(p))
 
     def save_bad_channels(self, overwrite=False):
         """Adds bad channels from info["bads"] to the "bad_channels.txt" file.
@@ -142,10 +143,11 @@ class CleaningPipe(BasePipe):
                 If False and the file exists will throw an exception.
                 Defaults to False.
         """
-        self.mne_raw.annotations.save(
-            self.output_dir / self.__class__.__name__ / "annotations.txt",
-            overwrite=overwrite,
-        )
+        if len(self.mne_raw.annotations) > 0:
+            self.mne_raw.annotations.save(
+                self.output_dir / self.__class__.__name__ / "annotations.txt",
+                overwrite=overwrite,
+            )
 
 
 @define(kw_only=True)
