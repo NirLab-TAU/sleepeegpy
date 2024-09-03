@@ -8,7 +8,7 @@
     ```
     pip install sleepeegpy
     ```
-4. [Download](https://minhaskamal.github.io/DownGit/#/home?url=https://github.com/NirLab-TAU/sleepeegpy/tree/main/notebooks) notebooks.
+4. [Download](https://github.com/NirLab-TAU/sleepeegpy/archive/refs/heads/main.zip) this repository zip folder, you will need only the notebooks folder.
 
 ## Quickstart
 1. Open the complete pipeline notebook in the created environment.
