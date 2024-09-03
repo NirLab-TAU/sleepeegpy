@@ -1,11 +1,10 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
-
+import os
 from collections.abc import Iterable
 from pathlib import Path
 from typing import TypeVar
 import sys
-
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
@@ -84,13 +83,14 @@ class CleaningPipe(BasePipe):
             if path
             else self.output_dir / self.__class__.__name__ / "bad_channels.txt"
         )
-        with open(p, "r") as f:
-            lines = list(filter(None, f.read().split("\n")))
-            if not set(lines).issubset(self.mne_raw.info.ch_names):
-                raise ValueError(
-                    "The file contains lines with nonexistent channel names."
-                )
-            self.mne_raw.info["bads"] = lines
+        if os.path.isfile(p):
+            with open(p, "r") as f:
+                lines = list(filter(None, f.read().split("\n")))
+                if not set(lines).issubset(self.mne_raw.info.ch_names):
+                    raise ValueError(
+                        "The file contains lines with nonexistent channel names."
+                    )
+                self.mne_raw.info["bads"] = lines
 
     def read_annotations(self, path: str | None = None):
         """Imports annotations from file to mne raw object
@@ -99,7 +99,6 @@ class CleaningPipe(BasePipe):
             path: Path to txt file with mne-style annotations. Defaults to None.
         """
         from mne import read_annotations
-
         p = (
             Path(path)
             if path
@@ -298,11 +297,10 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     fooofs: dict = field(init=False, factory=dict)
     """Instances of :py:class:`fooof:fooof.FOOOF` per sleep stage.
     """
-
     @logger_wraps()
     def compute_psd(
         self,
-        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
+        sleep_stages: dict = {'Wake': 0, 'N1': 1, 'N2': 2, 'N3': 3, 'REM': 4},
         reference: Iterable[str] | str | None = None,
         fmin: float = 0,
         fmax: float = 60,
@@ -341,6 +339,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
             inst = self.mne_raw
 
         if isinstance(inst, mne.Epochs):
+
             for stage, stage_epo in sleep_stages.items():
                 self.psds[stage] = (
                     inst[stage_epo].compute_psd(picks=picks, **psd_kwargs).average()
@@ -353,7 +352,6 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 picks=picks,
                 reject_by_annotation="NaN" if reject_by_annotation else None,
             )
-
             for stage, stage_idx in sleep_stages.items():
                 n_samples_total = np.count_nonzero(~np.isnan(data), axis=1)[0]
 
@@ -375,7 +373,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 # Save percentage of the sleep stage.
                 info["description"] = str(round(n_samples / n_samples_total * 100, 2))
 
-                self.psds[stage] = mne.time_frequency.SpectrumArray(psds, info, freqs)
+                self.psds[stage] = mne.time_frequency.SpectrumArray(data=psds, info=info, freqs=freqs)
 
         if save:
             self.save_psds(overwrite)
@@ -383,7 +381,6 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     def _compute_spectra(self, data, regions, **kwargs):
         psds_list, weights = [], []
         n_samples = 0
-
         for region in regions:
             # For weighting.
             n_samples_per_reg = np.count_nonzero(~np.isnan(data[:, region]), axis=1)[0]
@@ -477,7 +474,7 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 Defaults to 30.
             trimperc: The amount of data to trim on both ends of the distribution
                 when normalizing the colormap. Defaults to 2.5.
-            freq_range: Range of x axis on spectrogram plot. Defaults to (0, 40).
+            freq_range: Range of x-axis on spectrogram plot. Defaults to (0, 40).
             cmap: Matplotlib colormap. :std:doc:`mpl:users/explain/colors/colormaps`.
                 Defaults to "Spectral_r".
             overlap: Whether to plot hypnogram over the spectrogram or on top of it.
@@ -640,7 +637,6 @@ class SpindlesPipe(BaseEventPipe):
     ):
         """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
         from yasa import spindles_detect
-
         inst = self.mne_raw.copy().load_data()
         if reference is not None:
             inst.set_eeg_reference(ref_channels=reference)
