@@ -400,7 +400,7 @@ def _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, s_pipe, s
     hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
     hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
     hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
-    # n_overlap = ?
+
     min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
