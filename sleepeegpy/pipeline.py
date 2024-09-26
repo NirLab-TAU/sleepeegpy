@@ -8,12 +8,25 @@ import sys
 import matplotlib.pyplot as plt
 import mne
 import numpy as np
+import pyprep
 
 from attrs import define, field
 from loguru import logger
 
 from .base import BaseEventPipe, BaseHypnoPipe, BasePipe, SpectrumPlots
 from .utils import logger_wraps
+
+CHANNELS_DETECTION_METHODS = {
+    "ransac": "bad_by_ransac",
+    "SNR": "bad_by_SNR",
+    "hf_noise": "bad_by_hf_noise",
+    "correlation": "bad_by_correlation",
+    "deviation": "bad_by_deviation",
+    "dropout": "bad_by_dropout",
+    "flat": "bad_by_flat"
+}
+
+CHANNELS_DETECTION_SEGMENT_SIZE = 1320000
 
 # For type annotation of pipe elements.
 BasePipeType = TypeVar("BasePipeType", bound="BasePipe")
@@ -72,6 +85,75 @@ class CleaningPipe(BasePipe):
                 raise ValueError(f"Unsupported frequency: {freqs}")
         self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
 
+    def _get_segments_number(self):
+        duration = self.mne_raw.times[-1]
+        sfreq = self.mne_raw.info["sfreq"]
+        ch_number = len(self.mne_raw.info["ch_names"])
+        total_samples = sfreq * duration * ch_number
+
+        segment_duration = duration
+        chunk_numbers = 1
+        if total_samples > CHANNELS_DETECTION_SEGMENT_SIZE:
+            chunk_numbers = int(total_samples / CHANNELS_DETECTION_SEGMENT_SIZE)
+            segment_duration = duration / chunk_numbers
+        return chunk_numbers,segment_duration
+
+    def _add_bad_channels(self, bad_channels_set, eeg_segment, methods = ["ransac", "SNR", "hf_noise"]):
+        if len(eeg_segment.times) >= 2:
+            noisy_channels = pyprep.NoisyChannels(eeg_segment)
+            noisy_channels.find_all_bads()  # Run the bad channel detection
+
+            for key, attr in CHANNELS_DETECTION_METHODS.items():
+                if key in methods:
+                    bad_channels_set |= set(getattr(noisy_channels, attr))
+
+        return bad_channels_set
+
+    def _write_array_to_file(self, array, filename):
+        with open(filename, 'w') as file:
+            for item in array:
+                file.write(item + '\n')
+
+
+    def auto_set_annotations(self, amplitude_peak = 50e-6, amplitude_min_duration = 0.005):
+        """
+        Sets annotations automatically based on mne preprocessing lib
+        Args:
+            amplitude_peak: maximum accepted PTP amplitude
+            amplitude_min_duration: minimum required duration
+            These arguments are required for using mne function.
+            For more information about it, check: https://mne.tools/dev/generated/mne.preprocessing.annotate_amplitude.html
+        """
+        amplitude_annotations = mne.preprocessing.annotate_amplitude(self.mne_raw, peak=amplitude_peak, bad_percent=10, min_duration=amplitude_min_duration,
+                                                                     picks=None, verbose=None)[0]
+        nan_annotations = mne.preprocessing.annotate_nan(self.mne_raw)
+        self.mne_raw.set_annotations(amplitude_annotations + nan_annotations)
+
+
+    def auto_detect_bad_channels(self, path = None, methods = ["ransac"]):
+        """
+        Writes bad channels file automatically based on pyprep lib
+        Args:
+            path: Path to the output bad channels file. if None will be saved in default path.
+            methods: List of the bad channels detection methods.
+        """
+        segments_number, segment_duration = self._get_segments_number()
+        duration = self.mne_raw.times[-1]
+        end = min(segment_duration, duration)
+
+        bad_channels = set()
+        start = 0
+        for i in range(segments_number):
+            segment = self.mne_raw.copy().crop(start, end)
+            self._add_bad_channels(bad_channels, segment, methods)
+            start = end
+            end = min(end + CHANNELS_DETECTION_SEGMENT_SIZE, duration)
+
+        default_path = os.path.join(self.output_dir, self.__class__.__name__, "bad_channels.txt")
+        self._write_array_to_file(list(bad_channels), path or default_path)
+        return path or default_path
+
+
     def read_bad_channels(self, path: str | None = None):
         """Imports bad channels from file to mne raw object.
 
@@ -91,6 +173,7 @@ class CleaningPipe(BasePipe):
                         "The file contains lines with nonexistent channel names."
                     )
                 self.mne_raw.info["bads"] = lines
+
 
     def read_annotations(self, path: str | None = None):
         """Imports annotations from file to mne raw object
