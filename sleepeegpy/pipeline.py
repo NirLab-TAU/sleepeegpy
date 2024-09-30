@@ -85,6 +85,7 @@ class CleaningPipe(BasePipe):
                 raise ValueError(f"Unsupported frequency: {freqs}")
         self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
 
+
     def _get_segments_number(self):
         duration = self.mne_raw.times[-1]
         sfreq = self.mne_raw.info["sfreq"]
@@ -98,10 +99,10 @@ class CleaningPipe(BasePipe):
             segment_duration = duration / chunk_numbers
         return chunk_numbers,segment_duration
 
-    def _add_bad_channels(self, bad_channels_set, eeg_segment, methods = ["ransac", "SNR", "hf_noise"]):
+    def _add_bad_channels(self, bad_channels_set, eeg_segment, methods = CHANNELS_DETECTION_METHODS.keys()):
         if len(eeg_segment.times) >= 2:
             noisy_channels = pyprep.NoisyChannels(eeg_segment)
-            noisy_channels.find_all_bads()  # Run the bad channel detection
+            noisy_channels.find_all_bads()
 
             for key, attr in CHANNELS_DETECTION_METHODS.items():
                 if key in methods:
@@ -130,7 +131,7 @@ class CleaningPipe(BasePipe):
         self.mne_raw.set_annotations(amplitude_annotations + nan_annotations)
 
 
-    def auto_detect_bad_channels(self, path = None, methods = ["ransac"]):
+    def auto_detect_bad_channels(self, path = None, methods = CHANNELS_DETECTION_METHODS.keys()):
         """
         Writes bad channels file automatically based on pyprep lib
         Args:
