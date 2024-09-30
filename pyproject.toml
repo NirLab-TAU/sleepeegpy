@@ -34,7 +34,10 @@ dependencies = [
     "h5io",
     "loguru",
     "pooch",
-    "tqdm"
+    "tqdm",
+    "pyprep~=0.4.3",
+    "ipywidgets",
+    "ipython"
 ]
 
 [project.urls]
