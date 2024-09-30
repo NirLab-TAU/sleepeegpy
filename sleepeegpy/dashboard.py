@@ -9,6 +9,7 @@ import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
 from mne import pick_types
 from mne.io.pick import _picks_to_idx
+from numba.cuda.cudadrv.nvvm import logger
 
 from .pipeline import CleaningPipe, ICAPipe, SpectralPipe
 
@@ -280,22 +281,31 @@ def create_dashboard(
     spectral_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
 
     picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
-    max_psd, min_psd = _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages)
+    try:
+        max_psd, min_psd = _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages)
+    except:
+        logger.error("Failed to plot 'before' graph. It will be missing from the dashboard")
 
     if path_to_annotations is not None:
         pipe.read_annotations(path=path_to_annotations)
 
     is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
-
-    psd_after = _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe,
+    try:
+        psd_after = _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe,
                                      reference, sfreq)
-    spectral_pipe.mne_raw = pipe.mne_raw
-    _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
-                          spectral_pipe)
+        spectral_pipe.mne_raw = pipe.mne_raw
+        _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
+                              spectral_pipe)
+    except:
+        logger.error("Failed to plot 'after' graph. It will be missing from the dashboard")
+
 
     topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
     topo_axes = topo_subfig.subplots(2, 2)
-    _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
+    try:
+        _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
+    except:
+        logger.error("Failed to plot topography. It will be missing from the dashboard")
 
     for pipe_name, is_existed in pipe_folders.items():
         if not is_existed:
@@ -400,7 +410,7 @@ def _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, s_pipe, s
     hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
     hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
     hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
-    # n_overlap = ?
+
     min_psd, max_psd = _hypno_psd(
         s_pipe,
         sleep_stages,
