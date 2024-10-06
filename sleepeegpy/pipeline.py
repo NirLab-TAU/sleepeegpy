@@ -116,7 +116,7 @@ class CleaningPipe(BasePipe):
                 file.write(item + '\n')
 
 
-    def auto_set_annotations(self, amplitude_peak = 50e-6, amplitude_min_duration = 0.005):
+    def auto_set_annotations(self, amplitude_peak = 100e-6, amplitude_min_duration = 0.005):
         """
         Sets annotations automatically based on mne preprocessing lib
         Args:
@@ -138,17 +138,21 @@ class CleaningPipe(BasePipe):
             path: Path to the output bad channels file. if None will be saved in default path.
             methods: List of the bad channels detection methods.
         """
+        bad_channels = set()
+        # To avoid memory errors, if the data size is big, the raw data is processed in smaller segments.
         segments_number, segment_duration = self._get_segments_number()
         duration = self.mne_raw.times[-1]
-        end = min(segment_duration, duration)
+        if segment_duration >=  duration:
+            self._add_bad_channels(bad_channels, self.mne_raw, methods)
+        else:
+            segment_start = 0
+            segment_end = segment_duration
+            for i in range(segments_number):
+                segment = self.mne_raw.copy().crop(segment_start, segment_end)
+                self._add_bad_channels(bad_channels, segment, methods)
+                segment_start = segment_end
+                segment_end = min(segment_end + CHANNELS_DETECTION_SEGMENT_SIZE, duration)
 
-        bad_channels = set()
-        start = 0
-        for i in range(segments_number):
-            segment = self.mne_raw.copy().crop(start, end)
-            self._add_bad_channels(bad_channels, segment, methods)
-            start = end
-            end = min(end + CHANNELS_DETECTION_SEGMENT_SIZE, duration)
 
         default_path = os.path.join(self.output_dir, self.__class__.__name__, "bad_channels.txt")
         self._write_array_to_file(list(bad_channels), path or default_path)
