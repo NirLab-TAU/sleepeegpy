@@ -7,7 +7,6 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.colors import LinearSegmentedColormap
-from mne import pick_types
 from mne.io.pick import _picks_to_idx
 from numba.cuda.cudadrv.nvvm import logger
 
@@ -376,7 +375,7 @@ def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_
     )
 
     recording_time = time.strftime("%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf))
-    interpolated_channels_percent = round(100 * len(interpolated) / len(pick_types(pipe.mne_raw.info, eeg=True)), 2)
+    interpolated_channels_percent = round(100 * len(interpolated) / len(pipe.mne_raw.pick(eeg=True), 2))
 
     info_txt: str = "\n\n".join(
         (
