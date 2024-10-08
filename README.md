@@ -23,7 +23,7 @@ The repository also includes a Jupyter notebook that demonstrates how to use thi
    Run the following command to install JupyterLab:
    ```bash
    pip install jupyterlab
-3.  Navigate to the  Pipeline Notebooks folder and run jupyter.
+3.  Navigate to the  Pipeline Notebooks folder and run Jupyter.
     ```bash
     jupyter notebook
     ```
@@ -46,3 +46,24 @@ path_to_eeg = odie.fetch("resampled_raw.fif")
 for i in range(1,4):
     odie.fetch(f"resampled_raw-{i}.fif")
 ```
+
+
+## Troubleshooting
+
+<details>
+<summary>Installation error on macOS - `libomp` not found</summary>
+
+If you encounter the following error when installing `sleepeegpy` on macOS:
+
+```bash
+ERROR: Could not find a version that satisfies the requirement libomp (from versions: none)
+ERROR: No matching distribution found for libomp
+```
+You can resolve this by running:
+```bash
+brew install cmake libomp
+pip install lightgbm
+pip install sleepeegpy
+```
+</details> 
+
