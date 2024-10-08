@@ -10,6 +10,7 @@ name = "sleepeegpy"
 version = "0.6.0"
 authors = [
     {name = "Gennadiy Belonosov", email = "gennadiyb@mail.tau.ac.il"},
+    {name = "Rotem Falach", email = 'rotemfalach@mail.tau.ac.il'}
 ]
 description = "Sleep EEG preprocessing, analysis and visualization"
 readme = "README.md"
