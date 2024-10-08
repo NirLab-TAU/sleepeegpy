@@ -273,7 +273,6 @@ def create_dashboard(
 
     pipe_folders = _check_pipe_folders(output_dir=prec_pipe.output_dir if prec_pipe else output_dir)
     pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
-
     bads, fmax, fmin, notch_freqs, sfreq = _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq)
     if reference:
         pipe.set_eeg_reference(ref_channels=reference)
@@ -375,7 +374,7 @@ def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_
     )
 
     recording_time = time.strftime("%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf))
-    interpolated_channels_percent = round(100 * len(interpolated) / len(pipe.mne_raw.pick(eeg=True), 2))
+    interpolated_channels_percent = round(100 * len(interpolated) / len(pipe.mne_raw.copy().pick(picks='eeg').info["ch_names"]), 2)
 
     info_txt: str = "\n\n".join(
         (
