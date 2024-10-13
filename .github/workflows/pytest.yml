@@ -1,0 +1,29 @@
+name: Run Tests
+on:
+  push:  # This will trigger on any push to the repository
+    branches:
+      - main  # Adjust this to the branch you want to monitor
+  pull_request:  # This will trigger on pull requests targeting the specified branch
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10","3.11"]  # Test across multiple Python versions
+
+    steps:
+    - uses: actions/checkout@v4  # Checkout the repository code
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}  # Set up the specified Python version
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip  # Upgrade pip
+        pip install pytest  
+        pip install .
+        
+    - name: Run tests
+      run: |
+        pytest  # Run the tests in the repository
