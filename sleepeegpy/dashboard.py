@@ -44,7 +44,7 @@ def _get_min_max_psds(psds, hypno_psds_picks):
     min_psd = None
     for spectrum in psds.values():
         hypno_psd_data = spectrum.copy().pick(hypno_psds_picks)._data
-        data = 10 * np.log10(10 ** 12 * hypno_psd_data)
+        data = 10 * np.log10(10**12 * hypno_psd_data)
         data[data == -np.inf] = np.nan
         max_psd = (
             np.nanmax(data) if max_psd is None or max_psd < np.nanmax(data) else max_psd
@@ -82,14 +82,14 @@ def _filter(pipe, sfreq, fmin, fmax):
 
 
 def _hypno_psd(
-        spectral_pipe,
-        sleep_stages,
-        hypno_psd_pick,
-        hypno_axes,
-        psd_axes,
-        min_psd,
-        max_psd,
-        rba,
+    spectral_pipe,
+    sleep_stages,
+    hypno_psd_pick,
+    hypno_axes,
+    psd_axes,
+    min_psd,
+    max_psd,
+    rba,
 ):
     spectral_pipe.compute_psd(
         sleep_stages=sleep_stages,
@@ -133,7 +133,9 @@ def _hypno_psd(
     return min_psd, max_psd
 
 
-def _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, topo_lims):
+def _plot_dashboard_topographies(
+    spectral_pipe, reference, sleep_stages, topo_axes, topo_lims
+):
     if len(sleep_stages) == 1:
         stages = ["All"] * 4
         topo_axes[0, 0].set_title(f"Alpha (8-12 Hz)")
@@ -208,21 +210,21 @@ def _check_pipe_folders(output_dir):
 
 
 def create_dashboard(
-        subject_code: str | os.PathLike,
-        path_to_eeg: str | os.PathLike | None = None,
-        hypnogram: str | os.PathLike | None = None,
-        hypno_freq: float | None = None,
-        predict_hypno_args: dict | None = None,
-        output_dir: str | os.PathLike | None = None,
-        reference: Iterable[str] | str | None = None,
-        hypno_psd_pick: Iterable[str] | str = ["E101"],
-        resampling_freq: float | None = None,
-        bandpass_filter_freqs: Iterable[float | None] = None,
-        path_to_ica_fif: str | os.PathLike = None,
-        path_to_bad_channels: str | os.PathLike | None = None,
-        path_to_annotations: str | os.PathLike | None = None,
-        power_colorbar_limits: Sequence[tuple[float, float]] | None = None,
-        prec_pipe: ICAPipe | CleaningPipe | None = None,
+    subject_code: str | os.PathLike,
+    path_to_eeg: str | os.PathLike | None = None,
+    hypnogram: str | os.PathLike | None = None,
+    hypno_freq: float | None = None,
+    predict_hypno_args: dict | None = None,
+    output_dir: str | os.PathLike | None = None,
+    reference: Iterable[str] | str | None = None,
+    hypno_psd_pick: Iterable[str] | str = ["E101"],
+    resampling_freq: float | None = None,
+    bandpass_filter_freqs: Iterable[float | None] = None,
+    path_to_ica_fif: str | os.PathLike = None,
+    path_to_bad_channels: str | os.PathLike | None = None,
+    path_to_annotations: str | os.PathLike | None = None,
+    power_colorbar_limits: Sequence[tuple[float, float]] | None = None,
+    prec_pipe: ICAPipe | CleaningPipe | None = None,
 ):
     """Applies cleaning, runs psd analyses and plots them on the dashboard.
     Can accept raw, resampled, filtered or cleaned (annotated) recording,
@@ -271,37 +273,74 @@ def create_dashboard(
 
     predict_hypno_args = _validate_hypno_args(hypnogram, predict_hypno_args)
 
-    pipe_folders = _check_pipe_folders(output_dir=prec_pipe.output_dir if prec_pipe else output_dir)
+    pipe_folders = _check_pipe_folders(
+        output_dir=prec_pipe.output_dir if prec_pipe else output_dir
+    )
     pipe = get_cleaning_pipe(output_dir, path_to_eeg, prec_pipe)
-    bads, fmax, fmin, notch_freqs, sfreq = _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq)
+    bads, fmax, fmin, notch_freqs, sfreq = _filter_and_manage_bads(
+        bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq
+    )
     if reference:
         pipe.set_eeg_reference(ref_channels=reference)
-    spectral_pipe, sleep_stages = _init_spectral_pipe(pipe, hypnogram, hypno_freq, predict_hypno_args)
+    spectral_pipe, sleep_stages = _init_spectral_pipe(
+        pipe, hypnogram, hypno_freq, predict_hypno_args
+    )
 
-    picks_str_repr = hypno_psd_pick if isinstance(hypno_psd_pick, str) else ", ".join(str(x) for x in hypno_psd_pick)
+    picks_str_repr = (
+        hypno_psd_pick
+        if isinstance(hypno_psd_pick, str)
+        else ", ".join(str(x) for x in hypno_psd_pick)
+    )
     try:
-        max_psd, min_psd = _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages)
+        max_psd, min_psd = _plot_before_parts(
+            fig, grid_spec, hypno_psd_pick, picks_str_repr, spectral_pipe, sleep_stages
+        )
     except:
-        logger.error("Failed to plot 'before' graph. It will be missing from the dashboard")
+        logger.error(
+            "Failed to plot 'before' graph. It will be missing from the dashboard"
+        )
 
     if path_to_annotations is not None:
         pipe.read_annotations(path=path_to_annotations)
 
     is_ica, pipe = _get_ica_pipe(path_to_ica_fif, pipe, prec_pipe)
     try:
-        psd_after = _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe,
-                                     reference, sfreq)
+        psd_after = _plot_dashboard_info(
+            bads,
+            fig,
+            fmax,
+            fmin,
+            grid_spec,
+            is_adaptive_topo,
+            is_ica,
+            notch_freqs,
+            pipe,
+            reference,
+            sfreq,
+        )
         spectral_pipe.mne_raw = pipe.mne_raw
-        _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
-                              spectral_pipe)
+        _plot_after_dashboard(
+            fig,
+            grid_spec,
+            hypno_psd_pick,
+            max_psd,
+            min_psd,
+            picks_str_repr,
+            psd_after,
+            sleep_stages,
+            spectral_pipe,
+        )
     except:
-        logger.error("Failed to plot 'after' graph. It will be missing from the dashboard")
-
+        logger.error(
+            "Failed to plot 'after' graph. It will be missing from the dashboard"
+        )
 
     topo_subfig = fig.add_subfigure(grid_spec[0:2, 2:4])
     topo_axes = topo_subfig.subplots(2, 2)
     try:
-        _plot_dashboard_topographies(spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits)
+        _plot_dashboard_topographies(
+            spectral_pipe, reference, sleep_stages, topo_axes, power_colorbar_limits
+        )
     except:
         logger.error("Failed to plot topography. It will be missing from the dashboard")
 
@@ -315,7 +354,9 @@ def create_dashboard(
     return fig
 
 
-def _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq):
+def _filter_and_manage_bads(
+    bandpass_filter_freqs, path_to_bad_channels, pipe, resampling_freq
+):
     sfreq, fmin, fmax, notch_freqs = _filter(
         pipe,
         resampling_freq,
@@ -336,10 +377,21 @@ def _filter_and_manage_bads(bandpass_filter_freqs, path_to_bad_channels, pipe, r
     return bads, fmax, fmin, notch_freqs, sfreq
 
 
-def _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, picks_str_repr, psd_after, sleep_stages,
-                          spectral_pipe):
+def _plot_after_dashboard(
+    fig,
+    grid_spec,
+    hypno_psd_pick,
+    max_psd,
+    min_psd,
+    picks_str_repr,
+    psd_after,
+    sleep_stages,
+    spectral_pipe,
+):
     hypno_after_axes = fig.add_subplot(grid_spec[2:3, 2:4])
-    hypno_after_axes.set_title(f"Spectra after rejecting bad data spans ({picks_str_repr})")
+    hypno_after_axes.set_title(
+        f"Spectra after rejecting bad data spans ({picks_str_repr})"
+    )
     _hypno_psd(
         spectral_pipe,
         sleep_stages,
@@ -355,8 +407,19 @@ def _plot_after_dashboard(fig, grid_spec, hypno_psd_pick, max_psd, min_psd, pick
     psd_after.yaxis.set_label_coords(-0.05, 0.5)
 
 
-def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_ica, notch_freqs, pipe, reference,
-                         sfreq):
+def _plot_dashboard_info(
+    bads,
+    fig,
+    fmax,
+    fmin,
+    grid_spec,
+    is_adaptive_topo,
+    is_ica,
+    notch_freqs,
+    pipe,
+    reference,
+    sfreq,
+):
     if len(bads) == 0:
         bads = None
     interpolated = _picks_to_idx(pipe.mne_raw.info, bads)
@@ -373,8 +436,15 @@ def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_
         cmap=cmap,
     )
 
-    recording_time = time.strftime("%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf))
-    interpolated_channels_percent = round(100 * len(interpolated) / len(pipe.mne_raw.copy().pick(picks='eeg').info["ch_names"]), 2)
+    recording_time = time.strftime(
+        "%H:%M:%S", time.gmtime(pipe.mne_raw.n_times / pipe.sf)
+    )
+    interpolated_channels_percent = round(
+        100
+        * len(interpolated)
+        / len(pipe.mne_raw.copy().pick(picks="eeg").info["ch_names"]),
+        2,
+    )
 
     info_txt: str = "\n\n".join(
         (
@@ -403,10 +473,14 @@ def _plot_dashboard_info(bads, fig, fmax, fmin, grid_spec, is_adaptive_topo, is_
     return psd_after
 
 
-def _plot_before_parts(fig, grid_spec, hypno_psd_pick, picks_str_repr, s_pipe, sleep_stages):
+def _plot_before_parts(
+    fig, grid_spec, hypno_psd_pick, picks_str_repr, s_pipe, sleep_stages
+):
     psd_before_axes = fig.add_subplot(grid_spec[3:5, 0:2])
     hypno_before_axes = fig.add_subplot(grid_spec[2:3, 0:2])
-    hypno_before_axes.set_title(f"Spectra after interpolating bad channels ({picks_str_repr})")
+    hypno_before_axes.set_title(
+        f"Spectra after interpolating bad channels ({picks_str_repr})"
+    )
     hypno_before_axes.yaxis.set_label_coords(-0.05, 0.5)
 
     min_psd, max_psd = _hypno_psd(
