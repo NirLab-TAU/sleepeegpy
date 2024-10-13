@@ -1,6 +1,7 @@
 import os
 import pytest
-from sleepeegpy.pipeline import CleaningPipe  # Adjust this import to your actual module name
+from sleepeegpy.pipeline import CleaningPipe
+from sleepeegpy.dashboard import create_dashboard
 
 import numpy as np
 import mne
@@ -85,6 +86,12 @@ def test_save_annotations(setup_cleaning_pipe):
     assert os.path.isfile(annotations_file_path), f"File {annotations_file_path} not found."
     loaded_annotations = mne.read_annotations(annotations_file_path)
     assert len(loaded_annotations) > 0, "loaded_annotations is 0"
+
+def test_dashboard(setup_cleaning_pipe):
+    fig = create_dashboard(
+        subject_code="EL3001",
+        prec_pipe=setup_cleaning_pipe
+    )
 
 if __name__ == "__main__":
     pytest.main()
