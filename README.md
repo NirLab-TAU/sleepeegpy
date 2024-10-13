@@ -34,12 +34,10 @@ odie = pooch.create(
     base_url="doi:10.5281/zenodo.10362189",
 )
 odie.load_registry_from_doi()
-bad_channels = odie.fetch("bad_channels.txt")
-annotations = odie.fetch("annotations.txt")
-path_to_eeg = odie.fetch("resampled_raw.fif")
-
-for i in range(1,4):
-    odie.fetch(f"resampled_raw-{i}.fif")
+bad_channels = odie.fetch("nap_bad_channels.txt")
+annotations = odie.fetch("nap_annotations.txt")
+path_to_eeg = odie.fetch("nap_resampled_raw.fif", progressbar=True)
+hypnogram_path = odie.fetch("nap_staging.txt", progressbar=True) 
 ```
 
 ## Citation
