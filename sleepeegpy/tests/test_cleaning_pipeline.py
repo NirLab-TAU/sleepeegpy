@@ -30,7 +30,7 @@ def setup_eeg_file(tmp_path):
     raw = _basic_eeg_file_creation()
     montage = mne.channels.make_standard_montage('standard_1020')
     raw.set_montage(montage)
-    eeg_file_path = tmp_path / "test_eeg_file.fif"
+    eeg_file_path = tmp_path / "test_eeg_file_raw.fif"
     raw.save(eeg_file_path, overwrite=True)
     return eeg_file_path
 
