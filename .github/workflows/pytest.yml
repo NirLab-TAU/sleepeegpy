@@ -1,9 +1,9 @@
 name: Run Tests
-
-on: 
-  push:  # Trigger this workflow on push events
-  pull_request:  # Also trigger on pull requests
-
+on:
+  push:  # This will trigger on any push to the repository
+    branches:
+      - main  # Adjust this to the branch you want to monitor
+  pull_request:  # This will trigger on pull requests targeting the specified branch
 jobs:
   test:
     runs-on: ubuntu-latest
