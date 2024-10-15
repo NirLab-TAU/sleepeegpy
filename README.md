@@ -18,12 +18,14 @@ The repository also includes a Jupyter notebook demonstrating how to use this pa
 4. **Download notebooks**: [Download](https://github.com/NirLab-TAU/sleepeegpy/archive/refs/heads/main.zip) this repository zip folder, you will need only the notebooks folder.
 
 ## Quickstart
+The notebooks are useful for familiarizing yourself with the library's functionalities. To use them:
 1.  Navigate to the  Pipeline Notebooks folder and run Jupyter.
     ```bash
     jupyter notebook
     ```
 2. Open the complete_pipeline notebook using Jupyter Notebook within the activated environment and follow the instructions.
 
+Additionally, detailed [documentation](https://nirlab-tau.github.io/sleepeegpy/) is available for further reference.
 ## RAM requirements
 For overnight, high-density (256 channels) EEG recordings downsampled to 250 Hz expect at least 64 GB RAM expenditure for cleaning, spectral analyses, and event detection.
 
