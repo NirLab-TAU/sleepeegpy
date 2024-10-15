@@ -117,13 +117,14 @@ class CleaningPipe(BasePipe):
 
 
     def auto_set_annotations(self, amplitude_peak = 100e-6, amplitude_min_duration = 0.005):
-        """
-        Sets annotations automatically based on mne preprocessing lib
-        Args:
-            amplitude_peak: maximum accepted PTP amplitude
-            amplitude_min_duration: minimum required duration
-            These arguments are required for using mne function.
-            For more information about it, check: https://mne.tools/dev/generated/mne.preprocessing.annotate_amplitude.html
+        """Sets annotations automatically based on MNE preprocessing library.
+
+            Args:
+                amplitude_peak (float): Maximum accepted peak-to-peak (PTP) amplitude.
+                amplitude_min_duration (float): Minimum required duration for the annotation.c
+
+            For more information about these parameters, check:
+            https://mne.tools/dev/generated/mne.preprocessing.annotate_amplitude.html
         """
         amplitude_annotations = mne.preprocessing.annotate_amplitude(self.mne_raw, peak=amplitude_peak, bad_percent=10, min_duration=amplitude_min_duration,
                                                                      picks=None, verbose=None)[0]
@@ -132,12 +133,14 @@ class CleaningPipe(BasePipe):
 
 
     def auto_detect_bad_channels(self, path = None, methods = CHANNELS_DETECTION_METHODS.keys()):
-        """
-        Writes bad channels file automatically based on pyprep lib
-        Args:
-            path: Path to the output bad channels file. if None will be saved in default path.
-            methods: List of the bad channels detection methods.
-        """
+        """Writes bad channels file automatically based on pyprep lib
+
+                Args:
+                    path: Path to the output bad channels file. if None will be saved in default path.
+                Returns:
+                    str: The path of the generated bad channels file.
+                """
+
         bad_channels = set()
         # To avoid memory errors, if the data size is big, the raw data is processed in smaller segments.
         segments_number, segment_duration = self._get_segments_number()
