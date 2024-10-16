@@ -48,11 +48,12 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 1,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "from sleepeegpy.pipeline import CleaningPipe"
+    "from sleepeegpy.pipeline import CleaningPipe\n",
+    "import os"
    ]
   },
   {
@@ -64,28 +65,56 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": 2,
+   "cell_type": "markdown",
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Reading EGI MFF Header from C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\EL3001_SLEEP.mff...\n",
-      "    Reading events ...\n",
-      "    Assembling measurement info ...\n",
-      "    Synthesizing trigger channel \"STI 014\" ...\n",
-      "    Excluding events {} ...\n"
-     ]
-    }
-   ],
    "source": [
+    "By default, all the input files are assumed to be saved in <b>input_files</b>, which will be created (if not already exists) in the notebook path. Change the following strings to use another path.\n",
+    "Changing the output directory is also optional."
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "from os import makedirs\n",
+    "\n",
+    "output_dir  = \"output_folder\" # Output path and name can be changed here\n",
+    "input_dir = \"input_files\" # input files dir can be changed here\n",
+    "makedirs(input_dir, exist_ok=True)\n",
+    "makedirs(output_dir, exist_ok=True)"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "#### Add required files\n",
+    "* Put all your files in the input folder.\n",
+    "* Modify your eeg file name below. The file can be any format supported by the mne.read_raw() function.\n",
+    "* For more information about the supported formats, see [mne documentation](https://mne.tools/stable/generated/mne.io.Raw.html)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "eeg_file_name= \"resampled_raw.fif\" # add your eeg_path here"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "path_to_eeg = os.path.join(input_dir,eeg_file_name)\n",
     "pipe = CleaningPipe(\n",
-    "    # Can be any type of eeg files supported by the mne.read_raw() function.\n",
-    "    path_to_eeg=r\"C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\EL3001_SLEEP.mff\",\n",
-    "    # A directory you want the results to be saved in.\n",
-    "    output_dir=r\"C:\\Users\\Gennadiy\\Documents\\data\\EL3001\",\n",
+    "    path_to_eeg=path_to_eeg,\n",
+    "    output_dir=output_dir,\n",
     ")"
    ]
   },
@@ -107,11 +136,10 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 4,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "# pipe.mne_raw.load_data()\n",
     "pipe.resample(\n",
     "    sfreq=250,  # Desired new sampling frequency\n",
     "    n_jobs=-1,  # The number of jobs to run in parallel. If -1, it is set to the number of CPU cores.\n",
@@ -137,39 +165,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 5,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Filtering raw data in 1 contiguous segment\n",
-      "Setting up high-pass filter at 0.3 Hz\n",
-      "\n",
-      "FIR filter parameters\n",
-      "---------------------\n",
-      "Designing a one-pass, zero-phase, non-causal highpass filter:\n",
-      "- Windowed time-domain design (firwin) method\n",
-      "- Hamming window with 0.0194 passband ripple and 53 dB stopband attenuation\n",
-      "- Lower passband edge: 0.30\n",
-      "- Lower transition bandwidth: 0.30 Hz (-6 dB cutoff frequency: 0.15 Hz)\n",
-      "- Filter length: 2751 samples (11.004 s)\n",
-      "\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "[Parallel(n_jobs=-1)]: Using backend LokyBackend with 16 concurrent workers.\n",
-      "[Parallel(n_jobs=-1)]: Done   2 tasks      | elapsed:    0.9s\n",
-      "[Parallel(n_jobs=-1)]: Done  56 tasks      | elapsed:    6.8s\n",
-      "[Parallel(n_jobs=-1)]: Done 146 tasks      | elapsed:   15.9s\n",
-      "[Parallel(n_jobs=-1)]: Done 257 out of 257 | elapsed:   26.3s finished\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.filter(\n",
     "    l_freq=0.3, # Lower pass-band edge in Hz.\n",
@@ -188,45 +186,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 6,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Filtering raw data in 1 contiguous segment\n",
-      "Setting up band-stop filter\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "\n",
-      "FIR filter parameters\n",
-      "---------------------\n",
-      "Designing a one-pass, zero-phase, non-causal bandstop filter:\n",
-      "- Windowed time-domain design (firwin) method\n",
-      "- Hamming window with 0.0194 passband ripple and 53 dB stopband attenuation\n",
-      "- Lower transition bandwidth: 0.50 Hz\n",
-      "- Upper transition bandwidth: 0.50 Hz\n",
-      "- Filter length: 1651 samples (6.604 s)\n",
-      "\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "[Parallel(n_jobs=-1)]: Using backend LokyBackend with 16 concurrent workers.\n",
-      "[Parallel(n_jobs=-1)]: Done   2 tasks      | elapsed:    0.3s\n",
-      "[Parallel(n_jobs=-1)]: Done  56 tasks      | elapsed:    5.9s\n",
-      "[Parallel(n_jobs=-1)]: Done 146 tasks      | elapsed:   14.7s\n",
-      "[Parallel(n_jobs=-1)]: Done 257 out of 257 | elapsed:   25.5s finished\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.notch(\n",
     "    freqs=\"50s\", # Remove 50 Hz and its harmonics.\n",
@@ -252,20 +214,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 7,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "EEG channel type selected for re-referencing\n",
-      "Adding average EEG reference projection.\n",
-      "1 projection items deactivated\n",
-      "Average reference projection was added, but has not been applied yet. Use the apply_proj method to apply it.\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.set_eeg_reference(ref_channels=\"average\", projection=True)"
    ]
@@ -280,18 +231,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 15,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Channels marked as bad:\n",
-      "['E9', 'E10', 'E18', 'E35', 'E37', 'E64', 'E68', 'E69', 'E84', 'E91', 'E92', 'E157', 'E192', 'E200', 'E208', 'E209', 'E215', 'E216', 'E217', 'E219', 'E229', 'E244', 'E256']\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.plot(\n",
     "    save_bad_channels=True,  # Whether to save selected bad channels in a file\n",
@@ -299,7 +241,28 @@
     "    # Whether to overwrite already saved bad_channels.txt or annotations.txt,\n",
     "    # if set to False and there is already bad_channels.txt, new bad channels will be added to it.\n",
     "    overwrite=False,\n",
-    ")"
+    ")\n",
+    "path = None"
+   ]
+  },
+  {
+   "cell_type": "markdown",
+   "metadata": {},
+   "source": [
+    "Another option is to use auto-detection of bad_channels (based on pyprep library).\n",
+    "This method generates a bad channel text file and returns the path.\n",
+    "\n",
+    "To use it, uncomment the relevant line and run"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "### uncomment to find bad channels automatically ###\n",
+    "# path = pipe.auto_detect_bad_channels() "
    ]
   },
   {
@@ -307,19 +270,20 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "If you want to continue with previously saved bad channels, use `pipe.read_bad_channels()`. The function will import the channels from the *bad_channels.txt* file."
+    "If you want to continue with previously saved bad channels, use `pipe.read_bad_channels()`. The function will import the channels from the *bad_channels.txt* file.\n",
+    "Alternatively, if you already have another bad channels file, add your path"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 8,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
     "pipe.read_bad_channels(\n",
     "    # Path to the txt file with bad channel name per row.\n",
     "    # If None, will try to import '{output_dir}/CleaningPipe/bad_channels.txt'\n",
-    "    path=None\n",
+    "    path=path\n",
     ")"
    ]
   },
@@ -341,34 +305,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 9,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Setting channel interpolation method to {'eeg': 'spline'}.\n",
-      "Interpolating bad channels.\n",
-      "    Automatic origin fit: head of radius 96.5 mm\n",
-      "Computing interpolation matrix from 234 sensor positions\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Interpolating 23 sensors\n"
-     ]
-    },
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "Interpolated channels: ['E9', 'E10', 'E18', 'E35', 'E37', 'E64', 'E68', 'E69', 'E84', 'E91', 'E92', 'E157', 'E192', 'E200', 'E208', 'E209', 'E215', 'E216', 'E217', 'E219', 'E229', 'E244', 'E256']\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.interpolate_bads(\n",
     "    reset_bads=True  # Whether to set interpolated channels back as normal.\n",
@@ -385,24 +324,15 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Channels marked as bad:\n",
-      "none\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.plot(\n",
     "    save_bad_channels=False,  # Whether to save selected bad channels in a file\n",
     "    save_annotations=True,  # Whether to save annotations in a file.\n",
     "    # Whether to overwrite already saved bad_channels.txt or annotations.txt,\n",
-    "    # if set to False and there is already bad_channels.txt, new bad channels will be added to it.\n",
+    "    # if set to False and there is already bad_channels.txt, new bad channels will be added.\n",
     "    overwrite=False,\n",
     ")"
    ]
@@ -412,23 +342,15 @@
    "cell_type": "markdown",
    "metadata": {},
    "source": [
-    "If you want to continue with previously saved annotations, use `pipe.read_annotations()`. The function will import the annotations from the *annotations.txt* file."
+    "If you want to continue with previously saved annotations, use `pipe.read_annotations()`. The function will import the annotations from the *annotations.txt* file.\n",
+    "Alternatively, if you already another annotations.txt file, you can add your path"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 10,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stderr",
-     "output_type": "stream",
-     "text": [
-      "C:\\Users\\Gennadiy\\Documents\\sleepeegpy\\sleepeegpy\\pipeline.py:108: RuntimeWarning: Limited 2 annotation(s) that were expanding outside the data range.\n",
-      "  self.mne_raw.set_annotations(read_annotations(p))\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.read_annotations(\n",
     "    # Path to txt file with mne-style annotations.\n",
@@ -438,26 +360,29 @@
    ]
   },
   {
-   "cell_type": "code",
-   "execution_count": 10,
+   "cell_type": "markdown",
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Using qt as 2D backend.\n"
-     ]
-    },
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Channels marked as bad:\n",
-      "none\n"
-     ]
-    }
-   ],
+   "source": [
+    "Another option is to use an auto set of annotations or use an existing file.\n",
+    "This method detects and sets annotations.\n",
+    "\n",
+    "To use it, uncomment the relevant line and run"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "# pipe.auto_set_annotations()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
    "source": [
     "pipe.plot()"
    ]
@@ -472,25 +397,9 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 11,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "name": "stdout",
-     "output_type": "stream",
-     "text": [
-      "Writing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw.fif\n",
-      "Closing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw.fif\n",
-      "Writing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-1.fif\n",
-      "Closing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-1.fif\n",
-      "Writing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-2.fif\n",
-      "Closing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-2.fif\n",
-      "Writing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-3.fif\n",
-      "Closing C:\\Users\\Gennadiy\\Documents\\data\\EL3001\\CleaningPipe\\cleaned_raw-3.fif\n",
-      "[done]\n"
-     ]
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.save_raw(\"cleaned_raw.fif\", overwrite=True)"
    ]
@@ -504,37 +413,26 @@
   },
   {
    "cell_type": "code",
-   "execution_count": 12,
+   "execution_count": null,
    "metadata": {},
-   "outputs": [
-    {
-     "data": {
-      "text/plain": [
-       "(250.0, 4.84)"
-      ]
-     },
-     "execution_count": 12,
-     "metadata": {},
-     "output_type": "execute_result"
-    }
-   ],
+   "outputs": [],
    "source": [
     "pipe.sf, pipe.bad_data_percent"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 24,
+   "execution_count": null,
    "metadata": {},
    "outputs": [],
    "source": [
-    "pipe.save_bad_channels()\n",
-    "pipe.save_annotations()"
+    "pipe.save_bad_channels(overwrite=True)\n",
+    "pipe.save_annotations(overwrite=True)"
    ]
   },
   {
    "cell_type": "code",
-   "execution_count": 13,
+   "execution_count": null,
    "metadata": {},
    "outputs": [
     {
@@ -555,7 +453,7 @@
  ],
  "metadata": {
   "kernelspec": {
-   "display_name": ".venv",
+   "display_name": "Python 3 (ipykernel)",
    "language": "python",
    "name": "python3"
   },
@@ -569,9 +467,8 @@
    "name": "python",
    "nbconvert_exporter": "python",
    "pygments_lexer": "ipython3",
-   "version": "3.11.6"
+   "version": "3.11.8"
   },
-  "orig_nbformat": 4,
   "vscode": {
    "interpreter": {
     "hash": "e7e6a3ad0af7de53e72789e0b82b3fd5c64743c0f9fcf843fd4113b6e74b9b71"
@@ -579,5 +476,5 @@
   }
  },
  "nbformat": 4,
- "nbformat_minor": 2
+ "nbformat_minor": 4
 }
