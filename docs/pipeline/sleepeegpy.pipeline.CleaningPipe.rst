@@ -17,6 +17,12 @@
    
       
       
+         ~CleaningPipe.auto_detect_bad_channels
+      
+      
+         ~CleaningPipe.auto_set_annotations
+      
+      
          ~CleaningPipe.filter
       
       
