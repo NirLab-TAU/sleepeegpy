@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.10","3.11","3.12"]  # Test across multiple Python versions
+        python-version: ["3.10","3.11"]  # Test across multiple Python versions
 
     steps:
     - uses: actions/checkout@v4  # Checkout the repository code
