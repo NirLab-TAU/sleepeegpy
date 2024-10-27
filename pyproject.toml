@@ -14,7 +14,7 @@ authors = [
 ]
 description = "Sleep EEG preprocessing, analysis and visualization"
 readme = "README.md"
-requires-python = ">=3.10, <3.13"
+requires-python = ">=3.10, <3.12"
 license = {text = "MIT"}
 keywords = ['sleep', 'eeg']
 dependencies = [
@@ -22,8 +22,8 @@ dependencies = [
     "mne~=1.6.0",
     "mne-qt-browser",
     "pyqt5",
-    "yasa~=0.6.3",
-    "fooof~=1.1.0",
+    "yasa~=0.6.5",
+    "fooof",
     "lspopt",
     "ipympl",
     "numpy~=1.25.2",
