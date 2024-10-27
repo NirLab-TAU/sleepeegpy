@@ -13,6 +13,9 @@ def _basic_eeg_file_creation():
     duration = 10
     times = np.arange(0, duration, 1 / sfreq)
 
+    # Generate synthetic EEG-like data for basic testing.
+    # Note: This simplified model doesn't capture the full complexity of real EEG data.
+    # It's suitable for testing fundamental EEG processing functions.
     data = np.zeros((n_channels, len(times)))
     for i in range(n_channels):
         alpha = 0.5 * np.sin(2 * np.pi * 10 * times + np.random.rand())
