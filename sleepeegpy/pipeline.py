@@ -1,5 +1,6 @@
 """This module contains and describes pipe elements for sleep eeg analysis.
 """
+
 import os
 from collections.abc import Iterable
 from pathlib import Path
@@ -23,7 +24,7 @@ CHANNELS_DETECTION_METHODS = {
     "correlation": "bad_by_correlation",
     "deviation": "bad_by_deviation",
     "dropout": "bad_by_dropout",
-    "flat": "bad_by_flat"
+    "flat": "bad_by_flat",
 }
 
 CHANNELS_DETECTION_SEGMENT_SIZE = 1320000
@@ -85,7 +86,6 @@ class CleaningPipe(BasePipe):
                 raise ValueError(f"Unsupported frequency: {freqs}")
         self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
 
-
     def _get_segments_number(self):
         duration = self.mne_raw.times[-1]
         sfreq = self.mne_raw.info["sfreq"]
@@ -97,9 +97,11 @@ class CleaningPipe(BasePipe):
         if total_samples > CHANNELS_DETECTION_SEGMENT_SIZE:
             chunk_numbers = int(total_samples / CHANNELS_DETECTION_SEGMENT_SIZE)
             segment_duration = duration / chunk_numbers
-        return chunk_numbers,segment_duration
+        return chunk_numbers, segment_duration
 
-    def _add_bad_channels(self, bad_channels_set, eeg_segment, methods = CHANNELS_DETECTION_METHODS.keys()):
+    def _add_bad_channels(
+        self, bad_channels_set, eeg_segment, methods=CHANNELS_DETECTION_METHODS.keys()
+    ):
         if len(eeg_segment.times) >= 2:
             noisy_channels = pyprep.NoisyChannels(eeg_segment)
             noisy_channels.find_all_bads()
@@ -111,41 +113,47 @@ class CleaningPipe(BasePipe):
         return bad_channels_set
 
     def _write_array_to_file(self, array, filename):
-        with open(filename, 'w') as file:
+        with open(filename, "w") as file:
             for item in array:
-                file.write(item + '\n')
+                file.write(item + "\n")
 
-
-    def auto_set_annotations(self, amplitude_peak = 100e-6, amplitude_min_duration = 0.005):
+    def auto_set_annotations(self, amplitude_peak=100e-6, amplitude_min_duration=0.005):
         """Sets annotations automatically based on MNE preprocessing library.
 
-            Args:
-                amplitude_peak (float): Maximum accepted peak-to-peak (PTP) amplitude.
-                amplitude_min_duration (float): Minimum required duration for the annotation.c
+        Args:
+            amplitude_peak (float): Maximum accepted peak-to-peak (PTP) amplitude.
+            amplitude_min_duration (float): Minimum required duration for the annotation.c
 
-            For more information about these parameters, check:
-            https://mne.tools/dev/generated/mne.preprocessing.annotate_amplitude.html
+        For more information about these parameters, check:
+        https://mne.tools/dev/generated/mne.preprocessing.annotate_amplitude.html
         """
-        amplitude_annotations = mne.preprocessing.annotate_amplitude(self.mne_raw, peak=amplitude_peak, bad_percent=10, min_duration=amplitude_min_duration,
-                                                                     picks=None, verbose=None)[0]
+        amplitude_annotations = mne.preprocessing.annotate_amplitude(
+            self.mne_raw,
+            peak=amplitude_peak,
+            bad_percent=10,
+            min_duration=amplitude_min_duration,
+            picks=None,
+            verbose=None,
+        )[0]
         nan_annotations = mne.preprocessing.annotate_nan(self.mne_raw)
         self.mne_raw.set_annotations(amplitude_annotations + nan_annotations)
 
-
-    def auto_detect_bad_channels(self, path = None, methods = CHANNELS_DETECTION_METHODS.keys()):
+    def auto_detect_bad_channels(
+        self, path=None, methods=CHANNELS_DETECTION_METHODS.keys()
+    ):
         """Writes bad channels file automatically based on pyprep lib
 
-                Args:
-                    path: Path to the output bad channels file. if None will be saved in default path.
-                Returns:
-                    str: The path of the generated bad channels file.
-                """
+        Args:
+            path: Path to the output bad channels file. if None will be saved in default path.
+        Returns:
+            str: The path of the generated bad channels file.
+        """
 
         bad_channels = set()
         # To avoid memory errors, if the data size is big, the raw data is processed in smaller segments.
         segments_number, segment_duration = self._get_segments_number()
         duration = self.mne_raw.times[-1]
-        if segment_duration >=  duration:
+        if segment_duration >= duration:
             self._add_bad_channels(bad_channels, self.mne_raw, methods)
         else:
             segment_start = 0
@@ -154,13 +162,15 @@ class CleaningPipe(BasePipe):
                 segment = self.mne_raw.copy().crop(segment_start, segment_end)
                 self._add_bad_channels(bad_channels, segment, methods)
                 segment_start = segment_end
-                segment_end = min(segment_end + CHANNELS_DETECTION_SEGMENT_SIZE, duration)
+                segment_end = min(
+                    segment_end + CHANNELS_DETECTION_SEGMENT_SIZE, duration
+                )
 
-
-        default_path = os.path.join(self.output_dir, self.__class__.__name__, "bad_channels.txt")
+        default_path = os.path.join(
+            self.output_dir, self.__class__.__name__, "bad_channels.txt"
+        )
         self._write_array_to_file(list(bad_channels), path or default_path)
         return path or default_path
-
 
     def read_bad_channels(self, path: str | None = None):
         """Imports bad channels from file to mne raw object.
@@ -182,7 +192,6 @@ class CleaningPipe(BasePipe):
                     )
                 self.mne_raw.info["bads"] = lines
 
-
     def read_annotations(self, path: str | None = None):
         """Imports annotations from file to mne raw object
 
@@ -190,6 +199,7 @@ class CleaningPipe(BasePipe):
             path: Path to txt file with mne-style annotations. Defaults to None.
         """
         from mne import read_annotations
+
         p = (
             Path(path)
             if path
@@ -390,10 +400,11 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
     fooofs: dict = field(init=False, factory=dict)
     """Instances of :py:class:`fooof:fooof.FOOOF` per sleep stage.
     """
+
     @logger_wraps()
     def compute_psd(
         self,
-        sleep_stages: dict = {'Wake': 0, 'N1': 1, 'N2': 2, 'N3': 3, 'REM': 4},
+        sleep_stages: dict = {"Wake": 0, "N1": 1, "N2": 2, "N3": 3, "REM": 4},
         reference: Iterable[str] | str | None = None,
         fmin: float = 0,
         fmax: float = 60,
@@ -466,7 +477,9 @@ class SpectralPipe(BaseHypnoPipe, SpectrumPlots):
                 # Save percentage of the sleep stage.
                 info["description"] = str(round(n_samples / n_samples_total * 100, 2))
 
-                self.psds[stage] = mne.time_frequency.SpectrumArray(data=psds, info=info, freqs=freqs)
+                self.psds[stage] = mne.time_frequency.SpectrumArray(
+                    data=psds, info=info, freqs=freqs
+                )
 
         if save:
             self.save_psds(overwrite)
@@ -730,6 +743,7 @@ class SpindlesPipe(BaseEventPipe):
     ):
         """A wrapper around :py:func:`yasa:yasa.spindles_detect` with option to save."""
         from yasa import spindles_detect
+
         inst = self.mne_raw.copy().load_data()
         if reference is not None:
             inst.set_eeg_reference(ref_channels=reference)
