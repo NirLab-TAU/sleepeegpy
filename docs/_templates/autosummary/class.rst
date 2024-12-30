@@ -1,6 +1,9 @@
 {{ name | escape | underline}}
 
 .. currentmodule:: {{ module }}
+.. tip::
+      |{{ name }}|
+
 
 .. autoclass:: {{ objname }}
    :members:

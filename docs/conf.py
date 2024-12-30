@@ -11,7 +11,7 @@ import sys
 import inspect
 import shutil
 from pathlib import Path
-
+sys.path.insert(0, os.path.abspath('./notebooks'))
 sys.path.append(os.path.abspath(".."))
 
 project = "sleepeegpy"
@@ -29,7 +29,31 @@ extensions = [
     "sphinx.ext.linkcode",
     "sphinx.ext.autosummary",
     "myst_nb",
+    "nbsphinx",
 ]
+html_logo = "sleepEEGpy.png"
+
+rst_epilog = """
+.. |AbstractClass| replace:: 🚨 **Abstract Class**  - 
+   This class is **abstract** and cannot be used directly.  
+   Subclass it and implement the required methods.
+
+.. |ExamplePipe| replace:: 💡 **Usage Examples**  - 
+   See the notebook for usage examples and code snippets:
+
+.. |CleaningPipe| replace:: |ExamplePipe| :doc:`/notebooks/1_cleaning`
+.. |ICAPipe| replace:: |ExamplePipe| :doc:`/notebooks/2_ica`
+.. |SpectralPipe| replace:: |ExamplePipe| :doc:`/notebooks/4_spectral`
+.. |GrandSpectralPipe| replace:: |ExamplePipe| :doc:`/notebooks/5_grand spectral`
+.. |SpindlesPipe| replace:: |ExamplePipe| :doc:`/notebooks/6_spindles`
+.. |SlowWavesPipe| replace:: |ExamplePipe| :doc:`/notebooks/7_slow_waves`
+.. |RapidEyeMovementsPipe| replace:: |ExamplePipe| :doc:`/notebooks/8_rems`
+
+.. |BasePipe| replace:: |AbstractClass|
+.. |BaseEventPipe| replace:: |AbstractClass|
+.. |BaseHypnoPipe| replace:: |AbstractClass|
+.. |SpectrumPlots| replace:: |AbstractClass|
+"""
 
 nb_execution_mode = "off"
 # autosummary_generate = False
@@ -42,8 +66,7 @@ autodoc_member_order = "bysource"
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = "furo"
-html_static_path = ["_static"]
+html_theme = 'sphinx_rtd_theme'
 
 intersphinx_mapping = {
     "mne": ("https://mne.tools/stable/", None),
