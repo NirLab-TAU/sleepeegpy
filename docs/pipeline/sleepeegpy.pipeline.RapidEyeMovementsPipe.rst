@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |RapidEyeMovementsPipe|
+
+
 .. autoclass:: RapidEyeMovementsPipe
    :members:
    :show-inheritance:

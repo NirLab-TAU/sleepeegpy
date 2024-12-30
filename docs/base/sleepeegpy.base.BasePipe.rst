@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.base
 
+.. tip::
+      |BasePipe|
+
+
 .. autoclass:: BasePipe
    :members:
    :show-inheritance:

@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |SlowWavesPipe|
+
+
 .. autoclass:: SlowWavesPipe
    :members:
    :show-inheritance:

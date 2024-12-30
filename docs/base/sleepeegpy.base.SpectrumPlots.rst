@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.base
 
+.. tip::
+      |SpectrumPlots|
+
+
 .. autoclass:: SpectrumPlots
    :members:
    :show-inheritance:
