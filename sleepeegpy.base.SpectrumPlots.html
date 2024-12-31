@@ -1,0 +1,246 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpectrumPlots &mdash; sleepeegpy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="_static/doctools.js?v=9bcbadda"></script>
+      <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            sleepeegpy
+              <img src="_static/sleepEEGpy.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+<li class="toctree-l1"><a class="reference internal" href="notebooks.html">Notebooks</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API Reference</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">sleepeegpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">SpectrumPlots</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/sleepeegpy.base.SpectrumPlots.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spectrumplots">
+<h1>SpectrumPlots<a class="headerlink" href="#spectrumplots" title="Link to this heading"></a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>See the 🚨 <strong>Abstract Class</strong>  -
+This class is <strong>abstract</strong> and cannot be used directly.  
+Subclass it and implement the required methods.  for usage examples.</p>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.base.</span></span><span class="sig-name descname"><span class="pre">SpectrumPlots</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L790-L1135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots" title="Link to this definition"></a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
+<p>Plotting spectral data.</p>
+<blockquote class="epigraph">
+<div><p><strong>Methods:</strong></p>
+</div></blockquote>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.SpectrumPlots.plot_psds" title="sleepeegpy.base.SpectrumPlots.plot_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_psds</span></code></a></p></td>
+<td><p>Plot PSD per sleep stage.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.SpectrumPlots.plot_topomap" title="sleepeegpy.base.SpectrumPlots.plot_topomap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap</span></code></a></p></td>
+<td><p>Plots topomap for a sleep stage and a frequency band.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.SpectrumPlots.plot_topomap_collage" title="sleepeegpy.base.SpectrumPlots.plot_topomap_collage"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap_collage</span></code></a></p></td>
+<td><p>Plots topomap collage for multiple sleep stages and bands.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.base.SpectrumPlots.save_psds" title="sleepeegpy.base.SpectrumPlots.save_psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_psds</span></code></a></p></td>
+<td><p>Saves SleepSpectrum objects to h5 files.</p></td>
+</tr>
+</tbody>
+</table>
+<blockquote class="epigraph">
+<div><p><strong>Attributes:</strong></p>
+</div></blockquote>
+<table class="autosummary longtable docutils align-default">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.base.SpectrumPlots.psds" title="sleepeegpy.base.SpectrumPlots.psds"><code class="xref py py-obj docutils literal notranslate"><span class="pre">psds</span></code></a></p></td>
+<td><p>Instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">SleepSpectrum</span></code> per sleep stage.</p></td>
+</tr>
+</tbody>
+</table>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots.psds">
+<span class="sig-name descname"><span class="pre">psds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots.psds" title="Link to this definition"></a></dt>
+<dd><p>Instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">SleepSpectrum</span></code> per sleep stage.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots.plot_psds">
+<span class="sig-name descname"><span class="pre">plot_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-40,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_sensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L798-L912"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots.plot_psds" title="Link to this definition"></a></dt>
+<dd><p>Plot PSD per sleep stage.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>picks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Channels to plot PSDs for. Refer to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.pick" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.pick()</span></code></a>.</p></li>
+<li><p><strong>psd_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of y axis on PSD plot. Defaults to (-40, 60).</p></li>
+<li><p><strong>freq_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of x axis on PSD plot. Defaults to (0, 40).</p></li>
+<li><p><strong>dB</strong> – Whether transform PSD to dB. Defaults to True.</p></li>
+<li><p><strong>xscale</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Scale of the X axis, check available values at
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xscale.html#matplotlib.axes.Axes.set_xscale" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.set_xscale()</span></code></a>. Defaults to “linear”.</p></li>
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>plot_sensors</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to plot sensor map showing which channels were used for
+computing PSD. Defaults to False.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
+<li><p><strong>**plot_kwargs</strong> – Arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code></a>.
+Have no effect if axis is provided.Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots.plot_topomap">
+<span class="sig-name descname"><span class="pre">plot_topomap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'REM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Delta':</span> <span class="pre">(0,</span> <span class="pre">4)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L914-L988"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots.plot_topomap" title="Link to this definition"></a></dt>
+<dd><p>Plots topomap for a sleep stage and a frequency band.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stage</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – One of the sleep_stages keys. Defaults to “REM”.</p></li>
+<li><p><strong>band</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Name-value pair - with name=arbitrary name
+and value=(l_freq, h_freq).
+Defaults to {“Delta”: (0, 4)}.</p></li>
+<li><p><strong>dB</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether transform PSD to dB. Defaults to False.</p></li>
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots.plot_topomap_collage">
+<span class="sig-name descname"><span class="pre">plot_topomap_collage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Alpha':</span> <span class="pre">(8,</span> <span class="pre">12.49),</span> <span class="pre">'Beta':</span> <span class="pre">(12.5,</span> <span class="pre">29.99),</span> <span class="pre">'Delta':</span> <span class="pre">(0,</span> <span class="pre">3.99),</span> <span class="pre">'Gamma':</span> <span class="pre">(30,</span> <span class="pre">60),</span> <span class="pre">'Sigma':</span> <span class="pre">(12.5,</span> <span class="pre">15),</span> <span class="pre">'Theta':</span> <span class="pre">(4,</span> <span class="pre">7.99)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L990-L1119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots.plot_topomap_collage" title="Link to this definition"></a></dt>
+<dd><p>Plots topomap collage for multiple sleep stages and bands.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>stages_to_plot</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Tuple of strings representing names from sleep_stages,
+e.g., (“REM”, “N1”).
+If set to “all” plots every stage provided in sleep_stages.
+Defaults to “all”.</p></li>
+<li><p><strong>bands</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Dict of name-value pairs - with name=arbitrary name
+and value=(l_freq, h_freq).
+Defaults to { “Delta”: (0, 3.99), “Theta”: (4, 7.99), “Alpha”: (8, 12.49),
+“Sigma”: (12.5, 15), “Beta”: (12.5, 29.99), “Gamma”: (30, 60), }.</p></li>
+<li><p><strong>dB</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether transform PSD to dB. Defaults to False.</p></li>
+<li><p><strong>sleep_stages</strong> – Mapping between sleep stages names and their integer representations.
+Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
+<li><p><strong>low_percentile</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Set min color value by percentile of the band data.
+Defaults to 5.</p></li>
+<li><p><strong>high_percentile</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Set max color value by percentile of the band data.
+Defaults to 95.</p></li>
+<li><p><strong>fig</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">figure</span></code></span>) – Instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">mpl:matplotlib.pyplot.figure</span></code>. Defaults to None.</p></li>
+<li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.
+Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
+Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="sleepeegpy.base.SpectrumPlots.save_psds">
+<span class="sig-name descname"><span class="pre">save_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/base.py#L1121-L1135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.base.SpectrumPlots.save_psds" title="Link to this definition"></a></dt>
+<dd><p>Saves SleepSpectrum objects to h5 files.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>overwrite</strong> – Whether to overwrite existing spectrum files.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+
+
+           </div>
+          </div>
+          <footer>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuval Nir lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |SpindlesPipe|
+
+
 .. autoclass:: SpindlesPipe
    :members:
    :show-inheritance:

@@ -14,7 +14,9 @@
    "outputs": [],
    "source": [
     "from sleepeegpy.dashboard import create_dashboard\n",
-    "from joblib import parallel_backend; parallel_backend(\"loky\", n_jobs=-1)"
+    "from joblib import parallel_backend\n",
+    "\n",
+    "parallel_backend(\"loky\", n_jobs=-1)"
    ]
   },
   {
@@ -51,7 +53,7 @@
     "fig = create_dashboard(\n",
     "    subject_code=\"EL3001\",\n",
     "    path_to_eeg=r\"EL3001\\CleaningPipe\\cleaned_raw.fif\",\n",
-    "    hypnogram=r\"EL3001\\staging.txt\",    \n",
+    "    hypnogram=r\"EL3001\\staging.txt\",\n",
     "    hypno_freq=1,\n",
     "    output_dir=r\"EL3001\",\n",
     "    reference=\"average\",\n",

@@ -1,253 +1,127 @@
-<!doctype html>
-<html class="no-js" lang="en" data-content_root="../">
-  <head><meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width,initial-scale=1"/>
-    <meta name="color-scheme" content="light dark"><meta name="viewport" content="width=device-width, initial-scale=1" />
-<link rel="index" title="Index" href="../genindex.html" /><link rel="search" title="Search" href="../search.html" /><link rel="next" title="SpindlesPipe" href="sleepeegpy.pipeline.SpindlesPipe.html" /><link rel="prev" title="ICAPipe" href="sleepeegpy.pipeline.ICAPipe.html" />
-
-    <!-- Generated with Sphinx 7.2.6 and Furo 2023.09.10 -->
-        <title>SpectralPipe - sleepeegpy documentation</title>
-      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo.css?v=135e06be" />
-    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
-    <link rel="stylesheet" type="text/css" href="../_static/styles/furo-extensions.css?v=36a5483c" />
-    
-    
 
 
-<style>
-  body {
-    --color-code-background: #f8f8f8;
-  --color-code-foreground: black;
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="../">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SpectralPipe &mdash; sleepeegpy  documentation</title>
+      <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+      <link rel="stylesheet" type="text/css" href="../_static/css/theme.css?v=e59714d7" />
+      <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+
   
-  }
-  @media not print {
-    body[data-theme="dark"] {
-      --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-    }
-    @media (prefers-color-scheme: dark) {
-      body:not([data-theme="light"]) {
-        --color-code-background: #202020;
-  --color-code-foreground: #d0d0d0;
-  
-      }
-    }
-  }
-</style></head>
-  <body>
-    
-    <script>
-      document.body.dataset.theme = localStorage.getItem("theme") || "auto";
-    </script>
-    
+      <script src="../_static/jquery.js?v=5d32c60e"></script>
+      <script src="../_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="../_static/documentation_options.js?v=5929fcd5"></script>
+      <script src="../_static/doctools.js?v=9bcbadda"></script>
+      <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+      <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script src="../_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="SpindlesPipe" href="sleepeegpy.pipeline.SpindlesPipe.html" />
+    <link rel="prev" title="ICAPipe" href="sleepeegpy.pipeline.ICAPipe.html" /> 
+</head>
 
-<svg xmlns="http://www.w3.org/2000/svg" style="display: none;">
-  <symbol id="svg-toc" viewBox="0 0 24 24">
-    <title>Contents</title>
-    <svg stroke="currentColor" fill="currentColor" stroke-width="0" viewBox="0 0 1024 1024">
-      <path d="M408 442h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8zm-8 204c0 4.4 3.6 8 8 8h480c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8H408c-4.4 0-8 3.6-8 8v56zm504-486H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zm0 632H120c-4.4 0-8 3.6-8 8v56c0 4.4 3.6 8 8 8h784c4.4 0 8-3.6 8-8v-56c0-4.4-3.6-8-8-8zM115.4 518.9L271.7 642c5.8 4.6 14.4.5 14.4-6.9V388.9c0-7.4-8.5-11.5-14.4-6.9L115.4 505.1a8.74 8.74 0 0 0 0 13.8z"/>
-    </svg>
-  </symbol>
-  <symbol id="svg-menu" viewBox="0 0 24 24">
-    <title>Menu</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-menu">
-      <line x1="3" y1="12" x2="21" y2="12"></line>
-      <line x1="3" y1="6" x2="21" y2="6"></line>
-      <line x1="3" y1="18" x2="21" y2="18"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-arrow-right" viewBox="0 0 24 24">
-    <title>Expand</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather-chevron-right">
-      <polyline points="9 18 15 12 9 6"></polyline>
-    </svg>
-  </symbol>
-  <symbol id="svg-sun" viewBox="0 0 24 24">
-    <title>Light mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="feather-sun">
-      <circle cx="12" cy="12" r="5"></circle>
-      <line x1="12" y1="1" x2="12" y2="3"></line>
-      <line x1="12" y1="21" x2="12" y2="23"></line>
-      <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
-      <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
-      <line x1="1" y1="12" x2="3" y2="12"></line>
-      <line x1="21" y1="12" x2="23" y2="12"></line>
-      <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
-      <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
-    </svg>
-  </symbol>
-  <symbol id="svg-moon" viewBox="0 0 24 24">
-    <title>Dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-moon">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-      <path d="M12 3c.132 0 .263 0 .393 0a7.5 7.5 0 0 0 7.92 12.446a9 9 0 1 1 -8.313 -12.454z" />
-    </svg>
-  </symbol>
-  <symbol id="svg-sun-half" viewBox="0 0 24 24">
-    <title>Auto light/dark mode</title>
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-      stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="icon-tabler-shadow">
-      <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
-      <circle cx="12" cy="12" r="9" />
-      <path d="M13 12h5" />
-      <path d="M13 15h4" />
-      <path d="M13 18h1" />
-      <path d="M13 9h4" />
-      <path d="M13 6h1" />
-    </svg>
-  </symbol>
-</svg>
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
 
-<input type="checkbox" class="sidebar-toggle" name="__navigation" id="__navigation">
-<input type="checkbox" class="sidebar-toggle" name="__toc" id="__toc">
-<label class="overlay sidebar-overlay" for="__navigation">
-  <div class="visually-hidden">Hide navigation sidebar</div>
-</label>
-<label class="overlay toc-overlay" for="__toc">
-  <div class="visually-hidden">Hide table of contents sidebar</div>
-</label>
-
-
-
-<div class="page">
-  <header class="mobile-header">
-    <div class="header-left">
-      <label class="nav-overlay-icon" for="__navigation">
-        <div class="visually-hidden">Toggle site navigation sidebar</div>
-        <i class="icon"><svg><use href="#svg-menu"></use></svg></i>
-      </label>
-    </div>
-    <div class="header-center">
-      <a href="../index.html"><div class="brand">sleepeegpy  documentation</div></a>
-    </div>
-    <div class="header-right">
-      <div class="theme-toggle-container theme-toggle-header">
-        <button class="theme-toggle">
-          <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-          <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-          <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-          <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-        </button>
-      </div>
-      <label class="toc-overlay-icon toc-header-icon" for="__toc">
-        <div class="visually-hidden">Toggle table of contents sidebar</div>
-        <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-      </label>
-    </div>
-  </header>
-  <aside class="sidebar-drawer">
-    <div class="sidebar-container">
-      
-      <div class="sidebar-sticky"><a class="sidebar-brand" href="../index.html">
-  
-  
-  <span class="sidebar-brand-text">sleepeegpy  documentation</span>
-  
-</a><form class="sidebar-search-container" method="get" action="../search.html" role="search">
-  <input class="sidebar-search" placeholder="Search" name="q" aria-label="Search">
-  <input type="hidden" name="check_keywords" value="yes">
-  <input type="hidden" name="area" value="default">
-</form>
-<div id="searchbox"></div><div class="sidebar-scroll"><div class="sidebar-tree">
-  <ul class="current">
-<li class="toctree-l1 has-children"><a class="reference internal" href="../notebooks.html">Notebooks</a><input class="toctree-checkbox" id="toctree-checkbox-1" name="toctree-checkbox-1" role="switch" type="checkbox"/><label for="toctree-checkbox-1"><div class="visually-hidden">Toggle navigation of Notebooks</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/0_complete_pipeline.html">Complete pipeline</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/1_cleaning.html">Cleaning</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/2_ica.html">ICA</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/3_dashboard.html">Preprocessing dashboard</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/4_spectral.html">Spectral analyses</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/5_grand%20spectral.html">Grand spectral analyses</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/6_spindles.html">Spindles analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/7_slow_waves.html">Slow waves analysis</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../notebooks/8_rems.html">Rapid eye movements analysis</a></li>
-</ul>
-</li>
-<li class="toctree-l1 current has-children"><a class="reference internal" href="../api.html">API Reference</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-2" name="toctree-checkbox-2" role="switch" type="checkbox"/><label for="toctree-checkbox-2"><div class="visually-hidden">Toggle navigation of API Reference</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
-<li class="toctree-l2 has-children"><a class="reference internal" href="../base.html">base module</a><input class="toctree-checkbox" id="toctree-checkbox-3" name="toctree-checkbox-3" role="switch" type="checkbox"/><label for="toctree-checkbox-3"><div class="visually-hidden">Toggle navigation of base module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul>
-<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BasePipe.html">BasePipe</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BaseHypnoPipe.html">BaseHypnoPipe</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.BaseEventPipe.html">BaseEventPipe</a></li>
-<li class="toctree-l3"><a class="reference internal" href="../base/sleepeegpy.base.SpectrumPlots.html">SpectrumPlots</a></li>
-</ul>
-</li>
-<li class="toctree-l2 current has-children"><a class="reference internal" href="../pipeline.html">pipeline module</a><input checked="" class="toctree-checkbox" id="toctree-checkbox-4" name="toctree-checkbox-4" role="switch" type="checkbox"/><label for="toctree-checkbox-4"><div class="visually-hidden">Toggle navigation of pipeline module</div><i class="icon"><svg><use href="#svg-arrow-right"></use></svg></i></label><ul class="current">
+          
+          
+          <a href="../index.html" class="icon icon-home">
+            sleepeegpy
+              <img src="../_static/sleepEEGpy.png" class="logo" alt="Logo"/>
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../notebooks.html">Notebooks</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Reference</a><ul class="current">
+<li class="toctree-l2 current"><a class="reference internal" href="../pipeline.html">pipeline module</a><ul class="current">
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.CleaningPipe.html">CleaningPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.ICAPipe.html">ICAPipe</a></li>
-<li class="toctree-l3 current current-page"><a class="current reference internal" href="#">SpectralPipe</a></li>
+<li class="toctree-l3 current"><a class="current reference internal" href="#">SpectralPipe</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe"><code class="docutils literal notranslate"><span class="pre">SpectralPipe</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.SpindlesPipe.html">SpindlesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.SlowWavesPipe.html">SlowWavesPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.RapidEyeMovementsPipe.html">RapidEyeMovementsPipe</a></li>
 <li class="toctree-l3"><a class="reference internal" href="sleepeegpy.pipeline.GrandSpectralPipe.html">GrandSpectralPipe</a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="../base.html">base module</a></li>
 </ul>
 </li>
 </ul>
 
-</div>
-</div>
-
-      </div>
-      
-    </div>
-  </aside>
-  <div class="main">
-    <div class="content">
-      <div class="article-container">
-        <a href="#" class="back-to-top muted-link">
-          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8v12z"></path>
-          </svg>
-          <span>Back to top</span>
-        </a>
-        <div class="content-icon-container">
-          
-<div class="theme-toggle-container theme-toggle-content">
-            <button class="theme-toggle">
-              <div class="visually-hidden">Toggle Light / Dark / Auto color theme</div>
-              <svg class="theme-icon-when-auto"><use href="#svg-sun-half"></use></svg>
-              <svg class="theme-icon-when-dark"><use href="#svg-moon"></use></svg>
-              <svg class="theme-icon-when-light"><use href="#svg-sun"></use></svg>
-            </button>
-          </div>
-          <label class="toc-overlay-icon toc-content-icon" for="__toc">
-            <div class="visually-hidden">Toggle table of contents sidebar</div>
-            <i class="icon"><svg><use href="#svg-toc"></use></svg></i>
-          </label>
         </div>
-        <article role="main">
-          <section id="spectralpipe">
-<h1>SpectralPipe<a class="headerlink" href="#spectralpipe" title="Link to this heading">#</a></h1>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../index.html">sleepeegpy</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="../index.html" class="icon icon-home" aria-label="Home"></a></li>
+          <li class="breadcrumb-item"><a href="../api.html">API Reference</a></li>
+          <li class="breadcrumb-item"><a href="../pipeline.html">pipeline module</a></li>
+      <li class="breadcrumb-item active">SpectralPipe</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="../_sources/pipeline/sleepeegpy.pipeline.SpectralPipe.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="spectralpipe">
+<h1>SpectralPipe<a class="headerlink" href="#spectralpipe" title="Link to this heading"></a></h1>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>💡 <strong>Usage Examples</strong>  -
+See the notebook for usage examples and code snippets: <a class="reference internal" href="../notebooks/4_spectral.html"><span class="doc">Spectral analyses</span></a></p>
+</div>
 <dl class="py class">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.pipeline.</span></span><span class="sig-name descname"><span class="pre">SpectralPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">_Nothing.NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L276-L618"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe" title="Link to this definition">#</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../base/sleepeegpy.base.BaseHypnoPipe.html#sleepeegpy.base.BaseHypnoPipe" title="sleepeegpy.base.BaseHypnoPipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseHypnoPipe</span></code></a>, <a class="reference internal" href="../base/sleepeegpy.base.SpectrumPlots.html#sleepeegpy.base.SpectrumPlots" title="sleepeegpy.base.SpectrumPlots"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumPlots</span></code></a></p>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">sleepeegpy.pipeline.</span></span><span class="sig-name descname"><span class="pre">SpectralPipe</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prec_pipe</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_eeg</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hypno</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">NOTHING</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L378-L721"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe" title="Link to this definition"></a></dt>
+<dd><p>Bases: <a class="reference internal" href="../sleepeegpy.base.BaseHypnoPipe.html#sleepeegpy.base.BaseHypnoPipe" title="sleepeegpy.base.BaseHypnoPipe"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseHypnoPipe</span></code></a>, <a class="reference internal" href="../sleepeegpy.base.SpectrumPlots.html#sleepeegpy.base.SpectrumPlots" title="sleepeegpy.base.SpectrumPlots"><code class="xref py py-class docutils literal notranslate"><span class="pre">SpectrumPlots</span></code></a></p>
 <p>The spectral analyses pipeline element.</p>
 <p>Contains methods for computing and plotting PSD,
 spectrogram and topomaps per sleep stage.</p>
 <blockquote class="epigraph">
 <div><p><strong>Methods:</strong></p>
 </div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.compute_psd" title="sleepeegpy.pipeline.SpectralPipe.compute_psd"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_psd</span></code></a></p></td>
-<td><p>For each sleep stage creates a <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.SpectrumArray.html#mne.time_frequency.SpectrumArray" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.SpectrumArray</span></code></a> object.</p></td>
+<td><p>For each sleep stage creates a <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.SpectrumArray.html#mne.time_frequency.SpectrumArray" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.SpectrumArray</span></code></a> object.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.interpolate_bads" title="sleepeegpy.pipeline.SpectralPipe.interpolate_bads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">interpolate_bads</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.parametrize" title="sleepeegpy.pipeline.SpectralPipe.parametrize"><code class="xref py py-obj docutils literal notranslate"><span class="pre">parametrize</span></code></a></p></td>
 <td><p>Spectral parametrization by <a class="reference external" href="https://fooof-tools.github.io/fooof/index.html" title="(in fooof v1.1.0)"><span>FOOOF - fitting oscillations &amp; one over f</span></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot" title="sleepeegpy.pipeline.SpectralPipe.plot"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram" title="sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_hypnospectrogram</span></code></a></p></td>
 <td><p>Plots hypnogram and spectrogram.</p></td>
@@ -256,7 +130,7 @@ spectrogram and topomaps per sleep stage.</p>
 <td><p>Plot PSD per sleep stage.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_sensors" title="sleepeegpy.pipeline.SpectralPipe.plot_sensors"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_sensors</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap" title="sleepeegpy.pipeline.SpectralPipe.plot_topomap"><code class="xref py py-obj docutils literal notranslate"><span class="pre">plot_topomap</span></code></a></p></td>
 <td><p>Plots topomap for a sleep stage and a frequency band.</p></td>
@@ -274,25 +148,23 @@ spectrogram and topomaps per sleep stage.</p>
 <td><p>Saves SleepSpectrum objects to h5 files.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.save_raw" title="sleepeegpy.pipeline.SpectralPipe.save_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_raw</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.set_eeg_reference" title="sleepeegpy.pipeline.SpectralPipe.set_eeg_reference"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_eeg_reference</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.sleep_stats" title="sleepeegpy.pipeline.SpectralPipe.sleep_stats"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sleep_stats</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.5)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
 <blockquote class="epigraph">
 <div><p><strong>Attributes:</strong></p>
 </div></blockquote>
-<div class="table-wrapper autosummary longtable docutils container">
 <table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.mne_raw" title="sleepeegpy.pipeline.SpectralPipe.mne_raw"><code class="xref py py-obj docutils literal notranslate"><span class="pre">mne_raw</span></code></a></p></td>
-<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a> or <a class="reference external" href="https://mne.tools/stable/generated/mne.Epochs.html#mne.Epochs" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.Epochs</span></code></a>.</p></td>
+<td><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a> or <a class="reference external" href="https://mne.tools/stable/generated/mne.Epochs.html#mne.Epochs" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.Epochs</span></code></a>.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.fooofs" title="sleepeegpy.pipeline.SpectralPipe.fooofs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">fooofs</span></code></a></p></td>
 <td><p>Instances of <a class="reference external" href="https://fooof-tools.github.io/fooof/generated/fooof.FOOOF.html#fooof.FOOOF" title="(in fooof v1.1.0)"><code class="docutils literal notranslate"><span class="pre">fooof.FOOOF</span></code></a> per sleep stage.</p></td>
@@ -301,7 +173,7 @@ spectrogram and topomaps per sleep stage.</p>
 <td><p>Calculates percent of data segments annotated as BAD.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.sf" title="sleepeegpy.pipeline.SpectralPipe.sf"><code class="xref py py-obj docutils literal notranslate"><span class="pre">sf</span></code></a></p></td>
-<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p></td>
+<td><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.path_to_hypno" title="sleepeegpy.pipeline.SpectralPipe.path_to_hypno"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_hypno</span></code></a></p></td>
 <td><p>Path to hypnogram.</p></td>
@@ -319,7 +191,7 @@ spectrogram and topomaps per sleep stage.</p>
 <td><p>Preceding pipe that hands over mne_raw object and output_dir.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.path_to_eeg" title="sleepeegpy.pipeline.SpectralPipe.path_to_eeg"><code class="xref py py-obj docutils literal notranslate"><span class="pre">path_to_eeg</span></code></a></p></td>
-<td><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p></td>
+<td><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.output_dir" title="sleepeegpy.pipeline.SpectralPipe.output_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">output_dir</span></code></a></p></td>
 <td><p>Path to the directory where the output will be saved.</p></td>
@@ -329,39 +201,38 @@ spectrogram and topomaps per sleep stage.</p>
 </tr>
 </tbody>
 </table>
-</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.mne_raw">
-<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code></em><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.mne_raw" title="Link to this definition">#</a></dt>
-<dd><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a> or <a class="reference external" href="https://mne.tools/stable/generated/mne.Epochs.html#mne.Epochs" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.Epochs</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">mne_raw</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">Raw</span></code> <span class="pre">|</span> <code class="xref py py-class docutils literal notranslate"><span class="pre">Epochs</span></code></em><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.mne_raw" title="Link to this definition"></a></dt>
+<dd><p>An instanse of <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw</span></code></a> or <a class="reference external" href="https://mne.tools/stable/generated/mne.Epochs.html#mne.Epochs" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.Epochs</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.fooofs">
-<span class="sig-name descname"><span class="pre">fooofs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.fooofs" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">fooofs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></em><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.fooofs" title="Link to this definition"></a></dt>
 <dd><p>Instances of <a class="reference external" href="https://fooof-tools.github.io/fooof/generated/fooof.FOOOF.html#fooof.FOOOF" title="(in fooof v1.1.0)"><code class="docutils literal notranslate"><span class="pre">fooof.FOOOF</span></code></a> per sleep stage.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.compute_psd">
-<span class="sig-name descname"><span class="pre">compute_psd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eeg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_by_annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">psd_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L302-L381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.compute_psd" title="Link to this definition">#</a></dt>
-<dd><p>For each sleep stage creates a <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.SpectrumArray.html#mne.time_frequency.SpectrumArray" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.SpectrumArray</span></code></a> object.</p>
+<span class="sig-name descname"><span class="pre">compute_psd</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sleep_stages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'N1':</span> <span class="pre">1,</span> <span class="pre">'N2':</span> <span class="pre">2,</span> <span class="pre">'N3':</span> <span class="pre">3,</span> <span class="pre">'REM':</span> <span class="pre">4,</span> <span class="pre">'Wake':</span> <span class="pre">0}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reference</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmin</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fmax</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">60</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eeg'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_by_annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">psd_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L404-L485"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.compute_psd" title="Link to this definition"></a></dt>
+<dd><p>For each sleep stage creates a <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.SpectrumArray.html#mne.time_frequency.SpectrumArray" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.SpectrumArray</span></code></a> object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>sleep_stages</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Sleep stages mapping in hypnogram.
 Defaults to {“Wake”: 0, “N1”: 1, “N2”: 2, “N3”: 3, “REM”: 4}.</p></li>
-<li><p><strong>reference</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">UnionType</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>], <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code>]</span>) – Which eeg reference to compute PSD with.
+<li><p><strong>reference</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Which eeg reference to compute PSD with.
 If None, the reference isn’t changed. Defaults to None.</p></li>
 <li><p><strong>fmin</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Lower frequency bound. Defaults to 0.</p></li>
 <li><p><strong>fmax</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – Upper frequency bound. Defaults to 60.</p></li>
-<li><p><strong>picks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Channels to compute spectra for. Refer to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.pick" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.pick()</span></code></a>.
+<li><p><strong>picks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Channels to compute spectra for. Refer to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.pick" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.pick()</span></code></a>.
 Defaults to “eeg”.</p></li>
 <li><p><strong>reject_by_annotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to not use the annotations for the spectra computation.
 Defaults to True.</p></li>
 <li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the spectra in .h5 files. Defaults to False.</p></li>
 <li><p><strong>overwrite</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to overwrite psd files. Defaults to False.</p></li>
-<li><p><strong>**psd_kwargs</strong> – Additional arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.psd_array_welch.html#mne.time_frequency.psd_array_welch" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.psd_array_welch()</span></code></a>.</p></li>
+<li><p><strong>**psd_kwargs</strong> – Additional arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.time_frequency.psd_array_welch.html#mne.time_frequency.psd_array_welch" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.time_frequency.psd_array_welch()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -369,7 +240,7 @@ Defaults to True.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.parametrize">
-<span class="sig-name descname"><span class="pre">parametrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_ch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L406-L434"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.parametrize" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">parametrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">average_ch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L509-L537"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.parametrize" title="Link to this definition"></a></dt>
 <dd><p>Spectral parametrization by <a class="reference external" href="https://fooof-tools.github.io/fooof/index.html" title="(in fooof v1.1.0)"><span>FOOOF - fitting oscillations &amp; one over f</span></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -388,19 +259,19 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.read_spectra">
-<span class="sig-name descname"><span class="pre">read_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L436-L455"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.read_spectra" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">read_spectra</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dirpath</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L539-L558"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.read_spectra" title="Link to this definition"></a></dt>
 <dd><p>Loads spectra stored in hdf5 files.</p>
 <p>Filenames should end with {sleep_stage}-psd.h5</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>dirpath</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Path to the directory containing hdf5 files. Defaults to None.</p>
+<dd class="field-odd"><p><strong>dirpath</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code> | <code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></span>) – Path to the directory containing hdf5 files. Defaults to None.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram">
-<span class="sig-name descname"><span class="pre">plot_hypnospectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('E101',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimperc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">40)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Spectral_r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_by_annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NaN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L457-L548"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_hypnospectrogram</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">('E101',)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">win_sec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">10</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">trimperc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">40)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cmap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'Spectral_r'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overlap</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reject_by_annotation</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'NaN'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L560-L651"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram" title="Link to this definition"></a></dt>
 <dd><p>Plots hypnogram and spectrogram.</p>
 <p>Adapted from YASA.</p>
 <dl class="field-list simple">
@@ -411,15 +282,15 @@ Defaults to False.</p></li>
 Defaults to 30.</p></li>
 <li><p><strong>trimperc</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">float</span></code></span>) – The amount of data to trim on both ends of the distribution
 when normalizing the colormap. Defaults to 2.5.</p></li>
-<li><p><strong>freq_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of x axis on spectrogram plot. Defaults to (0, 40).</p></li>
-<li><p><strong>cmap</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Matplotlib colormap. <a class="reference external" href="https://matplotlib.org/stable/users/explain/colors/colormaps.html" title="(in Matplotlib v3.8.2)"><span>Choosing Colormaps</span></a>.
+<li><p><strong>freq_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of x-axis on spectrogram plot. Defaults to (0, 40).</p></li>
+<li><p><strong>cmap</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Matplotlib colormap. <a class="reference external" href="https://matplotlib.org/stable/users/explain/colors/colormaps.html" title="(in Matplotlib v3.10.0)"><span>Choosing Colormaps in Matplotlib</span></a>.
 Defaults to “Spectral_r”.</p></li>
 <li><p><strong>overlap</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to plot hypnogram over the spectrogram or on top of it.
 Defaults to False.</p></li>
-<li><p><strong>reject_by_annotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-data docutils literal notranslate"><span class="pre">Optional</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – Whether to reject the annotations for the spectrogram computation.
+<li><p><strong>reject_by_annotation</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code> | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Whether to reject the annotations for the spectrogram computation.
 Can be ‘NaN’, ‘omit’ or None. Defaults to ‘NaN’.</p></li>
 <li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
-<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Axes</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
 Defaults to None.</p></li>
 </ul>
 </dd>
@@ -428,7 +299,7 @@ Defaults to None.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.bad_data_percent">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad_data_percent</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.bad_data_percent" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">bad_data_percent</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.bad_data_percent" title="Link to this definition"></a></dt>
 <dd><p>Calculates percent of data segments annotated as BAD.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
@@ -442,19 +313,19 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.interpolate_bads">
-<span class="sig-name descname"><span class="pre">interpolate_bads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">interp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L100-L117"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.interpolate_bads" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p>
+<span class="sig-name descname"><span class="pre">interpolate_bads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">interp_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L100-L119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.interpolate_bads" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a></p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>**interp_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a>.</p>
+<dd class="field-odd"><p><strong>**interp_kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.interpolate_bads" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.interpolate_bads()</span></code></a>.</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot">
-<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L125-L152"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">plot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_annotations</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save_bad_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L127-L154"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -462,7 +333,7 @@ Defaults to None.</p></li>
 <li><p><strong>save_bad_channels</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save bad channels as txt. Defaults to False.</p></li>
 <li><p><strong>overwrite</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to overwrite annotations and bad_channels files if exist.
 Defaults to False.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.plot" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.plot()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -470,23 +341,23 @@ Defaults to False.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot_psds">
-<span class="sig-name descname"><span class="pre">plot_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-40,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_sensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L795-L909"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_psds" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">picks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">psd_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(-40,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq_range</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">(0,</span> <span class="pre">60)</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xscale</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">plot_sensors</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">plot_kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L798-L912"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_psds" title="Link to this definition"></a></dt>
 <dd><p>Plot PSD per sleep stage.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>picks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Channels to plot PSDs for. Refer to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.pick" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.pick()</span></code></a>.</p></li>
+<li><p><strong>picks</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>] | <code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Channels to plot PSDs for. Refer to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.pick" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.pick()</span></code></a>.</p></li>
 <li><p><strong>psd_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of y axis on PSD plot. Defaults to (-40, 60).</p></li>
 <li><p><strong>freq_range</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">tuple</span></code></span>) – Range of x axis on PSD plot. Defaults to (0, 40).</p></li>
 <li><p><strong>dB</strong> – Whether transform PSD to dB. Defaults to True.</p></li>
 <li><p><strong>xscale</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Scale of the X axis, check available values at
-<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xscale.html#matplotlib.axes.Axes.set_xscale" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.set_xscale()</span></code></a>. Defaults to “linear”.</p></li>
-<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+<a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.set_xscale.html#matplotlib.axes.Axes.set_xscale" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.set_xscale()</span></code></a>. Defaults to “linear”.</p></li>
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
 Defaults to None.</p></li>
 <li><p><strong>plot_sensors</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to plot sensor map showing which channels were used for
 computing PSD. Defaults to False.</p></li>
 <li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
-<li><p><strong>**plot_kwargs</strong> – Arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code></a>.
+<li><p><strong>**plot_kwargs</strong> – Arguments passed to the <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.plot.html#matplotlib.pyplot.plot" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.plot()</span></code></a>.
 Have no effect if axis is provided.Defaults to None.</p></li>
 </ul>
 </dd>
@@ -495,15 +366,15 @@ Have no effect if axis is provided.Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot_sensors">
-<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L154-L196"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_sensors" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p>
+<span class="sig-name descname"><span class="pre">plot_sensors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">legend</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legend_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L156-L198"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_sensors" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a> with a legend.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>legend</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">Iterable</span></code>[<code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code>]</span>) – ch_groups names to connect to colors. Defaults to None.</p></li>
-<li><p><strong>legend_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.legend()</span></code></a>.
+<li><p><strong>legend_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.legend.html#matplotlib.axes.Axes.legend" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes.legend()</span></code></a>.
 Defaults to None.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a>.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_sensors.html#mne.viz.plot_sensors" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_sensors()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -511,7 +382,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot_topomap">
-<span class="sig-name descname"><span class="pre">plot_topomap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'REM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Delta':</span> <span class="pre">(0,</span> <span class="pre">4)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L911-L985"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_topomap</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stage</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'REM'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">band</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Delta':</span> <span class="pre">(0,</span> <span class="pre">4)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">axis</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L914-L988"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap" title="Link to this definition"></a></dt>
 <dd><p>Plots topomap for a sleep stage and a frequency band.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -521,11 +392,11 @@ Defaults to None.</p></li>
 and value=(l_freq, h_freq).
 Defaults to {“Delta”: (0, 4)}.</p></li>
 <li><p><strong>dB</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether transform PSD to dB. Defaults to False.</p></li>
-<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
+<li><p><strong>axis</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">axis</span></code></span>) – Instance of <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.axes.Axes.html#matplotlib.axes.Axes" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.axes.Axes</span></code></a>.
 Defaults to None.</p></li>
 <li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
-<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.Defaults to None.</p></li>
-<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.Defaults to None.</p></li>
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.Defaults to None.</p></li>
 </ul>
 </dd>
 </dl>
@@ -533,7 +404,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.plot_topomap_collage">
-<span class="sig-name descname"><span class="pre">plot_topomap_collage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Alpha':</span> <span class="pre">(8,</span> <span class="pre">12.49),</span> <span class="pre">'Beta':</span> <span class="pre">(12.5,</span> <span class="pre">29.99),</span> <span class="pre">'Delta':</span> <span class="pre">(0,</span> <span class="pre">3.99),</span> <span class="pre">'Gamma':</span> <span class="pre">(30,</span> <span class="pre">60),</span> <span class="pre">'Sigma':</span> <span class="pre">(12.5,</span> <span class="pre">15),</span> <span class="pre">'Theta':</span> <span class="pre">(4,</span> <span class="pre">7.99)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L987-L1116"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap_collage" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">plot_topomap_collage</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">stages_to_plot</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'all'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bands</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">{'Alpha':</span> <span class="pre">(8,</span> <span class="pre">12.49),</span> <span class="pre">'Beta':</span> <span class="pre">(12.5,</span> <span class="pre">29.99),</span> <span class="pre">'Delta':</span> <span class="pre">(0,</span> <span class="pre">3.99),</span> <span class="pre">'Gamma':</span> <span class="pre">(30,</span> <span class="pre">60),</span> <span class="pre">'Sigma':</span> <span class="pre">(12.5,</span> <span class="pre">15),</span> <span class="pre">'Theta':</span> <span class="pre">(4,</span> <span class="pre">7.99)}</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dB</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">low_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">high_percentile</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">95</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topomap_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cbar_args</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L990-L1119"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap_collage" title="Link to this definition"></a></dt>
 <dd><p>Plots topomap collage for multiple sleep stages and bands.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -555,9 +426,9 @@ Defaults to 5.</p></li>
 Defaults to 95.</p></li>
 <li><p><strong>fig</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">figure</span></code></span>) – Instance of <code class="xref py py-class docutils literal notranslate"><span class="pre">mpl:matplotlib.pyplot.figure</span></code>. Defaults to None.</p></li>
 <li><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the figure. Defaults to False.</p></li>
-<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.
+<li><p><strong>topomap_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.viz.plot_topomap.html#mne.viz.plot_topomap" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.viz.plot_topomap()</span></code></a>.
 Defaults to None.</p></li>
-<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.8.2)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
+<li><p><strong>cbar_args</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">dict</span></code></span>) – Arguments passed to <a class="reference external" href="https://matplotlib.org/stable/api/_as_gen/matplotlib.pyplot.colorbar.html#matplotlib.pyplot.colorbar" title="(in Matplotlib v3.10.0)"><code class="docutils literal notranslate"><span class="pre">matplotlib.pyplot.colorbar()</span></code></a>.
 Defaults to None.</p></li>
 </ul>
 </dd>
@@ -566,7 +437,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.predict_hypno">
-<span class="sig-name descname"><span class="pre">predict_hypno</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eeg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E183'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eog_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E252'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E247'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E26'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L314-L353"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.predict_hypno" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">predict_hypno</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">eeg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E183'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">eog_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E252'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">emg_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E247'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ref_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'E26'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L316-L355"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.predict_hypno" title="Link to this definition"></a></dt>
 <dd><p>Runs YASA’s automatic sleep staging.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -583,7 +454,7 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.save_psds">
-<span class="sig-name descname"><span class="pre">save_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L1118-L1132"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.save_psds" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">save_psds</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">overwrite</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L1121-L1135"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.save_psds" title="Link to this definition"></a></dt>
 <dd><p>Saves SleepSpectrum objects to h5 files.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
@@ -594,13 +465,13 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.save_raw">
-<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L198-L207"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.save_raw" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">save_raw</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">fname</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L200-L209"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.save_raw" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
 <li><p><strong>fname</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">str</span></code></span>) – Filename for the fif file being saved.</p></li>
-<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></li>
+<li><p><strong>**kwargs</strong> – Arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.save" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.save()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -608,14 +479,14 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.set_eeg_reference">
-<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L209-L222"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.set_eeg_reference" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">set_eeg_reference</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ref_channels</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'average'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">projection</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L211-L224"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.set_eeg_reference" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>ref_channels</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ref_channels</span></code></a>. Defaults to ‘average’.</p></li>
-<li><p><strong>projection</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projection</span></code></a>. Defaults to False.</p></li>
-<li><p><strong>**kwargs</strong> – Additional arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></li>
+<li><p><strong>ref_channels</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.9)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">ref_channels</span></code></a>. Defaults to ‘average’.</p></li>
+<li><p><strong>projection</strong> – <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.9)"><code class="xref py py-meth docutils literal notranslate"><span class="pre">projection</span></code></a>. Defaults to False.</p></li>
+<li><p><strong>**kwargs</strong> – Additional arguments passed to <a class="reference external" href="https://mne.tools/stable/generated/mne.io.Raw.html#mne.io.Raw.set_eeg_reference" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.Raw.set_eeg_reference()</span></code></a>.</p></li>
 </ul>
 </dd>
 </dl>
@@ -623,8 +494,8 @@ Defaults to None.</p></li>
 
 <dl class="py property">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.sf">
-<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.sf" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.6)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p>
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">sf</span></span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.sf" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://mne.tools/stable/generated/mne.Info.html#mne.Info" title="(in MNE v1.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">raw.info[&quot;sfreq&quot;]</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>sampling frequency</p>
@@ -637,8 +508,8 @@ Defaults to None.</p></li>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.sleep_stats">
-<span class="sig-name descname"><span class="pre">sleep_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L355-L379"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.sleep_stats" title="Link to this definition">#</a></dt>
-<dd><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.3)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">sleep_stats</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference external" href="https://github.com/NirLab-TAU/sleepeegpy/blob/main/sleepeegpy/pipeline.py#L357-L381"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.sleep_stats" title="Link to this definition"></a></dt>
+<dd><p>A wrapper for <a class="reference external" href="https://raphaelvallat.com/yasa/build/html/generated/yasa.sleep_statistics.html#yasa.sleep_statistics" title="(in yasa v0.6.5)"><code class="docutils literal notranslate"><span class="pre">yasa.sleep_statistics()</span></code></a>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>save</strong> (<span class="sphinx_autodoc_typehints-type"><code class="xref py py-class docutils literal notranslate"><span class="pre">bool</span></code></span>) – Whether to save the stats to csv. Defaults to False.</p>
@@ -648,14 +519,14 @@ Defaults to None.</p></li>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.path_to_hypno">
-<span class="sig-name descname"><span class="pre">path_to_hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.path_to_hypno" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">path_to_hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.path_to_hypno" title="Link to this definition"></a></dt>
 <dd><p>Path to hypnogram. Must be text file with every
 row being int representing sleep stage for the epoch.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.hypno_freq">
-<span class="sig-name descname"><span class="pre">hypno_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno_freq" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hypno_freq</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno_freq" title="Link to this definition"></a></dt>
 <dd><p>Sampling rate of the hypnogram in Hz.</p>
 <p>E.g., 1/30 means 1 sample per 30 secs epoch,
 250 means 1 sample per 1/250 sec epoch.</p>
@@ -663,38 +534,38 @@ row being int representing sleep stage for the epoch.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.hypno">
-<span class="sig-name descname"><span class="pre">hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hypno</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.ndarray</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno" title="Link to this definition"></a></dt>
 <dd><p>Hypnogram with sampling frequency hypno_freq
 with int representing sleep stage.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.hypno_up">
-<span class="sig-name descname"><span class="pre">hypno_up</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.array</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno_up" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">hypno_up</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">np.array</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.hypno_up" title="Link to this definition"></a></dt>
 <dd><p>Hypnogram upsampled to the sampling frequency of the raw data.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.prec_pipe">
-<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type[BasePipeType]</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.prec_pipe" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">prec_pipe</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Type[BasePipeType]</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.prec_pipe" title="Link to this definition"></a></dt>
 <dd><p>Preceding pipe that hands over mne_raw object and output_dir.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.path_to_eeg">
-<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.path_to_eeg" title="Link to this definition">#</a></dt>
-<dd><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.6)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p>
+<span class="sig-name descname"><span class="pre">path_to_eeg</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.path_to_eeg" title="Link to this definition"></a></dt>
+<dd><p>Can be any eeg file type supported by <a class="reference external" href="https://mne.tools/stable/generated/mne.io.read_raw.html#mne.io.read_raw" title="(in MNE v1.9)"><code class="docutils literal notranslate"><span class="pre">mne.io.read_raw()</span></code></a>.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.output_dir">
-<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.output_dir" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">output_dir</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Path</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.output_dir" title="Link to this definition"></a></dt>
 <dd><p>Path to the directory where the output will be saved.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="sleepeegpy.pipeline.SpectralPipe.psds">
-<span class="sig-name descname"><span class="pre">psds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.psds" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">psds</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span></em><a class="headerlink" href="#sleepeegpy.pipeline.SpectralPipe.psds" title="Link to this definition"></a></dt>
 <dd><p>Instances of <code class="xref py py-class docutils literal notranslate"><span class="pre">SleepSpectrum</span></code> per sleep stage.</p>
 </dd></dl>
 
@@ -702,106 +573,35 @@ with int representing sleep stage.</p>
 
 </section>
 
-        </article>
-      </div>
-      <footer>
-        
-        <div class="related-pages">
-          <a class="next-page" href="sleepeegpy.pipeline.SpindlesPipe.html">
-              <div class="page-info">
-                <div class="context">
-                  <span>Next</span>
-                </div>
-                <div class="title">SpindlesPipe</div>
-              </div>
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-            </a>
-          <a class="prev-page" href="sleepeegpy.pipeline.ICAPipe.html">
-              <svg class="furo-related-icon"><use href="#svg-arrow-right"></use></svg>
-              <div class="page-info">
-                <div class="context">
-                  <span>Previous</span>
-                </div>
-                
-                <div class="title">ICAPipe</div>
-                
-              </div>
-            </a>
-        </div>
-        <div class="bottom-of-page">
-          <div class="left-details">
-            <div class="copyright">
-                Copyright &#169; 2023, Yuval Nir lab
-            </div>
-            Made with <a href="https://www.sphinx-doc.org/">Sphinx</a> and <a class="muted-link" href="https://pradyunsg.me">@pradyunsg</a>'s
-            
-            <a href="https://github.com/pradyunsg/furo">Furo</a>
-            
-          </div>
-          <div class="right-details">
-            
-          </div>
-        </div>
-        
-      </footer>
-    </div>
-    <aside class="toc-drawer">
-      
-      
-      <div class="toc-sticky toc-scroll">
-        <div class="toc-title-container">
-          <span class="toc-title">
-            On this page
-          </span>
-        </div>
-        <div class="toc-tree-container">
-          <div class="toc-tree">
-            <ul>
-<li><a class="reference internal" href="#">SpectralPipe</a><ul>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe"><code class="docutils literal notranslate"><span class="pre">SpectralPipe</span></code></a><ul>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.mne_raw"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.mne_raw</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.fooofs"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.fooofs</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.compute_psd"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.compute_psd()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.parametrize"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.parametrize()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.read_spectra"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.read_spectra()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_hypnospectrogram"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot_hypnospectrogram()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.bad_data_percent"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.bad_data_percent</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.interpolate_bads"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.interpolate_bads()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_psds"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot_psds()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_sensors"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot_sensors()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot_topomap()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.plot_topomap_collage"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.plot_topomap_collage()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.predict_hypno"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.predict_hypno()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.save_psds"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.save_psds()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.save_raw"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.save_raw()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.set_eeg_reference"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.set_eeg_reference()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.sf"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.sf</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.sleep_stats"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.sleep_stats()</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.path_to_hypno"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.path_to_hypno</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.hypno_freq"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.hypno_freq</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.hypno"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.hypno</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.hypno_up"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.hypno_up</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.prec_pipe"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.prec_pipe</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.path_to_eeg"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.path_to_eeg</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.output_dir"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.output_dir</span></code></a></li>
-<li><a class="reference internal" href="#sleepeegpy.pipeline.SpectralPipe.psds"><code class="docutils literal notranslate"><span class="pre">SpectralPipe.psds</span></code></a></li>
-</ul>
-</li>
-</ul>
-</li>
-</ul>
 
+           </div>
           </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="sleepeegpy.pipeline.ICAPipe.html" class="btn btn-neutral float-left" title="ICAPipe" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="sleepeegpy.pipeline.SpindlesPipe.html" class="btn btn-neutral float-right" title="SpindlesPipe" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2023, Yuval Nir lab.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
         </div>
       </div>
-      
-      
-    </aside>
+    </section>
   </div>
-</div><script src="../_static/documentation_options.js?v=5929fcd5"></script>
-    <script src="../_static/doctools.js?v=888ff710"></script>
-    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
-    <script src="../_static/scripts/furo.js?v=32e29ea5"></script>
-    </body>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
 </html>
