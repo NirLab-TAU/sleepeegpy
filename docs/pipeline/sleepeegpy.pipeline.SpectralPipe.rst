@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |SpectralPipe|
+
+
 .. autoclass:: SpectralPipe
    :members:
    :show-inheritance:

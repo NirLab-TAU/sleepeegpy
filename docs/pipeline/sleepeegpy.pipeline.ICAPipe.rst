@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |ICAPipe|
+
+
 .. autoclass:: ICAPipe
    :members:
    :show-inheritance:

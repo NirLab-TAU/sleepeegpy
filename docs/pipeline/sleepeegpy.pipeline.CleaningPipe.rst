@@ -3,6 +3,10 @@
 
 .. currentmodule:: sleepeegpy.pipeline
 
+.. tip::
+      |CleaningPipe|
+
+
 .. autoclass:: CleaningPipe
    :members:
    :show-inheritance:
