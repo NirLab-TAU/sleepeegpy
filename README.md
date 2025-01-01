@@ -1,4 +1,6 @@
-# sleepeegpy
+<p align="center">
+  <img src="logo.png" alt="Logo" style="width:50%;">
+</p>
 
 **sleepeegpy** is a high-level package built on top of [MNE-python](https://mne.tools/stable/index.html), [yasa](https://raphaelvallat.com/yasa/build/html/index.html), [PyPREP](https://pyprep.readthedocs.io/en/latest/) and [specparam (fooof)](https://fooof-tools.github.io/fooof/) for preprocessing, analysis, and visualization of sleep EEG data.
 
