@@ -32,25 +32,8 @@ Additionally, detailed [documentation](https://nirlab-tau.github.io/sleepeegpy/)
 For overnight, high-density (256 channels) EEG recordings downsampled to 250 Hz expect at least 64 GB RAM expenditure for cleaning, spectral analyses, and event detection.
 
 ## Citation
-* Belonosov, G., Falach, R., Schmidig, J.F., Aderka, M., Zhelezniakov, V., Shani-Hershkovich, R., Bar, E., Nir, Y. "SleepEEGpy: a Python-based software “wrapper” package to organize preprocessing, analysis, and visualization of sleep EEG data." bioRxiv (2023). doi: https://doi.org/10.1101/2023.12.17.572046
-* Belonosov, G., Falach, R., Schmidig, F., Aderka, M., Zhelezniakov, V., Shani-Hershkovich, R., Bar, E., & Nir, Y. (2024). SleepEEGpy: A Python-based package for preprocessing, analysis, and visualization of sleep EEG data [Dataset]. Zenodo. https://doi.org/10.5281/ZENODO.13903088
-  
-## Troubleshooting
-
-<details>
-<summary>Installation error on macOS - `libomp` not found</summary>
-
-If you encounter the following error when installing `sleepeegpy` on macOS:
-
-```bash
-ERROR: Could not find a version that satisfies the requirement libomp (from versions: none)
-ERROR: No matching distribution found for libomp
-```
-You can resolve this by running:
-```bash
-brew install cmake libomp
-pip install lightgbm
-pip install sleepeegpy
-```
-</details> 
-
+- **Paper**\
+  Falach, R., G. Belonosov, J. F. Schmidig, M. Aderka, V. Zhelezniakov, R. Shani-Hershkovich, E. Bar, and Y. Nir. "SleepEEGpy: a Python-based software integration package to organize preprocessing, analysis, and visualization of sleep EEG data." Computers in Biology and Medicine 192 (2025): 110232.\
+  https://doi.org/10.1016/j.compbiomed.2025.110232
+- **Dataset**\
+  https://doi.org/10.5281/ZENODO.10362189.
