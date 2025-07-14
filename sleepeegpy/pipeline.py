@@ -81,7 +81,7 @@ class CleaningPipe(BasePipe):
             if freqs == "50s":
                 freqs = np.arange(50, int(self.sf / 2), 50)
             elif freqs == "60s":
-                freqs = np.arange(50, int(self.sf / 2), 50)
+                freqs = np.arange(60, int(self.sf / 2), 60)
             else:
                 raise ValueError(f"Unsupported frequency: {freqs}")
         self.mne_raw.load_data().notch_filter(freqs=freqs, **notch_kwargs)
